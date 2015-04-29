@@ -1,0 +1,357 @@
+
+
+/* SaveTube Changelog */
+
+
+#2015.04.29
+- fixes YouTube
+
+#2015.04.25
+- fixes Facebook
+
+#2015.04.14
+- fixes age-restricted YouTube videos
+
+#2015.04.10
+- add buttons tooltips
+
+#2015.04.01
+- fixes Break
+
+#2015.02.13
+- fixes YouTube
+
+#2015.02.08
+- fixes age-restricted YouTube videos
+
+#2015.01.27
+- fixes YouTube
+
+#2015.01.16
+- fixes age-restricted YouTube videos
+
+#2015.01.07
+- adds new YouTube UHD DASH streams
+
+#2014.12.14
+- fixes YouTube & Dailymotion
+
+#2014.11.13
+- fixes YouTube signature decryption
+
+#2014.11.04
+- adds YouTube 60 FPS DASH streams
+- adds support for Videojug series
+
+#2014.10.17
+- fixes download for YouTube DASH
+
+#2014.10.14
+- fixes Break
+
+#2014.10.04
+- fixes Viki
+
+#2014.09.24
+- fixes IMDb
+
+#2014.09.19
+- fixes FunnyOrDie
+
+#2014.09.11
+- fixes Dailymotion
+
+#2014.09.06
+- fixes Videojug
+
+#2014.08.30
+- fixes Facebook, Yahoo Screen
+
+#2014.08.20
+- fixes MetaCafe
+
+#2014.08.19
+- adds support for Vimeo albums
+
+#2014.08.18
+- fixes Blip
+
+#2014.08.17
+- adds support for watching age-restricted YouTube videos without signing in
+
+#2014.08.08
+- fixes Crackle and Yahoo Screen
+
+#2014.08.02
+- adds support for Vimeo channels
+
+#2014.07.24
+- fixes YouTube signature decryption
+
+#2014.07.11
+- adds YouTube DASH WebM/VP9 videos
+
+#2014.07.10
+- fixes options setting
+
+#2014.07.06
+- fixes Break and Crackle
+
+#2014.07.01
+- fixes Yahoo Screen
+
+#2014.06.19
+- fixes YouTube signature decryption
+
+#2014.06.09
+- drops support for Mevio, site closed down
+
+#2014.06.08
+- adds support for Yahoo Screen
+
+#2014.06.06
+- fixes YouTube DASH streams
+
+#2014.05.29
+- adds support for Greasemonkey storage
+
+#2014.05.28
+- adds support for Viki
+
+#2014.05.25
+- fixes YouTube Live
+
+#2014.04.10
+- fixes Faceboook
+
+#2014.04.05
+- style changes
+
+#2014.03.26
+- fixes FunnyOrDie
+
+#2014.03.22
+- fixes Crackle
+
+#2014.03.15
+- adds support for Dailymotion live videos (HLS/M3U8)
+
+#2014.03.11
+- fixes YouTube signature decryption
+
+#2014.03.03
+- fixes YouTube issues
+
+#2014.02.23
+- adds support for IMDb and Faceboook videos
+
+#2014.02.21
+- fixes Videojug
+
+#2014.02.10
+- fixes YouTube signature decryption for non GM compatible browsers and extensions
+
+#2014.02.04
+- fixes YouTube signature decryption
+
+#2014.01.30
+- fixes YouTube signature decryption for non GM compatible browsers and extensions
+
+#2014.01.27
+- adds support for YouTube Live (HLS) videos
+
+#2014.01.25
+- fixes YouTube signature decryption for non GM compatible browsers and extensions
+
+#2014.01.20
+- fixes YouTube Feather and pages loading issues
+
+#2014.01.16
+- adds automatic YouTube signature decryption for Chrome with or without Tampermonkey and Opera with Violentmonkey
+
+#2014.01.12
+- adds automatic YouTube signature decryption for Greasemonkey
+
+#2014.01.10
+- fixes YouTube signature decryption
+
+#2013.11.11
+- adds YouTube MP4 video only 480+ definitions and MP4/WebM audio only
+
+#2013.11.06
+- fixes YouTube signature decryption
+
+#2013.10.25
+- fixes Vimeo
+
+#2013.10.23
+- fixes YouTube
+
+#2013.10.21
+- adds support for downloading YouTube audio
+
+#2013.09.25
+- fixes YouTube
+- fixes FunnyOrDie, website has changed
+
+#2013.08.15
+- fixes Dailymotion
+- adds downloadURL and updateURL metadata
+
+#2013.08.14
+- fixes YouTube
+- fixes Break
+
+#2013.07.05
+-fixes Dailymotion
+
+#2013.06.30
+- adss support for Crackle
+
+#2013.06.27
+- fixed for VEVO videos on YouTube
+
+#2013.06.16
+- fixes MetaCafe when Flash is disabled but only if the video is MP4/H264
+- fixes YouTube embedded links on Break
+- fixes FunnyOrDie, web site has changed
+
+#2013.05.21
+- adds support for Blip private videos
+
+#2013.04.10
+- fixes saver size for Break
+
+#2013.03.29
+- fixes saver size and position for MetaCafe's new layout
+- fixes Blip, web site has changed
+
+#2013.03.28
+- fixes Dailymotion, previous version's videos URL don't work anymore
+
+#2013.03.21
+- fixes YouTube, web site has changed
+
+#2013.02.13
+- adds support for Dailymotion FLV videos
+
+#2013.02.12
+- fixes Dailymotion, web site has changed
+- fixes Blip for some videos
+
+#2013.01.15
+- adds support for YouTube's Ultra HD (4K) videos
+
+#2012.12.30
+- fixes Dailymotion, FunnyOrDie and Blip, download panel was not displayed correctly
+
+#2012.12.19
+- fixes YouTube, video urls have changed
+
+#2012.12.07
+- drops support for 5min, it was bought by AOL
+- fixes Blip, the site has changed
+- adds support for Mevio
+
+#2012.11.13
+Vimeo:
+-> Fixed for web site changes.
+
+#2012.11.05
+Script:
+-> Fixes the localStorage error when cookies are disabled in Firefox browsers.
+
+#2012.11.01
+Break:
+-> Changes the saver window size for wide screens.
+Veoh:
+-> Script won't load if the video is not available.
+-> Adds the fullsize feature.
+-> Adds a link to the video page for YouTube embedded videos.
+
+#2012.10.28
+Script:
+-> Saves settings using localStorage instead of cookies.
+-> Fixes video selection when using the definition and container option buttons.
+Break:
+-> Adds Low Definition (3XX) MP4 videos.
+
+#2012.10.21
+Script:
+-> Fixes definition and container settings when the default options (HD MP4) are not available.
+
+#2012.10.20
+YouTube:
+-> Adds support for the "Feather" layout from youtube.com/testtube.
+Blip:
+-> Fixed for some browsers.
+Veoh:
+-> Available videos: Very Low Definition (2XX) MP4 and Low Definition (3XX) MP4.
+
+#2012.10.16
+Break:
+-> Fixed for the new layout.
+-> Available video: Low Definition (3XX) FLV.
+-> Link to YouTube embedded videos.
+
+#2012.10.15
+YouTube:
+-> Adds support for the new layout.
+
+#2012.10.11
+Script:
+-> You can choose the default video definition and container from all available definitions and containers for each video site.
+
+#2012.09.29
+Script:
+-> Adds support for 5min, Videojug and Veoh video sharing web sites.
+
+#2012.09.20
+Script:
+-> Adds support for Internet Explorer 7-9 using IE7Pro.
+YouTube:
+-> Adds Very Low Definition (1XX) 3GP and Low Definition (2XX) 3GP videos (MPEG4/ASP+AAC).
+
+#2012.09.15
+YouTube:
+-> Fixed for video URLs changes.
+
+#2012.09.11
+Script: 
+-> Fixes empty first element in video menu for some browsers.
+YouTube:
+-> Shows a message when the video uses the RTMP protocol.
+Dailymotion:
+-> Adds Very Low Definition video, when available.
+Break: 
+-> Replaces embedded videos from YouTube with a link to the video page.
+FunnyOrDie: 
+-> Fixed for web site changes. 
+Blip: 
+-> Fixed for web site changes.
+
+#2012.08.23
+MetaCafe:
+-> Fixed for web site changes.
+-> Adds LD FLV when available.
+
+#2012.04.27 
+Script: 
+-> Adds support for FunnyOrDie and BlipTV.
+
+#2012.04.21 
+Vimeo: 
+-> Fixed for the new layout. 
+-> Available videos: HD (720p) MP4, LD (360p) MP4, VLD (270p) MP4.
+
+#2012.04.17
+Script:
+-> Adds support for MetaCafe, Vimeo and Break.
+
+#2012.04.15
+Script:
+-> Adds support for Dailymotion.
+
+#2012.04.14
+Script:
+-> Adds support for YouTube.
