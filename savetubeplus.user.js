@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name		SaveTube+
-// @version		2014.12.05
+// @version		2015.05.24
 // @description		Download videos from web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
-// @downloadURL		http://isebaro.com/savetube/include/files/savetubeplus.user.js
-// @updateURL		http://isebaro.com/savetube/include/files/savetubeplus.user.js
+// @downloadURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetubeplus.user.js
+// @updateURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetubeplus.user.js
 // @icon		http://s3.amazonaws.com/uso_ss/icon/130917/large.png
 // @include		*
 // @grant		none
@@ -14,7 +14,7 @@
 
 /*
   
-  Copyright (C) 2011 - 2014 Sebastian Luncan
+  Copyright (C) 2014 - 2015 Sebastian Luncan
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

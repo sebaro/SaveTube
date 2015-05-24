@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.04.29
+// @version		2015.05.24
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
-// @downloadURL		http://isebaro.com/savetube/include/files/savetube.user.js
-// @updateURL		http://isebaro.com/savetube/include/files/savetube.user.js
+// @downloadURL		https://raw.githubusercontent.com/sebaro/saveTube/master/savetube.user.js
+// @updateURL		https://raw.githubusercontent.com/sebaro/saveTube/master/savetube.user.js
 // @icon		http://s3.amazonaws.com/uso_ss/icon/130917/large.png
 // @include		http://youtube.com*
 // @include		http://www.youtube.com*
