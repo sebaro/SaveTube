@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.05.24
+// @version		2015.05.27
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -551,6 +551,12 @@ page.win.setInterval(function() {
     if (nurl.indexOf('youtube.com') != -1) {
       if (nurl.indexOf('youtube.com/watch') != -1) page.win.location.href = nurl;
     }
+    // Dailymotion
+    else if (nurl.indexOf('dailymotion.com') != -1) {
+      if (nurl.indexOf('dailymotion.com/playlist') != -1) {
+	location.reload();
+      }
+    }
     // Facebook
     else if (nurl.indexOf('facebook.com') != -1) {
       if (nurl.match('facebook.com/(video.php|.*/videos/)')) {
@@ -894,16 +900,19 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 
 // =====DailyMotion===== //
 
-else if (page.url.indexOf('dailymotion.com/video') != -1) {
+else if (page.url.indexOf('dailymotion.com/video') != -1 || page.url.indexOf('dailymotion.com/playlist') != -1) {
 
   /* Get Player Window */
   var dmPlayerWindow = getMyElement ('', 'div', 'class', 'js-player-box', 0, false);
+  if (!dmPlayerWindow) dmPlayerWindow = getMyElement ('', 'div', 'id', 'player_container', -1, false);
   if (!dmPlayerWindow) {
     showMyMessage ('!player');
   }
   else {
     /* Get Videos Content */
-    var dmEmbed = page.url.replace(/\/video\//, "/embed/video/");
+    var dmEmbed;
+    if (page.url.indexOf('dailymotion.com/video') != -1) dmEmbed = page.url.replace(/\/video\//, "/embed/video/");
+    else dmEmbed = page.url.replace(/playlist.*=/, "embed/video/");
     dmVideosContent = getMyContent (dmEmbed, 'info\\s+=\\s+\\{(.*)\\},', false);
 
     /* Get Videos */
