@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.05.27
+// @version		2015.07.28
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -553,7 +553,7 @@ page.win.setInterval(function() {
     }
     // Dailymotion
     else if (nurl.indexOf('dailymotion.com') != -1) {
-      if (nurl.indexOf('dailymotion.com/playlist') != -1) {
+      if (nurl.indexOf('dailymotion.com/playlist') != -1 && nurl.indexOf('#video=') != -1) {
 	location.reload();
       }
     }
@@ -913,18 +913,17 @@ else if (page.url.indexOf('dailymotion.com/video') != -1 || page.url.indexOf('da
     var dmEmbed;
     if (page.url.indexOf('dailymotion.com/video') != -1) dmEmbed = page.url.replace(/\/video\//, "/embed/video/");
     else dmEmbed = page.url.replace(/playlist.*=/, "embed/video/");
-    dmVideosContent = getMyContent (dmEmbed, 'info\\s+=\\s+\\{(.*)\\},', false);
+    dmVideosContent = getMyContent (dmEmbed, '"qualities":\\{(.*?)\\]\\},', false);
 
     /* Get Videos */
     if (dmVideosContent) {
-      var dmVideoFormats = {'stream_h264_hd1080_url': 'Full High Definition MP4', 'stream_h264_hd_url': 'High Definition MP4',
-			    'stream_h264_hq_url': 'Standard Definition MP4', 'stream_h264_url': 'Low Definition MP4',
-			    'stream_h264_ld_url': 'Very Low Definition MP4', 'stream_live_hls_url': "Standard Definition Live M3U8"};
+      var dmVideoFormats = {'240': 'Very Low Definition MP4', '380': 'Low Definition MP4', '480': 'Standard Definition MP4',
+			    '720': 'High Definition MP4', '1080': 'Full High Definition MP4'};
       var dmVideoList = {};
       var dmVideoFound = false;
       var dmVideoParser, dmVideoParse, myVideoCode, dmVideo;
       for (var dmVideoCode in dmVideoFormats) {
-	dmVideoParser = '"' + dmVideoCode + '":"(.*?)"';
+	dmVideoParser = '"' + dmVideoCode + '".*?"url":"(.*?)"';
 	dmVideoParse = dmVideosContent.match (dmVideoParser);
 	dmVideo = (dmVideoParse) ? dmVideoParse[1] : null;
 	if (dmVideo) {
