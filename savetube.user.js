@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.07.28
+// @version		2015.07.29
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -551,12 +551,6 @@ page.win.setInterval(function() {
     if (nurl.indexOf('youtube.com') != -1) {
       if (nurl.indexOf('youtube.com/watch') != -1) page.win.location.href = nurl;
     }
-    // Dailymotion
-    else if (nurl.indexOf('dailymotion.com') != -1) {
-      if (nurl.indexOf('dailymotion.com/playlist') != -1 && nurl.indexOf('#video=') != -1) {
-	location.reload();
-      }
-    }
     // Facebook
     else if (nurl.indexOf('facebook.com') != -1) {
       if (nurl.match('facebook.com/(video.php|.*/videos/)')) {
@@ -901,6 +895,11 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 // =====DailyMotion===== //
 
 else if (page.url.indexOf('dailymotion.com/video') != -1 || page.url.indexOf('dailymotion.com/playlist') != -1) {
+
+  /* Redirect Playlist To Video */
+  if (page.url.indexOf('dailymotion.com/playlist') != -1 && page.url.indexOf('#video=') != -1) {
+    page.win.location.href = page.url.replace(/playlist.*#/, '').replace("=", "/");
+  }
 
   /* Get Player Window */
   var dmPlayerWindow = getMyElement ('', 'div', 'class', 'js-player-box', 0, false);
