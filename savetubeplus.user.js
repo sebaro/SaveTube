@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name		SaveTube+
-// @version		2015.05.24
+// @version		2015.07.30
 // @description		Download videos from web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
+// @license		GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @downloadURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetubeplus.user.js
 // @updateURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetubeplus.user.js
 // @icon		http://s3.amazonaws.com/uso_ss/icon/130917/large.png
@@ -13,7 +14,7 @@
 
 
 /*
-  
+
   Copyright (C) 2014 - 2015 Sebastian Luncan
 
   This program is free software: you can redistribute it and/or modify
@@ -28,10 +29,10 @@
 
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
-  
+
   Website: http://isebaro.com/savetube
   Contact: http://isebaro.com/contact
-  
+
 */
 
 
@@ -116,7 +117,7 @@ if (links) {
   panel.style.borderRight = '1px solid #999999';
   panel.style.borderTop = '1px solid #999999';
   panel.style.borderRadius = '5px 5px 0px 0px';
-  panel.style.opacity = '0.9';  
+  panel.style.opacity = '0.9';
   panel.innerHTML = '<a href="' + contact + '" style="color:#77B753">' + userscript + '</a>: ' + links;
   document.body.appendChild(panel);
 }

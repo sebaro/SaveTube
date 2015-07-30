@@ -3,6 +3,9 @@
 /* SaveTube Changelog */
 
 
+#2015.07.30
+- add license metadata
+
 #2015.07.29
 - fixes Dailymotion
 
@@ -326,17 +329,17 @@ YouTube:
 -> Fixed for video URLs changes.
 
 #2012.09.11
-Script: 
+Script:
 -> Fixes empty first element in video menu for some browsers.
 YouTube:
 -> Shows a message when the video uses the RTMP protocol.
 Dailymotion:
 -> Adds Very Low Definition video, when available.
-Break: 
+Break:
 -> Replaces embedded videos from YouTube with a link to the video page.
-FunnyOrDie: 
--> Fixed for web site changes. 
-Blip: 
+FunnyOrDie:
+-> Fixed for web site changes.
+Blip:
 -> Fixed for web site changes.
 
 #2012.08.23
@@ -344,13 +347,13 @@ MetaCafe:
 -> Fixed for web site changes.
 -> Adds LD FLV when available.
 
-#2012.04.27 
-Script: 
+#2012.04.27
+Script:
 -> Adds support for FunnyOrDie and BlipTV.
 
-#2012.04.21 
-Vimeo: 
--> Fixed for the new layout. 
+#2012.04.21
+Vimeo:
+-> Fixed for the new layout.
 -> Available videos: HD (720p) MP4, LD (360p) MP4, VLD (270p) MP4.
 
 #2012.04.17
