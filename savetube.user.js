@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.07.30
+// @version		2015.08.05
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -1628,7 +1628,7 @@ else if (page.url.indexOf('imdb.com') != -1) {
       var p = e.target.parentNode;
       while (p) {
 	if (p.tagName === 'A' && p.href.indexOf('/video/imdb') != -1) {
-	  page.win.location.href = p.href;
+	  page.win.location.href = p.href.replace(/imdb\/inline.*/, '');
 	}
 	p = p.parentNode;
       }
@@ -1761,23 +1761,12 @@ else if (page.url.indexOf('screen.yahoo.com') != -1) {
     /* Get Videos Content */
     var ysVideosContent;
     var ysVideoID = getMyContent (page.url, '"first_videoid":"(.*?)"', false);
-    if (ysVideoID) {
-      var ysVideoQuery = 'SELECT * FROM yahoo.media.video.streams WHERE id="' + ysVideoID + '" AND format="mp4" AND protocol="http" AND plrs="sdwpWXbKKUIgNzVhXSce__" AND region="US";';
-      var ysVideoRequest = 'https://video.query.yahoo.com/v1/public/yql?q=' + ysVideoQuery + '&env=prod&format=json';
-      ysVideosContent = getMyContent(ysVideoRequest, '"streams":\\[(.*?)\\]', false);
-      ysVideoQuery = 'SELECT * FROM yahoo.media.video.streams WHERE id="' + ysVideoID + '" AND format="webm" AND protocol="http" AND plrs="sdwpWXbKKUIgNzVhXSce__" AND region="US";';
-      ysVideoRequest = 'https://video.query.yahoo.com/v1/public/yql?q=' + ysVideoQuery + '&env=prod&format=json';
-      if (ysVideosContent) ysVideosContent += ',' + getMyContent(ysVideoRequest, '"streams":\\[(.*?)\\]', false);
-      else ysVideosContent = getMyContent(ysVideoRequest, '"streams":\\[(.*?)\\]', false);
-    }
-    else {
-      ysVideosContent = getMyContent(page.url, '"streams":\\[(.*?)\\]', false);
-    }
+    if (ysVideoID) ysVideosContent = getMyContent('https://video.media.yql.yahoo.com/v1/video/sapi/streams/' + ysVideoID + '?protocol=http&region=US', '"streams":\\[(.*?)\\]', false);
 
     /* Get Videos */
     if (ysVideosContent) {
       var ysVideoList = {};
-      var ysVideoFormats = {'360': 'Low Definition', '432': 'Low Definition', '540': 'Standard Definition', '720': 'High Definition', '1080': 'Full High Definition'};
+      var ysVideoFormats = {'240': 'Very Low Definition', '360': 'Low Definition', '432': 'Low Definition', '540': 'Standard Definition', '720': 'High Definition', '1080': 'Full High Definition'};
       var ysVideoFound;
       var ysVideoParts = ysVideosContent.split('},');
       var ysVideoPart, ysVideoPath, ysVideoHost, ysVideoHeight, myVideoCode;
@@ -1787,7 +1776,7 @@ else if (page.url.indexOf('screen.yahoo.com') != -1) {
 	ysVideoPath = (ysVideoPath) ? ysVideoPath[1] : null;
 	ysVideoHost = ysVideoPart.match(/"host":"(.*?)"/);
 	ysVideoHost = (ysVideoHost) ? ysVideoHost[1] : null;
-	ysVideoHeight = ysVideoPart.match(/"height":(.*?)\.0/);
+	ysVideoHeight = ysVideoPart.match(/"height":(\d+),/);
 	ysVideoHeight = (ysVideoHeight) ? ysVideoHeight[1] : null;
 	ysVideoType = ysVideoPart.match(/"mime_type":"(.*?)"/);
 	ysVideoType = (ysVideoType) ? ysVideoType[1] : null;
