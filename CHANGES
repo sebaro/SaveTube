@@ -3,7 +3,10 @@
 /* SaveTube Changelog */
 
 
-#2015.07.29
+#2015.08.15
+- adds YouTube Opus DASH streams
+
+#2015.08.05
 - fixes IMDb, Yahoo Screen
 
 #2015.07.30

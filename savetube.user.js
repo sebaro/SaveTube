@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.08.05
+// @version		2015.08.15
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -725,6 +725,9 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 	'244': 'Standard Definition Video WebM',
 	'247': 'High Definition Video WebM',
 	'248': 'Full High Definition Video WebM',
+	'249': 'Low Bitrate Audio Opus',
+	'250': 'Medium Bitrate Audio Opus',
+	'251': 'High Bitrate Audio Opus',
 	'266': 'Ultra High Definition Video MP4',
 	'272': 'Ultra High Definition Video WebM',
 	'298': 'High Definition Video MP4',
