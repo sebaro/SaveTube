@@ -1061,7 +1061,7 @@ else if (page.url.indexOf('metacafe.com/watch') != -1) {
     }
     else mcVideo = getMyContent (page.url, 'video\\s+src="(.*?)"', false);
     /* New */
-    if (!mcVideosContent || !mcVideo) {
+    if (!mcVideosContent && !mcVideo) {
       mcVideo = getMyContent (page.url, 'videoURL=(.*?)&', true);
     }
 
