@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.08.15
+// @version		2015.08.27
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -1060,6 +1060,10 @@ else if (page.url.indexOf('metacafe.com/watch') != -1) {
       }
     }
     else mcVideo = getMyContent (page.url, 'video\\s+src="(.*?)"', false);
+    /* New */
+    if (!mcVideosContent || !mcVideo) {
+      mcVideo = getMyContent (page.url, 'videoURL=(.*?)&', true);
+    }
 
     /* Get Videos */
     if (mcVideosContent || mcVideo) {
