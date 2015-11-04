@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.08.27
+// @version		2015.11.04
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -1124,7 +1124,7 @@ else if (page.url.indexOf('metacafe.com/watch') != -1) {
 
 // =====Break===== //
 
-else if (page.url.indexOf('break.com/video') != -1) {
+else if (page.url.indexOf('break.com/video') != -1 || page.url.indexOf('break.com/movies') != -1) {
 
   /* Get Player Window */
   var brPlayerWindow = getMyElement ('', 'div', 'id', 'video-player', -1, false);
@@ -1135,8 +1135,14 @@ else if (page.url.indexOf('break.com/video') != -1) {
     /* Saver Width */
     var brWindowWidth = page.win.innerWidth || page.doc.documentElement.clientWidth;
     var brSaverWidth;
-    if (brWindowWidth > 1400) brSaverWidth = 832;
-    else brSaverWidth = 592;
+    if (page.url.indexOf('break.com/movies') != -1) {
+      if (brWindowWidth >= 1400) brSaverWidth = 1152;
+      else brSaverWidth = 912;
+    }
+    else {
+      if (brWindowWidth >= 1400) brSaverWidth = 832;
+      else brSaverWidth = 592;
+    }
 
     /* Get Video ID */
     var brVideoID = page.url.match(/-(\d+)($|\?)/);
@@ -1151,7 +1157,7 @@ else if (page.url.indexOf('break.com/video') != -1) {
       var brVideoList = {};
       var brVideoFormats = {};
       var brVideoFound = false;
-      var brVideoFormats = {'320_kbps.mp4': 'Very Low Definition MP4', '496_kbps.mp4': 'Low Definition MP4', '864_kbps.mp4': 'Standard Definition MP4', '2240_kbps.mp4': 'High Definition MP4'};
+      var brVideoFormats = {'320_kbps.mp4': 'Very Low Definition MP4', '496_kbps.mp4': 'Low Definition MP4', '864_kbps.mp4': 'Standard Definition MP4', '2240_kbps.mp4': 'High Definition MP4', '3264_kbps.mp4': 'Full High Definition MP4'};
       var brVideoPath, brVideoToken, brVideoThumb, brVideo, myVideoCode;
       brVideoPath = brVideosContent.match (/"videoUri":\s"(.*?)496_kbps/);
       brVideoPath = (brVideoPath) ? brVideoPath[1] : null;
@@ -1172,7 +1178,7 @@ else if (page.url.indexOf('break.com/video') != -1) {
 	/* Create Saver */
 	var brDefaultVideo = 'Low Definition MP4';
 	saver = {'saverSocket': brPlayerWindow, 'videoList': brVideoList, 'videoSave': brDefaultVideo, 'saverWidth': brSaverWidth};
-	option['definitions'] = ['Very Low Definition', 'Low Definition', 'Standard Definition', 'High Definition'];
+	option['definitions'] = ['Very Low Definition', 'Low Definition', 'Standard Definition', 'High Definition', 'Full High Definition'];
 	option['containers'] = ['MP4', 'FLV', 'Any'];
 	createMySaver ();
       }
@@ -1570,7 +1576,7 @@ else if (page.url.indexOf('crackle.com/') != -1) {
 else if (page.url.indexOf('viki.com/videos') != -1) {
 
   /* Get Player Window */
-  var vkSaverWindow = getMyElement ('', 'div', 'class', 'watch-actions', 0, false);
+  var vkSaverWindow = getMyElement ('', 'div', 'class', 'card-content', 0, false);
   if (!vkSaverWindow) {
     showMyMessage ('!player');
   }
@@ -1583,28 +1589,20 @@ else if (page.url.indexOf('viki.com/videos') != -1) {
     var vkVideosContent;
     if (vkVideoID) vkVideosContent = getMyContent (page.win.location.protocol + '//' + page.win.location.host + '/player5_fragment/' + vkVideoID + 'v.json', 'TEXT', false);
 
-    /* Style Fix */
-    var vkShowMain = getMyElement ('', 'section', 'class', 'show-video', 0, false);
-    styleMyElement (vkShowMain, {paddingTop: '20px'});
-
-    /* My Saver Socket */
-    var vkSaverSocket = createMyElement ('div', '', '', '', '');
-    styleMyElement (vkSaverSocket, {width: '950px', textAlign: 'center', margin: '0px auto'});
-    appendMyElement (vkSaverWindow, vkSaverSocket);
+    /* Saver Width*/
+    var vkSaverWith = parseInt(vkSaverWindow.clientWidth) - 20;
 
     /* Get Videos */
     if (vkVideosContent) {
       var vkVideoList = {};
       var vkVideo = vkVideosContent.match(/"video_url":"(.*?)"/);
       vkVideo = (vkVideo) ? vkVideo[1] : null;
-      var vkVideoThumb = vkVideosContent.match(/"image_url":"(.*?)"/);
-      vkVideoThumb = (vkVideoThumb) ? vkVideoThumb[1] : null;
 
       /* Create Saver */
       if (vkVideo) {
 	var vkDefaultVideo = 'Low Definition MP4';
 	vkVideoList[vkDefaultVideo] = vkVideo
-	saver = {'saverSocket': vkSaverSocket, 'videoList': vkVideoList, 'videoSave': vkDefaultVideo, 'saverWidth': 950};
+	saver = {'saverSocket': vkSaverWindow, 'videoList': vkVideoList, 'videoSave': vkDefaultVideo, 'saverWidth': vkSaverWith};
 	feature['definition'] = false;
 	feature['container'] = false;
 	option['definition'] = 'LD';
@@ -1613,12 +1611,12 @@ else if (page.url.indexOf('viki.com/videos') != -1) {
 	createMySaver ();
       }
       else {
-	saver = {'saverSocket': vkPlayerWindow, 'saverWidth': 950, 'warnMess': '!videos'};
+	saver = {'saverSocket': vkPlayerWindow, 'saverWidth': vkSaverWith, 'warnMess': '!videos'};
 	createMySaver ();
       }
     }
     else {
-      saver = {'saverSocket': vkPlayerWindow, 'saverWidth': 950, 'warnMess': '!content'};
+      saver = {'saverSocket': vkPlayerWindow, 'saverWidth': vkSaverWith, 'warnMess': '!content'};
       createMySaver ();
     }
   }
