@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.11.04
+// @version		2015.11.11
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -586,14 +586,10 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
   function ytDecryptSignature (s) {return null;}
   function ytDecryptFunction () {
     var ytSignFuncName, ytSignFuncBody, ytSwapFuncName, ytSwapFuncBody, ytFuncMatch;
-    ytSignFuncName = ytScriptSrc.match(/\.signature\s*=\s*((\$|_|\w)+)\(\w+\)/);
+    ytSignFuncName = ytScriptSrc.match(/"signature"\s*,\s*(.*?)\(/);
     ytSignFuncName = (ytSignFuncName) ? ytSignFuncName[1] : null;
-    if (!ytSignFuncName) {
-      ytSignFuncName = ytScriptSrc.match(/"signature"\s*,\s*(.*?)\(/);
-      ytSignFuncName = (ytSignFuncName) ? ytSignFuncName[1] : null;
-    }
     if (ytSignFuncName) {
-      ytFuncMatch = 'function\\s+' + ytSignFuncName.replace(/\$/, '\\$') + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\}';
+      ytFuncMatch = ytSignFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\}';
       ytSignFuncBody = ytScriptSrc.match(ytFuncMatch);
       ytSignFuncBody = (ytSignFuncBody) ? ytSignFuncBody[1] : null;
       if (ytSignFuncBody) {
@@ -634,9 +630,7 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
     var ytVideosContent, ytHLSContent;
     var ytVideosEncodedFmts, ytVideosAdaptiveFmts;
     ytVideosEncodedFmts = getMyContent(page.url, '"url_encoded_fmt_stream_map":\\s*"(.*?)"', false);
-    if (ytVideosEncodedFmts) ytVideosEncodedFmts = cleanMyContent(ytVideosEncodedFmts, false);
     ytVideosAdaptiveFmts = getMyContent(page.url, '"adaptive_fmts":\\s*"(.*?)"', false);
-    if (ytVideosAdaptiveFmts) ytVideosAdaptiveFmts = cleanMyContent(ytVideosAdaptiveFmts, false);
     if (ytVideosEncodedFmts) {
       ytVideosContent = ytVideosEncodedFmts;
     }
@@ -665,8 +659,6 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
       }
     }
     if (ytVideosAdaptiveFmts) {
-      ytVideosAdaptiveFmts = ytVideosAdaptiveFmts.replace(/clen=\d+&/g, '').replace(/&clen=\d+/g, '');
-      ytVideosAdaptiveFmts = ytVideosAdaptiveFmts.replace(/lmt=\d+&/g, '').replace(/&lmt=\d+/g, '');
       if (ytVideosContent) ytVideosContent += ',' + ytVideosAdaptiveFmts;
       else ytVideosContent = ytVideosAdaptiveFmts;
     }
@@ -749,7 +741,20 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 	if (ytVideoCode) {
 	  myVideoCode = ytVideoFormats[ytVideoCode];
 	  if (myVideoCode) {
-	    ytVideo = ytVideos[i].replace (/url=/, '').replace(/&$/, '').replace(/&itag=\d{1,3}/, '');
+	    ytVideo = cleanMyContent(ytVideos[i], true);
+	    ytVideo = ytVideo.replace (/url=/, '').replace(/&$/, '');
+	    if (ytVideo.match(/itag=/) && ytVideo.match(/itag=/g).length > 1) {
+	      if (ytVideo.match(/itag=\d{1,3}&/)) ytVideo = ytVideo.replace(/itag=\d{1,3}&/, '');
+	      else if (ytVideo.match(/&itag=\d{1,3}/)) ytVideo = ytVideo.replace(/&itag=\d{1,3}/, '');
+	    }
+	    if (ytVideo.match(/clen=/) && ytVideo.match(/clen=/g).length > 1) {
+	      if (ytVideo.match(/clen=\d+&/)) ytVideo = ytVideo.replace(/clen=\d+&/, '');
+	      else if (ytVideo.match(/&clen=\d+/)) ytVideo = ytVideo.replace(/&clen=\d+/, '');
+	    }
+	    if (ytVideo.match(/lmt=/) && ytVideo.match(/lmt=/g).length > 1) {
+	      if (ytVideo.match(/lmt=\d+&/)) ytVideo = ytVideo.replace(/lmt=\d+&/, '');
+	      else if (ytVideo.match(/&lmt=\d+/)) ytVideo = ytVideo.replace(/&lmt=\d+/, '');
+	    }
 	    if (ytVideo.match(/type=(video|audio).*?&/)) ytVideo = ytVideo.replace(/type=(video|audio).*?&/, '');
 	    else ytVideo = ytVideo.replace(/&type=(video|audio).*$/, '');
 	    if (ytVideo.match(/&sig=/)) ytVideo = ytVideo.replace (/&sig=/, '&signature=');
@@ -826,7 +831,7 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
     /* Get Videos */
     var ytVideoList = {};
     if (ytVideosContent) {
-      if (ytVideosContent.match(/&s=/) || ytVideosContent.match(/,s=/)) {
+      if (ytVideosContent.match(/&s=/) || ytVideosContent.match(/,s=/) || ytVideosContent.match(/u0026s=/)) {
 	var ytScriptURL = getMyContent(page.url, '"js":\\s*"(.*?)"', true);
 	if (!ytScriptURL) ytScriptURL = getMyContent(page.url.replace(/watch.*?v=/, 'embed/').replace(/&.*$/, ''), '"js":\\s*"(.*?)"', true);
 	if (ytScriptURL) {
