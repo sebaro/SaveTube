@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.11.11
+// @version		2015.11.13
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -992,24 +992,27 @@ else if (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/channels
     /* Get Videos Content */
     var viVideosContent;
     if (viVideoSource) {
-      viVideosContent = getMyContent(viVideoSource, '"h264":\\{(.*?)\\}\\}', false);
-      if (!viVideosContent) viVideosContent = getMyContent(viVideoSource, '"vp6":\\{(.*?)\\}\\}', false);
+      viVideosContent = getMyContent(viVideoSource, '"progressive":\\[(.*?)\\]', false);
     }
 
     /* Get Videos */
     if (viVideosContent) {
-      var viVideoFormats = {'hd': 'High Definition MP4', 'sd': 'Low Definition MP4', 'mobile': 'Very Low Definition MP4'};
+      var viVideoFormats = {'720p': 'High Definition MP4', '360p': 'Low Definition MP4', '270p': 'Very Low Definition MP4'};
       var viVideoList = {};
       var viVideoFound = false;
-      var viPattern, viMatcher, viVideo, myVideoCode;
-      for (var viVideoCode in viVideoFormats) {
-	viPattern = '"' + viVideoCode + '":\\{.*?"url":"(.*?)"';
-	viMatcher = viVideosContent.match(viPattern);
-	viVideo = (viMatcher) ? viMatcher[1] : null;
-	if (viVideo) {
-	  if (!viVideoFound) viVideoFound = true;
-	  myVideoCode = viVideoFormats[viVideoCode];
-	  viVideoList[myVideoCode] = viVideo;
+      var viVideo, myVideoCode;
+      var viVideos = viVideosContent.split('},');
+      for (var i = 0; i < viVideos.length; i++) {
+	for (var viVideoCode in viVideoFormats) {
+	  if (viVideos[i].indexOf('"quality":"' + viVideoCode + '"') != -1) {
+	    viVideo = viVideos[i].match(/"url":"(.*?)"/);
+	    viVideo = (viVideo) ? viVideo[1] : null;
+	    if (viVideo) {
+	      if (!viVideoFound) viVideoFound = true;
+				       myVideoCode = viVideoFormats[viVideoCode];
+	      viVideoList[myVideoCode] = viVideo;
+	    }
+	  }
 	}
       }
 
