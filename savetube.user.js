@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.11.13
+// @version		2015.11.24
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -586,17 +586,17 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
   function ytDecryptSignature (s) {return null;}
   function ytDecryptFunction () {
     var ytSignFuncName, ytSignFuncBody, ytSwapFuncName, ytSwapFuncBody, ytFuncMatch;
-    ytSignFuncName = ytScriptSrc.match(/"signature"\s*,\s*(.*?)\(/);
+    ytSignFuncName = ytScriptSrc.match(/"signature"\s*,\s*([\S\s]*?)\(/);
     ytSignFuncName = (ytSignFuncName) ? ytSignFuncName[1] : null;
     if (ytSignFuncName) {
-      ytFuncMatch = ytSignFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\}';
+      ytFuncMatch = ytSignFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{([\\S\\s]*?)\\}';
       ytSignFuncBody = ytScriptSrc.match(ytFuncMatch);
       ytSignFuncBody = (ytSignFuncBody) ? ytSignFuncBody[1] : null;
       if (ytSignFuncBody) {
 	ytSwapFuncName = ytSignFuncBody.match(/((\$|_|\w)+)\.(\$|_|\w)+\(\w,[0-9]+\)/);
 	ytSwapFuncName = (ytSwapFuncName) ? ytSwapFuncName[1] : null;
 	if (ytSwapFuncName) {
-	  ytFuncMatch = 'var\\s+' + ytSwapFuncName.replace(/\$/, '\\$') + '=\\s*\\{(.*?)\\};';
+	  ytFuncMatch = 'var\\s+' + ytSwapFuncName.replace(/\$/, '\\$') + '=\\s*\\{([\\S\\s]*?)\\};';
 	  ytSwapFuncBody = ytScriptSrc.match(ytFuncMatch);
 	  ytSwapFuncBody = (ytSwapFuncBody) ? ytSwapFuncBody[1] : null;
 	}
