@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.11.24
+// @version		2015.12.19
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -538,6 +538,9 @@ function showMyMessage (cause, content) {
       var myEmbedMess = '<b>SaveTube:</b> This is an embedded video. You can get it <a href="' + content + '" style="color:#00892C">here</a>.';
       modifyMyElement (saver['saverPanel'], 'div', myEmbedMess, false);
     }
+    else if (cause == 'other') {
+      modifyMyElement (saver['saverPanel'], 'div', content, false);
+    }
   }
 }
 
@@ -848,21 +851,50 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 		method: 'GET',
 		url: ytScriptURL,
 		onload: function(response) {
-		  if (response.readyState === 4 && response.status === 200) {
+		  if (response.readyState === 4 && response.status === 200 && response.responseText) {
 		    ytScriptSrc = response.responseText;
+		    ytDecryptFunction();
 		  }
-		  if (ytScriptSrc) ytDecryptFunction();
-		  ytVideos();
+		  else {
+		    saver = {
+		      'saverSocket': ytPlayerWindow,
+		      'saverWidth': 640,
+		      'warnMess': 'other',
+		      'warnContent': '<b>SaveTube:</b> Couldn\'t get the signature content. Please report it <a href="' + contact + '" style="color:#00892C">here</a>.'
+		    };
+		    createMySaver ();
+		  }
+		},
+		onerror: function() {
+		  saver = {
+		    'saverSocket': ytPlayerWindow,
+		    'saverWidth': 640,
+		    'warnMess': 'other',
+		    'warnContent': '<b>SaveTube:</b> Couldn\'t make the request. Make sure your browser user scripts extension supports cross-domain requests.'
+		  };
+		  createMySaver ();
 		}
 	      });
 	    }
 	    catch (e) {
-	      ytVideos();
+	      saver = {
+		'saverSocket': ytPlayerWindow,
+		'saverWidth': 640,
+		'warnMess': 'other',
+		'warnContent': '<b>SaveTube:</b> Couldn\'t make the request. Make sure your browser user scripts extension supports cross-domain requests.'
+	      };
+	      createMySaver ();
 	    }
 	  }
 	}
 	else {
-	  ytVideos();
+	  saver = {
+	    'saverSocket': ytPlayerWindow,
+	    'saverWidth': 640,
+	    'warnMess': 'other',
+	    'warnContent': '<b>SaveTube:</b> Couldn\'t get the signature link. Please report it <a href="' + contact + '" style="color:#00892C">here</a>.'
+	  };
+	  createMySaver ();
 	}
       }
       else {
@@ -881,9 +913,12 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 	      method: 'GET',
 	      url: ytHLSVideos,
 	      onload: function(response) {
-		if (response.readyState === 4 && response.status === 200) {
+		if (response.readyState === 4 && response.status === 200 && response.responseText) {
 		  ytHLSContent = response.responseText;
 		}
+		ytHLS();
+	      },
+	      onerror: function() {
 		ytHLS();
 	      }
 	    });
