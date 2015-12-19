@@ -854,6 +854,7 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 		  if (response.readyState === 4 && response.status === 200 && response.responseText) {
 		    ytScriptSrc = response.responseText;
 		    ytDecryptFunction();
+		    ytVideos();
 		  }
 		  else {
 		    saver = {
