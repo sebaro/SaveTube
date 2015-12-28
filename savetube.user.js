@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2015.12.19
+// @version		2015.12.27
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -130,7 +130,7 @@ function createMyElement (type, content, event, action, target) {
     if (target == 'video') {
       obj.addEventListener ('change', function () {
 	saver['videoSave'] = this.value;
-	if (feature['autoget']) {
+	if (feature['autoget'] && saver['buttonGet'] == 'Get') {
 	  if (option['autoget']) getMyVideo();
 	}
 	else {

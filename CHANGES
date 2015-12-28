@@ -3,6 +3,9 @@
 /* SaveTube Changelog */
 
 
+#2015.12.28
+- fixes YouTube links when changing formats
+
 #2015.12.19
 - adds warnings for YouTube failed requests
 
