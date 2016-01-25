@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.01.15
+// @version		2016.01.25
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -1001,25 +1001,31 @@ else if (page.url.indexOf('dailymotion.com/video') != -1 || page.url.indexOf('da
 
 // =====Vimeo===== //
 
-else if (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/channels\/[^\/]*($|\/page|\/\d+)/) || page.url.match(/vimeo.com\/originals\/[^\/]*\/\d+/) || page.url.match(/vimeo.com\/album\/\d+\/video\/\d+/)) {
+else if (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/channels\/[^\/]*($|\/$|\/page|\/\d+)/) || page.url.match(/vimeo.com\/originals\/[^\/]*($|\/$|\/\d+)/) || page.url.match(/vimeo.com\/album\/\d+\/video\/\d+/)) {
 
   /* Multi Video Page */
   if (getMyElement('', 'div', 'class', 'player_container', -1, false).length > 1) return;
+
+  /* Video Page Type */
+  var viVideoPage = (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/album\/\d+\/video\/\d+/)) ? true : false;
 
   /* Saver Width */
   var viSaverWidth = 960;
   if (page.url.indexOf('/channels/') != -1 && page.url.indexOf('/channels/staffpicks') == -1) {
     viSaverWidth = 630;
   }
+  if (viVideoPage) viSaverWidth = 700;
 
   /* Get Player Window */
-  var viPlayerWindow = getMyElement ('', 'div', 'class', 'player_container', 0, false) || null;
+  var viPlayerWindow;
+  if (viVideoPage) viPlayerWindow = getMyElement ('', 'div', 'class', 'clip_info-actions', 0, false);
+  else viPlayerWindow = getMyElement ('', 'div', 'class', 'player_container', 0, false);
   if (!viPlayerWindow) {
     showMyMessage ('!player');
   }
   else {
     /* Restyle Player Window */
-    styleMyElement (viPlayerWindow, {margin: '0px 0px 20px 0px'});
+    if (!viVideoPage) styleMyElement (viPlayerWindow, {margin: '0px 0px 20px 0px'});
 
     /* Get Content Source */
     var viVideoSource = getMyContent (page.url, 'data-config-url="(.*?)"', false).replace(/&amp;/g, '&');
