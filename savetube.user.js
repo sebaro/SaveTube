@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.01.25
+// @version		2016.02.29
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -1038,7 +1038,7 @@ else if (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/channels
 
     /* Get Videos */
     if (viVideosContent) {
-      var viVideoFormats = {'720p': 'High Definition MP4', '360p': 'Low Definition MP4', '270p': 'Very Low Definition MP4'};
+      var viVideoFormats = {'1080p': 'Full High Definition MP4', '720p': 'High Definition MP4', '360p': 'Low Definition MP4', '270p': 'Very Low Definition MP4'};
       var viVideoList = {};
       var viVideoFound = false;
       var viVideo, myVideoCode;
@@ -1084,71 +1084,46 @@ else if (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/channels
 else if (page.url.indexOf('metacafe.com/watch') != -1) {
 
   /* Get Player Window */
-  var mcPlayerWindow = getMyElement ('', 'div', 'id', 'FlashWrap', -1, false);
-  if (!mcPlayerWindow) mcPlayerWindow = getMyElement ('', 'div', 'id', 'ItemContainer', -1, false);
+  mcPlayerWindow = getMyElement ('', 'div', 'class', 'mc-video-player', 0, false);
   if (!mcPlayerWindow) {
     showMyMessage ('!player');
   }
   else {
-    /* Check Video Availability */
-    if (mcPlayerWindow.innerHTML.indexOf('This Video cannot be played on this device.') != -1) return;
-
     /* Restyle Player Window */
-    styleMyElement (mcPlayerWindow, {margin: '0px 0px 30px 0px'});
+    styleMyElement (mcPlayerWindow, {margin: '0px 0px 10px 0px'});
 
     /* Get Videos Content */
-    var mcVideosContent, mcVideo;
-    var mcFlashVideo = getMyElement (mcPlayerWindow, 'embed', 'tag', '', 0, false) || getMyElement (mcPlayerWindow, 'object', 'tag', '', 0, false);
-    if (mcFlashVideo) {
-      mcVideosContent = getMyContent (page.url, '"mediaData":"(.*?)"', false);
-      if (!mcVideosContent) {
-	anyClipId = page.url.match(/\/an-(.*?)\//);
-	if (anyClipId && anyClipId[1]) {
-	  mcVideo = 'http://vid2.anyclip.com/' + anyClipId[1];
-	}
-      }
-    }
-    else mcVideo = getMyContent (page.url, 'video\\s+src="(.*?)"', false);
-    /* New */
-    if (!mcVideosContent && !mcVideo) {
-      mcVideo = getMyContent (page.url, 'videoURL=(.*?)&', true);
-    }
+    var mcVideosContent = getMyContent (page.url, 'flashvars\\s*=\\s*\\{(.*?)\\};', false);
 
     /* Get Videos */
-    if (mcVideosContent || mcVideo) {
+    if (mcVideosContent) {
       var mcVideoList = {};
       var mcVideoFound = false;
-      if (mcVideosContent) {
-	mcVideosContent = cleanMyContent(mcVideosContent, true);
-	var mcVideoFormats = {'highDefinitionMP4': 'High Definition MP4', 'MP4': 'Low Definition MP4', 'flv': 'Low Definition FLV'};
-	var mcVideoParser, mcVideoParse, myVideoCode, mcVideoPath, mcVideoKey, mcVideo;
+      var mcVideoFormats = {'video_alt_url2': 'High Definition MP4', 'video_alt_url': 'Low Definition MP4', 'video_url': 'Very Low Definition MP4'};
+      var mcVideoFormatz = {'video_alt_url2': '_720p', 'video_alt_url': '_360p', 'video_url': '_240p'};
+      var mcVideoHLS = mcVideosContent.match (/"src":"(.*?)"/);
+      mcVideoHLS = (mcVideoHLS) ? cleanMyContent(mcVideoHLS[1], false) : null;
+      if (mcVideoHLS) {
+	var mcVideoParser, mcVideoParse, myVideoCode, mcVideo;
 	for (var mcVideoCode in mcVideoFormats) {
-	  mcVideoParser = '"' + mcVideoCode + '":\\{.*?"mediaURL":"(.*?)","access":\\[\\{"key":"(.*?)","value":"(.*?)"\\}\\]\\}';
+	  mcVideoParser = '"' + mcVideoCode + '":"(.*?)"';
 	  mcVideoParse = mcVideosContent.match (mcVideoParser);
-	  mcVideoPath = (mcVideoParse) ? mcVideoParse[1] : null;
-	  mcVideoKeyName = (mcVideoParse) ? mcVideoParse[2] : null;
-	  mcVideoKeyValue = (mcVideoParse) ? mcVideoParse[3] : null;
-	  if (mcVideoPath && mcVideoKeyName && mcVideoKeyValue) {
+	  mcVideo = (mcVideoParse) ? mcVideoParse[1] : null;
+	  if (mcVideo) {
 	    if (!mcVideoFound) mcVideoFound = true;
 	    myVideoCode = mcVideoFormats[mcVideoCode];
-	    mcVideo = mcVideoPath + '?' + mcVideoKeyName + '=' + mcVideoKeyValue;
-	    mcVideoList[myVideoCode] = mcVideo;
+	    mcVideoList[myVideoCode] = mcVideoHLS.replace('.m3u8', mcVideoFormatz[mcVideoCode] + '.m3u8');
 	  }
 	}
-      }
-      else {
-	mcVideoList['Low Definition MP4'] = mcVideo;
-	mcVideoFound = true;
-	feature['definition'] = false;
-	feature['container'] = false;
       }
 
       if (mcVideoFound) {
 	/* Create Saver */
-	var mcDefaultVideo = (mcVideoList['Low Definition MP4']) ? 'Low Definition MP4' : 'Low Definition FLV';
+	var mcDefaultVideo = 'Low Definition MP4';
 	saver = {'saverSocket': mcPlayerWindow, 'videoList': mcVideoList, 'videoSave': mcDefaultVideo, 'saverWidth': 640};
-	option['definitions'] = ['High Definition', 'Low Definition'];
-	option['containers'] = ['MP4', 'FLV', 'Any'];
+	feature['container'] = false;
+	option['definitions'] = ['High Definition', 'Low Definition', 'Very Low Definition'];
+	option['containers'] = ['MP4'];
 	createMySaver ();
       }
       else {
