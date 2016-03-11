@@ -1001,13 +1001,13 @@ else if (page.url.indexOf('dailymotion.com/video') != -1 || page.url.indexOf('da
 
 // =====Vimeo===== //
 
-else if (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/channels\/[^\/]*($|\/$|\/page|\/\d+)/) || page.url.match(/vimeo.com\/originals\/[^\/]*($|\/$|\/\d+)/) || page.url.match(/vimeo.com\/album\/\d+\/video\/\d+/)) {
+else if (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/channels\/[^\/]*($|\/$|\/page|\/\d+)/) || page.url.match(/vimeo.com\/originals\/[^\/]*($|\/$|\/\d+)/) || page.url.match(/vimeo.com\/album\/\d+\/video\/\d+/) || page.url.match(/vimeo.com\/groups\/[^\/]*\/videos\/\d+/)) {
 
   /* Multi Video Page */
   if (getMyElement('', 'div', 'class', 'player_container', -1, false).length > 1) return;
 
   /* Video Page Type */
-  var viVideoPage = (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/album\/\d+\/video\/\d+/)) ? true : false;
+  var viVideoPage = (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/album\/\d+\/video\/\d+/) || page.url.match(/vimeo.com\/groups\/[^\/]*\/videos\/\d+/)) ? true : false;
 
   /* Saver Width */
   var viSaverWidth = 960;
@@ -1028,7 +1028,9 @@ else if (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/channels
     if (!viVideoPage) styleMyElement (viPlayerWindow, {margin: '0px 0px 20px 0px'});
 
     /* Get Content Source */
-    var viVideoSource = getMyContent (page.url, 'data-config-url="(.*?)"', false).replace(/&amp;/g, '&');
+    var viVideoSource = getMyContent (page.url, '"config_url":"(.*?)"', false);
+    if (viVideoSource) viVideoSource = cleanMyContent(viVideoSource, false);
+    else viVideoSource = getMyContent (page.url, 'data-config-url="(.*?)"', false).replace(/&amp;/g, '&');
 
     /* Get Videos Content */
     var viVideosContent;
