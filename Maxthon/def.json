@@ -1,0 +1,104 @@
+﻿[{
+	"author": "Sebaro"
+	"website": "http://isebaro.com/savetube/" 
+	"date": "11.03.2016"
+	"type":"extension",
+		"frameworkVersion":"1.0.0",
+		"version":"2016.03.11.0",
+        "guid": "{3DEDEE46-63BC-4024-9796-737F8820E16E}",
+	"name": "SaveTube"
+	"icon": "icon",
+	"title": {"_t": "app.SaveTube"}
+
+	"actions": [{
+		"type": "script", 
+		"entryPoints": ["doc_end"],
+		"include": [
+			"*.youtube.com",
+			"youtube.com",
+			"*.dailymotion.com",
+			"dailymotion.com",
+			"*.vimeo.com",
+			"vimeo.com",
+			"*.metacafe.com",
+			"metacafe.com",
+			"*.break.com",
+			"break.com",
+			"*.funnyordie.com",
+			"funnyordie.com",
+			"*.videojug.com",
+			"videojug.com",
+			"*.blip.tv",
+			"blip.tv",
+			"*.veoh.com",
+			"veoh.com",
+			"*.crackle.com",
+			"crackle.com",
+			"*.viki.com",
+			"viki.com",
+			"*.imdb.com",
+			"imdb.com",
+			"*.facebook.com",
+			"facebook.com",
+			"*.screen.yahoo.com",
+			"screen.yahoo.com"],
+		"js": ["script.js"],
+		}]
+
+	"actions": [{
+		"type": "mxcmd",
+		"title": {"_t": "app.SaveTube"},
+		"entryPoints": ["toolbar"],        
+		{"type": "script",
+			"js": ["page.js"]
+			"menu": [
+				{
+				"type": "page",
+				"title": {"_t": "app.About"},
+				"icon": "point.png",
+				"main": "http://isebaro.com/savetube/?ln=en"
+				},
+			{"type": "separator"},
+				{
+				"type": "page",
+				"title": {"_t": "app.Changelog"},
+				"icon": "point.png",
+				"main": "http://isebaro.com/savetube/include/files/changelog"
+				},
+				{
+				"type": "page",
+				"title": {"_t": "app.Script"},
+				"icon": "point.png",
+				"main": "http://isebaro.com/savetube/include/files/savetube.user.js"
+				},
+				{
+				"type": "page",
+				"title": {"_t": "app.Plus"},
+				"icon": "point.png",
+				"main": "http://isebaro.com/savetube/include/files/savetubeplus.user.js"
+				},
+				{
+				"type": "page",
+				"title": {"_t": "app.ViolentMonkey"},
+				"icon": "point.png",
+				"main": "http://extension.maxthon.com/detail/index.php?view_id=1680"
+				},
+			{"type": "separator"},
+				{
+				"type": "page",
+				"title": {"_t": "app.AD"},
+				"icon": "point.png",
+				"main": "http://semenov-sherin.blogspot.com/"
+				},
+				{
+				"type": "page",
+				"title": {"_t": "app.Rate"},
+				"icon": "point.png",
+				"main": "http://extension.maxthon.com/server/go.php?guid={3DEDEE46-63BC-4024-9796-737F8820E16E}"
+				}
+				]
+		}
+		}]
+
+	"config": "http://isebaro.com/savetube/?ln=en",
+}]
