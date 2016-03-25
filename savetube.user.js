@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.02.29
+// @version		2016.03.25
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -32,22 +32,10 @@
 // @include		http://www.funnyordie.com*
 // @include		https://funnyordie.com*
 // @include		https://www.funnyordie.com*
-// @include		http://videojug.com*
-// @include		http://www.videojug.com*
-// @include		https://videojug.com*
-// @include		https://www.videojug.com*
-// @include		http://blip.tv*
-// @include		http://www.blip.tv*
-// @include		https://blip.tv*
-// @include		https://www.blip.tv*
 // @include		http://veoh.com*
 // @include		http://www.veoh.com*
 // @include		https://veoh.com*
 // @include		https://www.veoh.com*
-// @include		http://crackle.com*
-// @include		http://www.crackle.com*
-// @include		https://crackle.com*
-// @include		https://www.crackle.com*
 // @include		http://viki.com*
 // @include		http://www.viki.com*
 // @include		https://viki.com*
@@ -1301,156 +1289,6 @@ else if (page.url.indexOf('funnyordie.com/videos') != -1) {
 
 }
 
-// =====Videojug===== //
-
-else if (page.url.indexOf('videojug.com/') != -1) {
-
-  /* Get Player Window */
-  var vjPlayerWindow = getMyElement ('', 'div', 'id', 'player_shadow', -1, false);
-  var vjPlayerWidth;
-  if (page.url.indexOf("videojug.com/film") != -1) vjPlayerWidth = 640;
-  else if (page.url.indexOf("videojug.com/series") != -1) vjPlayerWidth = 768;
-  else return;
-  if (!vjPlayerWindow) {
-    showMyMessage ('!player');
-  }
-  else {
-    /* Get Videos Content */
-    var vjVideoID = getMyContent (page.url, 'data-videoid="(.*?)"', true);
-    var vjVideoTitle = getMyContent (page.url, 'data-filenameprefix="(.*?)"', true);
-
-    /* Get Videos */
-    if (vjVideoID && vjVideoTitle) {
-      var vjVideoID2 = vjVideoID.substring(0,2);
-      var vjVideoProtocol = page.win.location.protocol;
-      var vjVideoSource = vjVideoProtocol + '//' + page.win.location.hostname + '/views/film/playlist.aspx?id=' + vjVideoID;
-      var vjVideoShapes = getMyContent(vjVideoSource, '<Shapes>(.*?)<\/Shapes>', false);
-      var vjVideoFormats = {'VJ480PENG.mp4': 'Standard Definition MP4', 'VJ360PENG.mp4': 'Low Definition MP4', 'PHOENG.mp4': 'Very Low Definition MP4', 'FW8ENG.flv': 'Low Definition FLV', 'FS8ENG.flv': 'Very Low Definition FLV'};
-      var vjVideoList = {};
-      var vjVideoFound = false;
-      var vjVideoPart, myVideoCode, vjVideo, vjVideoCodePart, vjVideoPattern, vjVideoLocation;
-      if (vjVideoShapes) {
-	vjVideoPart = vjVideoID2 + '/' + vjVideoID + '/' + vjVideoTitle;
-	for (var vjVideoCode in vjVideoFormats) {
-	  if (vjVideoCode.indexOf('VJ') != -1) vjVideoCodePart = vjVideoCode.substring(0, 6);
-	  else vjVideoCodePart = vjVideoCode.substring(0, 3);
-	  vjVideoPattern = 'Code="' + vjVideoCodePart + '"\\s+Locations="(.*?),';
-	  vjVideoLocation = vjVideoShapes.match(vjVideoPattern);
-	  vjVideoLocation = (vjVideoLocation) ? vjVideoProtocol + '//' + vjVideoLocation[1] : null;
-	  if (vjVideoLocation) {
-	    if (!vjVideoFound) vjVideoFound = true;
-	    vjVideo = vjVideoLocation + '/' + vjVideoPart + '__' + vjVideoCode;
-	    myVideoCode = vjVideoFormats[vjVideoCode];
-	    vjVideoList[myVideoCode] = vjVideo;
-	  }
-	}
-      }
-
-      if (vjVideoFound) {
-	/* Create Saver */
-	var vjDefaultVideo = 'Low Definition MP4';
-	saver = {'saverSocket': vjPlayerWindow, 'videoList': vjVideoList, 'videoSave': vjDefaultVideo, 'saverWidth': vjPlayerWidth};
-	option['definition'] = 'SD';
-	option['definitions'] = ['Standard Definition', 'Low Definition', 'Very Low Definition'];
-	option['containers'] = ['MP4', 'FLV', 'Any'];
-	createMySaver ();
-      }
-      else {
-	saver = {'saverSocket': vjPlayerWindow, 'saverWidth': vjPlayerWidth, 'warnMess': '!videos'};
-	createMySaver ();
-      }
-    }
-    else {
-	saver = {'saverSocket': vjPlayerWindow, 'saverWidth': vjPlayerWidth, 'warnMess': '!content'};
-	createMySaver ();
-    }
-  }
-  if (saver['saverPanel'] && vjPlayerWidth == 768) {
-    styleMyElement(saver['saverPanel'], {marginTop: '10px'});
-  }
-
-}
-
-// =====Blip===== //
-
-else if (page.url.indexOf('blip.tv') != -1) {
-
-  /* Get Page Type */
-  var blipPageType = getMyContent (page.url, 'meta\\s+property="video:tag"\\s+content="(.*?)"', false);
-  if (!blipPageType || blipPageType.indexOf('episode') == -1) return;
-
-  /* Get Player Window */
-  var blipSaverWidth;
-  var blipPlayerWindow = getMyElement ('', 'div', 'class', 'Theater', 0, false) || getMyElement ('', 'div', 'id', 'ErrorWrap', -1, false);
-  if (!blipPlayerWindow) {
-    blipPlayerWindow = getMyElement ('', 'div', 'id', 'PlayerEmbed', -1, false);
-    blipSaverWidth = 596;
-  }
-  else {
-    blipSaverWidth = 960;
-  }
-  if (!blipPlayerWindow) {
-    showMyMessage ('!player');
-  }
-  else {
-    /* My Saver Socket */
-    var blipSaverSocket = createMyElement ('div', '', '', '', '');
-    styleMyElement (blipSaverSocket, {width: blipSaverWidth + 'px', textAlign: 'center', margin: '0px auto'});
-    appendMyElement (blipPlayerWindow, blipSaverSocket);
-
-    /* Get Videos Content */
-    var blipVideosContent = getMyContent(page.url + '?skin=json', '"additionalMedia":\\[(.*?)\\]', false);
-
-    /* Get Videos */
-    if (blipVideosContent) {
-      var blipVideoList = {};
-      var blipVideoFound = false;
-      var blipMimeTypes = {'video/x-m4v': 'M4V', 'video/quicktime': 'MOV', 'video/mp4': 'MP4', 'video/x-flv': 'FLV'};
-      var blipVideos = blipVideosContent.split(',{');
-      var blipVideoURL, blipVideoMime, blipVideoHeight, blipVideoRole, blipVideoDef, blipVideoCode;
-      var blipDefaultVideo = 'Low Definition MP4';
-      for (var blipV = 0; blipV < blipVideos.length; blipV++) {
-	blipVideoMime = blipVideos[blipV].match(/"primary_mime_type":"(.*?)"/);
-	blipVideoMime = (blipVideoMime) ? blipVideoMime[1] : null;
-	if (blipMimeTypes[blipVideoMime]) {
-	  blipVideoURL = blipVideos[blipV].match(/"url":"(.*?)"/);
-	  blipVideoURL = (blipVideoURL) ? blipVideoURL[1] : null;
-	  blipVideoHeight = blipVideos[blipV].match(/"media_height":"(.*?)"/);
-	  blipVideoHeight = (blipVideoHeight) ? blipVideoHeight[1] : null;
-	  blipVideoRole = blipVideos[blipV].match(/"role":"(.*?)"/);
-	  blipVideoRole = (blipVideoRole) ? blipVideoRole[1] : null;
-	  if (blipVideoURL && blipVideoHeight && blipVideoRole) {
-	    if (!blipVideoFound) blipVideoFound = true;
-	    if (blipVideoHeight >= 200 && blipVideoHeight < 400) blipVideoDef = 'Low Definition';
-	    else if (blipVideoHeight >= 400 && blipVideoHeight < 700) blipVideoDef = 'Standard Definition';
-	    else if (blipVideoHeight >= 700) blipVideoDef = 'High Definition';
-	    blipVideoCode = blipVideoDef + ' ' + blipMimeTypes[blipVideoMime];
-	    blipVideoList[blipVideoCode] = blipVideoURL;
-	    if (blipVideoRole == 'Source') blipDefaultVideo = blipVideoCode;
-	  }
-	}
-      }
-
-      if (blipVideoFound) {
-	/* Create Saver */
-	saver = {'saverSocket': blipSaverSocket, 'videoList': blipVideoList, 'videoSave': blipDefaultVideo, 'saverWidth': blipSaverWidth};
-	option['definitions'] = ['High Definition', 'Standard Definition', 'Low Definition'];
-	option['containers'] = ['MP4', 'M4V', 'MOV', 'FLV', 'Any'];
-	createMySaver ();
-      }
-      else {
-	saver = {'saverSocket': blipPlayerWindow, 'saverWidth': blipSaverWidth, 'warnMess': '!videos'};
-	createMySaver ();
-      }
-    }
-    else {
-      saver = {'saverSocket': blipPlayerWindow, 'saverWidth': blipSaverWidth, 'warnMess': '!content'};
-      createMySaver ();
-    }
-  }
-
-}
-
 // =====Veoh===== //
 
 else if (page.url.indexOf('veoh.com/watch') != -1) {
@@ -1517,82 +1355,6 @@ else if (page.url.indexOf('veoh.com/watch') != -1) {
       saver = {'saverSocket': vePlayerWindow, 'saverWidth': 640, 'warnMess': '!content'};
       createMySaver ();
     }
-  }
-
-}
-
-// =====Crackle===== //
-
-else if (page.url.indexOf('crackle.com/') != -1) {
-
-  /* Get Page Type */
-  var crPageType = getMyContent (page.url, 'meta\\s+property="og:type"\\s+content="(.*?)"', false);
-  if (!crPageType || crPageType.indexOf('video') == -1) return;
-
-  /* Get Player Window */
-  var crPlayerWindow = getMyElement ('', 'div', 'class', 'player-stage-area1', 0, false);
-  if (!crPlayerWindow) {
-    showMyMessage ('!player');
-  }
-  else {
-    /* Restyle */
-    if (!getMyElement(crPlayerWindow, 'div', 'class', 'clearall', 0, false)) {
-      var myClearFix = createMyElement ('div', '', '', '', '');
-      styleMyElement (myClearFix, {clear: 'both'});
-      appendMyElement (crPlayerWindow, myClearFix);
-    }
-    var crContent = getMyElement ('', 'div', 'id', 'content', -1, false);
-    styleMyElement (crContent, {marginTop: '30px'});
-    var crPlayerImage = getMyElement ('', 'div', 'class', 'image-stage-area', 0, false);
-    if (crPlayerImage) removeMyElement (crPlayerImage.parentNode, crPlayerImage);
-
-    /* Get Videos Content */
-    var crVideoPath = getMyContent (page.url, 'images-us-am.crackle.com\/(.*?_)tnl', false);
-    if (!crVideoPath) {
-      var crVideoID = getMyContent (page.url, 'mediaId:\\s*(.*?),', false);
-      if (crVideoID) {
-	var crVidWallCache = page.win.location.protocol + '//' + page.win.location.hostname + '/app/vidwallcache.aspx?flags=-1&fm=' + crVideoID + '&partner=20';
-	crVideoPath = getMyContent (crVidWallCache, '\\sp="(.*?)"', false);
-      }
-    }
-
-    /* Get Videos */
-    if (crVideoPath) {
-      var crVideoList = {};
-      var crVideoFormats = {'360p.mp4': 'Low Definition MP4', '480p.mp4': 'Standard Definition MP4'};
-      var crVideoThumb, crVideo, myVideoCode;
-      for (var crVideoCode in crVideoFormats) {
-	crVideo = 'http://media-us-am.crackle.com/' + crVideoPath + crVideoCode;
-	myVideoCode = crVideoFormats[crVideoCode];
-	crVideoList[myVideoCode] = crVideo;
-      }
-
-      /* Create Saver */
-      var crDefaultVideo = 'Low Definition MP4';
-      saver = {'saverSocket': crPlayerWindow, 'videoList': crVideoList, 'videoSave': crDefaultVideo, 'saverWidth': 970};
-      feature['container'] = false;
-      option['definition'] = 'SD';
-      option['definitions'] = ['Standard Definition', 'Low Definition'];
-      option['containers'] = ['MP4'];
-      createMySaver ();
-
-      /* Fix Thumbnails */
-      var crThumbs = getMyElement('', 'div', 'class', 'thumbnail', -1, false);
-      for (var crT = 0; crT < crThumbs.length; crT++) {
-	if (crThumbs[crT].innerHTML.indexOf('AddObjectToQueue') != -1) {
-	  var crLink = crThumbs[crT].innerHTML.match(/,\s+\d+,\s+'(.*?)'/);
-	  crLink = (crLink) ? crLink[1] : null;
-	  var crImg = crThumbs[crT].innerHTML.match(/src="(.*?)"/);
-	  crImg = (crImg) ? crImg[1] : null;
-	  crThumbs[crT].innerHTML = '<img src="' + crImg + '" onclick="window.location.href=\'' + crLink + '\'" style="cursor:pointer">';
-	}
-      }
-    }
-    else {
-      saver = {'saverSocket': crPlayerWindow, 'saverWidth': 970, 'warnMess': '!videos'};
-      createMySaver ();
-    }
-
   }
 
 }
