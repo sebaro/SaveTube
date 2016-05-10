@@ -3,6 +3,9 @@
 /* SaveTube Changelog */
 
 
+#2016.05.10
+- don't reload page on hash change
+
 #2016.04.16
 - fixes YouTube DASH
 

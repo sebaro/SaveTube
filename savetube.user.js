@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.04.16
+// @version		2016.05.10
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -537,7 +537,7 @@ function showMyMessage (cause, content) {
 // Force page reload on href change
 page.win.setInterval(function() {
   nurl = page.win.location.href;
-  if (page.url != nurl) {
+  if (page.url.split('#')[0] != nurl.split('#')[0]) {
     // YouTube
     if (nurl.indexOf('youtube.com') != -1) {
       if (nurl.indexOf('youtube.com/watch') != -1) page.win.location.href = nurl;
