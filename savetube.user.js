@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.05.10
+// @version		2016.05.27
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -94,8 +94,8 @@ var page = {win: window, doc: document, body: document.body, url: window.locatio
 
 // Saver
 var saver = {};
-var feature = {'definition': true, 'container': true, 'autoget': false};
-var option = {'definition': 'HD', 'container': 'MP4', 'autoget': false};
+var feature = {'definition': true, 'container': true, 'autoget': false, 'dash': false};
+var option = {'definition': 'HD', 'container': 'MP4', 'autoget': false, 'dash': false};
 
 // Links
 var website = 'http://isebaro.com/savetube/?ln=en';
@@ -177,6 +177,16 @@ function createMyElement (type, content, event, action, target) {
 	modifyMyElement (saver['buttonGet'] , 'div', 'Get', false);
 	selectMyVideo ();
 	if (option['autoget']) getMyVideo();
+      }
+      else if (action == 'dash') {
+	option['dash'] = (option['dash']) ? false : true;
+	if (option['dash']) {
+	  styleMyElement (saver['buttonDASH'], {color: '#008080', textShadow: '0px 1px 1px #CCCCCC'});
+	}
+	else {
+	  styleMyElement (saver['buttonDASH'], {color: '#CCCCCC', textShadow: '0px 0px 0px'});
+	}
+	setMyOptions ('dash', option['dash']);
       }
     }, false);
   }
@@ -280,7 +290,9 @@ function createMySaver () {
     saver['videoItem'] = createMyElement ('option', videoCode, '', '', '');
     styleMyElement (saver['videoItem'], {padding: '0px', display: 'block', color: '#336699', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', cursor: 'pointer'});
     if (videoCode.indexOf('Video') != -1 || videoCode.indexOf('Audio') != -1) styleMyElement (saver['videoItem'], {color: '#8F6B32'});
-    appendMyElement (saver['videoMenu'], saver['videoItem']);
+    if (saver['videoList'][videoCode] == 'DASH') styleMyElement (saver['videoItem'], {color: '#CF4913'});
+    if (saver['videoList'][videoCode] != 'DASH' || option['dash']) appendMyElement (saver['videoMenu'], saver['videoItem']);
+    else delete saver['videoList'][videoCode];
   }
 
   /* Panel Get Button */
@@ -314,6 +326,19 @@ function createMySaver () {
     styleMyElement (saver['buttonContainer'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#008000', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', cursor: 'pointer'});
     appendMyElement (saver['saverPanel'], saver['buttonContainer']);
   }
+
+  /* Panel DASH Button */
+  if (feature['dash']) {
+    saver['buttonDASH'] = createMyElement ('div', 'MD', 'click', 'dash', '');
+    saver['buttonDASH'].title = '{MPEG-DASH: click to enable/disable DASH download using the SaveTube protocol}';
+    styleMyElement (saver['buttonDASH'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#CCCCCC', fontSize: '12px', cursor: 'pointer'});
+    if (option['dash']) styleMyElement (saver['buttonDASH'], {color: '#008080', textShadow: '0px 1px 1px #CCCCCC'});
+    appendMyElement (saver['saverPanel'], saver['buttonDASH']);
+  }
+
+  /* Disabled Features */
+  if (!feature['autoget']) option['autoget'] = false;
+  if (!feature['dash']) option['dash'] = false;
 
   /* Select The Video */
   if (feature['definition'] || feature['container']) selectMyVideo ();
@@ -390,6 +415,35 @@ function getMyVideo () {
     vdoD = vdoD.replace(/Low Definition/, 'LD');
     vdoD = vdoD.replace(/\sFLV|\sMP4|\sWebM|\s3GP/g, '');
     vdoURL = vdoURL + '&title=' + saver['videoTitle'] + vdoD;
+  }
+  if (saver['videoList'][saver['videoSave']] == 'DASH') {
+    if (saver['videoSave'].indexOf('MP4') != -1) {
+      var vdoV = saver['videoList'][saver['videoSave'].replace(/MP4/, 'Video MP4')];
+      if (saver['videoList']['High Bitrate Audio MP4']) {
+	var vdoA = saver['videoList']['High Bitrate Audio MP4'];
+      }
+      else if (saver['videoList']['Medium Bitrate Audio MP4']) {
+	var vdoA = saver['videoList']['Medium Bitrate Audio MP4'];
+      }
+      else {
+	var vdoA = saver['videoList']['Low Bitrate Audio MP4'];
+      }
+    }
+    else {
+      var vdoV = saver['videoList'][saver['videoSave'].replace(/WebM/, 'Video WebM')];
+      if (saver['videoList']['High Bitrate Audio Opus']) {
+	var vdoA = saver['videoList']['High Bitrate Audio Opus'];
+      }
+      else if (saver['videoList']['Medium Bitrate Audio Opus']) {
+	var vdoA = saver['videoList']['Medium Bitrate Audio Opus'];
+      }
+      else {
+	var vdoA = saver['videoList']['Low Bitrate Audio Opus'];
+      }
+    }
+    var vdoT = 'video';
+    if (saver['videoTitle']) vdoT = saver['videoTitle'] + vdoD;
+    vdoURL = 'savetube:' + vdoT + '=SAVETUBE=' + vdoV + '=SAVETUBE=' + vdoA;
   }
   if (feature['autoget'] && !saver['videoSave'].match(/(Video|Audio)/)) page.win.location.href = vdoURL;
   else {
@@ -488,6 +542,7 @@ function getMyOptions () {
     }
   }
   option['autoget'] = (option['autoget'] === true || option['autoget'] == 'true') ? true : false;
+  option['dash'] = (option['dash'] === true || option['dash'] == 'true') ? true : false;
 }
 
 function showMyMessage (cause, content) {
@@ -771,6 +826,17 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
       }
 
       if (ytVideoFound) {
+	/* DASH */
+	if (!ytVideoList['Standard Definition MP4'] && ytVideoList['Standard Definition Video MP4']) ytVideoList['Standard Definition MP4'] = 'DASH';
+	if (!ytVideoList['High Definition MP4'] && ytVideoList['High Definition Video MP4']) ytVideoList['High Definition MP4'] = 'DASH';
+	if (!ytVideoList['Full High Definition MP4'] && ytVideoList['Full High Definition Video MP4']) ytVideoList['Full High Definition MP4'] = 'DASH';
+	if (!ytVideoList['Ultra High Definition MP4'] && ytVideoList['Ultra High Definition Video MP4']) ytVideoList['Ultra High Definition MP4'] = 'DASH';
+	if (!ytVideoList['Standard Definition WebM'] && ytVideoList['Standard Definition Video WebM']) ytVideoList['Standard Definition WebM'] = 'DASH';
+	if (!ytVideoList['High Definition WebM'] && ytVideoList['High Definition Video WebM']) ytVideoList['High Definition WebM'] = 'DASH';
+	if (!ytVideoList['Full High Definition WebM'] && ytVideoList['Full High Definition Video WebM']) ytVideoList['Full High Definition WebM'] = 'DASH';
+	if (!ytVideoList['Ultra High Definition WebM'] && ytVideoList['Ultra High Definition Video WebM']) ytVideoList['Ultra High Definition WebM'] = 'DASH';
+	feature['dash'] = true;
+
 	/* Create Saver */
 	feature['autoget'] = true;
 	ytSaver();

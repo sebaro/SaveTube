@@ -3,6 +3,9 @@
 /* SaveTube Changelog */
 
 
+#2016.05.27
+- adds support for DASH video+audio download through protocols
+
 #2016.05.10
 - don't reload page on hash change
 

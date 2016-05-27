@@ -3,7 +3,7 @@ SaveTube is a browser user script for downloading videos from video websites.
 
 ![](https://raw.github.com/sebaro/SaveTube/master/screenshot.png)
 
-### Installation
+# Installation
 
 Mozilla (Firefox, Seamonkey, IceWeasel, IceCat, TenFourFox etc):  
 == with Greasemonkey add-on:  
@@ -45,7 +45,9 @@ QupZilla:
 == with the Greasemonkey plugin  
 
 Maxthon:  
-== with Violentmonkey extension:  
+== with SaveTube extention:  
+-> https://github.com/sebaro/SaveTube/tree/master/Maxthon  
+== or with Violentmonkey extension:  
 -> http://extension.maxthon.com/detail/index.php?view_id=1680  
 == or with Tampermonkey Chrome extension:  
 -> https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo  
@@ -54,7 +56,7 @@ Internet Explorer:
 == with IE7Pro extension:  
 -> http://ie7pro.com  
 
-### Options
+# Options
 
 Autoget:  
 -> Click 'Autoget' button to turn autoget on/off. If it's on, the video download will start when the video page is loaded or when a new video format is selected.  
@@ -64,3 +66,7 @@ Definition (SD, HD etc):
  
 Container (MP4, WebM etc):  
 -> Click this button to change the default video container.  
+
+MPEG-DASH (MD):  
+-> Click this button to enable/disable MPEG-DASH streams (video with audio) download. It requires an external application for demuxing, see http://isebaro.com/savetube/protocol  
+
