@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.05.27
+// @version		2016.05.31
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
 // @license		GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @downloadURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetube.user.js
 // @updateURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetube.user.js
-// @icon		http://s3.amazonaws.com/uso_ss/icon/130917/large.png
+// @icon		data:image/png;base64,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
 // @include		http://youtube.com*
 // @include		http://www.youtube.com*
 // @include		https://youtube.com*
