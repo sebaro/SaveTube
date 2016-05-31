@@ -4,7 +4,7 @@
 
 
 #2016.05.31
-- changes remote icon with base64 icon
+- changes icon url
 
 #2016.05.27
 - adds support for DASH video+audio download through protocols
