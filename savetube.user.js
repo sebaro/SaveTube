@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.05.31
+// @version		2016.07.08
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -44,10 +44,6 @@
 // @include		http://www.imdb.com*
 // @include		https://imdb.com*
 // @include		https://www.imdb.com*
-// @include		http://facebook.com*
-// @include		http://www.facebook.com*
-// @include		https://facebook.com*
-// @include		https://www.facebook.com*
 // @grant		GM_xmlhttpRequest
 // @grant		GM_setValue
 // @grant		GM_getValue
@@ -96,6 +92,7 @@ var page = {win: window, doc: document, body: document.body, url: window.locatio
 var saver = {};
 var feature = {'definition': true, 'container': true, 'autoget': false, 'dash': false};
 var option = {'definition': 'HD', 'container': 'MP4', 'autoget': false, 'dash': false};
+var sources = {};
 
 // Links
 var website = 'http://isebaro.com/savetube/?ln=en';
@@ -466,9 +463,13 @@ function getMyContent (url, pattern, clean) {
   var myPageContent, myVideosParse, myVideosContent;
   var isIE = (navigator.appName.indexOf('Internet Explorer') != -1) ? true : false;
   var getMethod = (url != page.url || isIE) ? 'XHR' : 'DOM';
+  if (!sources[url]) sources[url] = {};
   if (getMethod == 'DOM') {
-    myPageContent = getMyElement ('', 'html', 'tag', '', 0, true);
-    if (!myPageContent) myPageContent = getMyElement ('', 'body', '', '', -1, true);
+    if (!sources[url]['DOM']) {
+      sources[url]['DOM'] = getMyElement ('', 'html', 'tag', '', 0, true);
+      if (!sources[url]['DOM']) sources[url]['DOM'] = getMyElement ('', 'body', '', '', -1, true);
+    }
+    myPageContent = sources[url]['DOM'];
     if (clean) myPageContent = cleanMyContent (myPageContent, true);
     myVideosParse = myPageContent.match (pattern);
     myVideosContent = (myVideosParse) ? myVideosParse[1] : null;
@@ -476,17 +477,22 @@ function getMyContent (url, pattern, clean) {
     else getMethod = 'XHR';
   }
   if (getMethod == 'XHR') {
-    var xmlHTTP = new XMLHttpRequest();
-    xmlHTTP.open('GET', url, false);
-    xmlHTTP.send();
+    if (!sources[url]['XHR']) sources[url]['XHR'] = {};
+    if ((pattern == 'XML' && !sources[url]['XHR']['XML']) || (pattern != 'XML' && !sources[url]['XHR']['TEXT'])) {
+      var xmlHTTP = new XMLHttpRequest();
+      xmlHTTP.open('GET', url, false);
+      xmlHTTP.send();
+      if (pattern == 'XML') sources[url]['XHR']['XML'] = xmlHTTP.responseXML;
+      else sources[url]['XHR']['TEXT'] = xmlHTTP.responseText;
+    }
     if (pattern == 'XML') {
-      myVideosContent = xmlHTTP.responseXML;
+      myVideosContent = sources[url]['XHR']['XML'];
     }
     else if (pattern == 'TEXT') {
-      myVideosContent = xmlHTTP.responseText;
+      myVideosContent = sources[url]['XHR']['TEXT'];
     }
     else {
-      myPageContent = xmlHTTP.responseText;
+      myPageContent = sources[url]['XHR']['TEXT'];
       if (clean) myPageContent = cleanMyContent (myPageContent, true);
       myVideosParse = myPageContent.match (pattern);
       myVideosContent = (myVideosParse) ? myVideosParse[1] : null;
@@ -591,17 +597,12 @@ function showMyMessage (cause, content) {
 
 // Force page reload on href change
 page.win.setInterval(function() {
+  // Force page reload on href change
   nurl = page.win.location.href;
   if (page.url.split('#')[0] != nurl.split('#')[0]) {
     // YouTube
     if (nurl.indexOf('youtube.com') != -1) {
       if (nurl.indexOf('youtube.com/watch') != -1) page.win.location.href = nurl;
-    }
-    // Facebook
-    else if (nurl.indexOf('facebook.com') != -1) {
-      if (nurl.match('facebook.com/(video.php|.*/videos/)')) {
-	page.win.location.href = nurl.replace('&theater', '');
-      }
     }
     // Others
     else {
@@ -1443,6 +1444,7 @@ else if (page.url.indexOf('viki.com/videos') != -1) {
     /* Get Videos Content */
     var vkVideosContent;
     if (vkVideoID) vkVideosContent = getMyContent (page.win.location.protocol + '//' + page.win.location.host + '/player5_fragment/' + vkVideoID + 'v.json', 'TEXT', false);
+    if (vkVideosContent.replace(/\n/, '') == '{}') return;
 
     /* Saver Width*/
     var vkSaverWith = parseInt(vkSaverWindow.clientWidth) - 20;
@@ -1532,64 +1534,6 @@ else if (page.url.indexOf('imdb.com') != -1) {
     }
     else {
       saver = {'saverSocket': imdbPlayerWindow, 'saverWidth': 1010, 'warnMess': '!videos'};
-      createMySaver ();
-    }
-  }
-
-}
-
-// =====Facebook===== //
-
-else if (page.url.match('facebook.com/(video.php|.*/videos/)')) {
-
-  /* Get Player Window */
-  var fbPlayerWindow = getMyElement ('', 'div', 'class', 'stageButtons', 0, false);
-  if (!fbPlayerWindow) {
-    showMyMessage ('!player');
-  }
-  else {
-    /* Get Videos Content */
-    var fbVideosContent = getMyContent(page.url, '"params","(.*?)"', false);
-    var fbPattern = /\\u([\d\w]{4})/gi;
-    fbVideosContent = fbVideosContent.replace(fbPattern, function (match, group) {
-      return String.fromCharCode(parseInt(group, 16));
-    });
-    fbVideosContent = unescape(fbVideosContent);
-
-    /* Get Videos */
-    if (fbVideosContent) {
-      var fbVideoList = {};
-      var fbVideoFormats = {'sd_src': 'Low Definition MP4', 'hd_src': 'High Definition MP4'};
-      var fbVideoFound = false;
-      var fbVideoPattern, fbVideo, myVideoCode, fbVideoThumb, fbDefaultVideo;
-      for (var fbVideoCode in fbVideoFormats) {
-	fbVideoPattern = '"' + fbVideoCode + '":"(.*?)"';
-	fbVideo = fbVideosContent.match(fbVideoPattern);
-	fbVideo = (fbVideo) ? fbVideo[1] : null;
-	if (fbVideo) {
-	  fbVideo = cleanMyContent(fbVideo, false);
-	  if (!fbVideoFound) fbVideoFound = true;
-	  myVideoCode = fbVideoFormats[fbVideoCode];
-	  if (fbVideo.indexOf('.flv') != -1) myVideoCode = myVideoCode.replace('MP4', 'FLV');
-	  fbVideoList[myVideoCode] = fbVideo;
-	  if (!fbDefaultVideo) fbDefaultVideo = myVideoCode;
-	}
-      }
-
-      if (fbVideoFound) {
-	/* Create Saver */
-	saver = {'saverSocket': fbPlayerWindow, 'videoList': fbVideoList, 'videoSave': fbDefaultVideo, 'saverWidth': 760};
-	option['definitions'] = ['High Definition', 'Low Definition'];
-	option['containers'] = ['MP4', 'FLV', 'Any'];
-	createMySaver ();
-      }
-      else {
-	saver = {'saverSocket': fbPlayerWindow, 'saverWidth': 760, 'warnMess': '!videos'};
-	createMySaver ();
-      }
-    }
-    else {
-      saver = {'saverSocket': fbPlayerWindow, 'saverWidth': 760, 'warnMess': '!content'};
       createMySaver ();
     }
   }
