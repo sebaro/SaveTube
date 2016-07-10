@@ -1,10 +1,10 @@
 ﻿[{
 	"author": "Sebaro (script) & A.S. (MX add-on)"
 	"website": "http://isebaro.com/savetube/" 
-	"date": "31.05.2016"
+	"date": "08.07.2016"
 	"type":"extension",
 		"frameworkVersion":"1.0.0",
-		"version":"2016.05.31.1",
+		"version":"2016.07.08.0",
         "guid": "{3DEDEE46-63BC-4024-9796-737F8820E16E}",
 	"name": "SaveTube"
 	"icon": "icon",
@@ -26,22 +26,12 @@
 			"break.com",
 			"*.funnyordie.com",
 			"funnyordie.com",
-			"*.videojug.com",
-			"videojug.com",
-			"*.blip.tv",
-			"blip.tv",
 			"*.veoh.com",
 			"veoh.com",
-			"*.crackle.com",
-			"crackle.com",
 			"*.viki.com",
 			"viki.com",
 			"*.imdb.com",
-			"imdb.com",
-			"*.facebook.com",
-			"facebook.com",
-			"*.screen.yahoo.com",
-			"screen.yahoo.com"],
+			"imdb.com",],
 		"js": ["script.js"],
 		}]
 
