@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.07.08
+// @version		2016.08.01
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -12,6 +12,8 @@
 // @include		http://www.youtube.com*
 // @include		https://youtube.com*
 // @include		https://www.youtube.com*
+// @include		http://gaming.youtube.com*
+// @include		https://gaming.youtube.com*
 // @include		http://dailymotion.com*
 // @include		http://www.dailymotion.com*
 // @include		https://dailymotion.com*
@@ -86,7 +88,7 @@ if (window.top != window.self) return;
 var userscript = 'SaveTube';
 
 // Page
-var page = {win: window, doc: document, body: document.body, url: window.location.href, site: window.location.hostname.match(/([^.]+)\.[^.]+$/)[1]};
+var page = {win: window, doc: document, body: document.body, url: window.location.href, title: document.title, site: window.location.hostname.match(/([^.]+)\.[^.]+$/)[1]};
 
 // Saver
 var saver = {};
@@ -595,25 +597,23 @@ function showMyMessage (cause, content) {
 
 // ==========Websites========== //
 
-// Force page reload on href change
+// Force page reload on title and location change
 page.win.setInterval(function() {
-  // Force page reload on href change
-  nurl = page.win.location.href;
-  if (page.url.split('#')[0] != nurl.split('#')[0]) {
-    // YouTube
-    if (nurl.indexOf('youtube.com') != -1) {
-      if (nurl.indexOf('youtube.com/watch') != -1) page.win.location.href = nurl;
-    }
-    // Others
-    else {
-      page.win.location.href = nurl;
-    }
+  if (page.title != page.doc.title && page.url != page.win.location.href) {
+    page.title = page.doc.title;
+    page.url = page.win.location.href;
+    page.win.location.reload();
   }
 }, 500);
 
 // =====YouTube===== //
 
 if (page.url.indexOf('youtube.com/watch') != -1) {
+
+  /* Redirect Categories */
+  if (page.url.indexOf('gaming.youtube.com') != -1) {
+    page.win.location.href = page.url.replace('gaming', 'www');
+  }
 
   /* Video Availability */
   var ytVideoUnavailable = getMyElement ('', 'div', 'id', 'player-unavailable', -1, false);
@@ -682,10 +682,8 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
       ytVideosContent = ytVideosEncodedFmts;
     }
     else {
-      if (!ytVideoID) {
-	var ytVideoID = page.url.match (/(\?|&)v=(.*?)(&|$)/);
-	ytVideoID = (ytVideoID) ? ytVideoID[2] : null;
-      }
+      var ytVideoID = page.url.match (/(\?|&)v=(.*?)(&|$)/);
+      ytVideoID = (ytVideoID) ? ytVideoID[2] : null;
       if (ytVideoID) {
 	var ytVideoSts = getMyContent(page.url.replace(/watch.*?v=/, 'embed/').replace(/&.*$/, ''), '"sts"\\s*:\\s*(\\d+)', false);
 	var ytVideosInfoURL = page.win.location.protocol + '//' + page.win.location.hostname + '/get_video_info?video_id=' + ytVideoID + '&eurl=https://youtube.googleapis.com/v/' + ytVideoID + '&sts=' + ytVideoSts;
