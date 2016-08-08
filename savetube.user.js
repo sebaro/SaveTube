@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.08.01
+// @version		2016.08.08
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -674,45 +674,46 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
     }
 
     /* Get Videos Content */
-    var ytVideosContent, ytHLSContent;
-    var ytVideosEncodedFmts, ytVideosAdaptiveFmts;
+    var ytVideosEncodedFmts, ytVideosAdaptiveFmts, ytVideosContent, ytHLSVideos, ytHLSContent;
     ytVideosEncodedFmts = getMyContent(page.url, '"url_encoded_fmt_stream_map":\\s*"(.*?)"', false);
+    if (!ytVideosEncodedFmts) ytVideosEncodedFmts = getMyContent(page.url, '\\\\"url_encoded_fmt_stream_map\\\\":\\s*\\\\"(.*?)\\\\"', false);
     ytVideosAdaptiveFmts = getMyContent(page.url, '"adaptive_fmts":\\s*"(.*?)"', false);
+    if (!ytVideosAdaptiveFmts) ytVideosAdaptiveFmts = getMyContent(page.url, '\\\\"adaptive_fmts\\\\":\\s*\\\\"(.*?)\\\\"', false);
     if (ytVideosEncodedFmts) {
       ytVideosContent = ytVideosEncodedFmts;
     }
     else {
-      var ytVideoID = page.url.match (/(\?|&)v=(.*?)(&|$)/);
-      ytVideoID = (ytVideoID) ? ytVideoID[2] : null;
-      if (ytVideoID) {
-	var ytVideoSts = getMyContent(page.url.replace(/watch.*?v=/, 'embed/').replace(/&.*$/, ''), '"sts"\\s*:\\s*(\\d+)', false);
-	var ytVideosInfoURL = page.win.location.protocol + '//' + page.win.location.hostname + '/get_video_info?video_id=' + ytVideoID + '&eurl=https://youtube.googleapis.com/v/' + ytVideoID + '&sts=' + ytVideoSts;
-	var ytVideosInfo = getMyContent(ytVideosInfoURL, 'TEXT', false);
-	if (ytVideosInfo) {
-	  ytVideosEncodedFmts = ytVideosInfo.match(/url_encoded_fmt_stream_map=(.*?)&/);
-	  ytVideosEncodedFmts = (ytVideosEncodedFmts) ? ytVideosEncodedFmts[1] : null;
-	  if (ytVideosEncodedFmts) {
-	    ytVideosEncodedFmts = cleanMyContent(ytVideosEncodedFmts, true);
-	    ytVideosContent = ytVideosEncodedFmts;
-	  }
-	  if (!ytVideosAdaptiveFmts) {
-	    ytVideosAdaptiveFmts = ytVideosInfo.match(/adaptive_fmts=(.*?)&/);
-	    ytVideosAdaptiveFmts = (ytVideosAdaptiveFmts) ? ytVideosAdaptiveFmts[1] : null;
-	    if (ytVideosAdaptiveFmts) ytVideosAdaptiveFmts = cleanMyContent(ytVideosAdaptiveFmts, true);
+      ytHLSVideos = getMyContent(page.url, '"hlsvp":\\s*"(.*?)"', false);
+      if (!ytHLSVideos) ytHLSVideos = getMyContent(page.url, '\\\\"hlsvp\\\\":\\s*\\\\"(.*?)\\\\"', false);
+      if (ytHLSVideos) {
+	ytHLSVideos = cleanMyContent(ytHLSVideos, false);
+      }
+      else {
+	var ytVideoID = page.url.match (/(\?|&)v=(.*?)(&|$)/);
+	ytVideoID = (ytVideoID) ? ytVideoID[2] : null;
+	if (ytVideoID) {
+	  var ytVideoSts = getMyContent(page.url.replace(/watch.*?v=/, 'embed/').replace(/&.*$/, ''), '"sts"\\s*:\\s*(\\d+)', false);
+	  var ytVideosInfoURL = page.win.location.protocol + '//' + page.win.location.hostname + '/get_video_info?video_id=' + ytVideoID + '&eurl=https://youtube.googleapis.com/v/' + ytVideoID + '&sts=' + ytVideoSts;
+	  var ytVideosInfo = getMyContent(ytVideosInfoURL, 'TEXT', false);
+	  if (ytVideosInfo) {
+	    ytVideosEncodedFmts = ytVideosInfo.match(/url_encoded_fmt_stream_map=(.*?)&/);
+	    ytVideosEncodedFmts = (ytVideosEncodedFmts) ? ytVideosEncodedFmts[1] : null;
+	    if (ytVideosEncodedFmts) {
+	      ytVideosEncodedFmts = cleanMyContent(ytVideosEncodedFmts, true);
+	      ytVideosContent = ytVideosEncodedFmts;
+	    }
+	    if (!ytVideosAdaptiveFmts) {
+	      ytVideosAdaptiveFmts = ytVideosInfo.match(/adaptive_fmts=(.*?)&/);
+	      ytVideosAdaptiveFmts = (ytVideosAdaptiveFmts) ? ytVideosAdaptiveFmts[1] : null;
+	      if (ytVideosAdaptiveFmts) ytVideosAdaptiveFmts = cleanMyContent(ytVideosAdaptiveFmts, true);
+	    }
 	  }
 	}
       }
     }
-    if (ytVideosAdaptiveFmts) {
+    if (ytVideosAdaptiveFmts && !ytHLSVideos) {
       if (ytVideosContent) ytVideosContent += ',' + ytVideosAdaptiveFmts;
       else ytVideosContent = ytVideosAdaptiveFmts;
-    }
-
-    /* Get HLS Content */
-    if (!ytVideosContent) {
-      var ytHLSVideos, ytHLSContent;
-      ytHLSVideos = getMyContent(page.url, '"hlsvp":\\s*"(.*?)"', false);
-      if (ytHLSVideos) ytHLSVideos = cleanMyContent(ytHLSVideos, false);
     }
 
     /* Fix Sidebar */
