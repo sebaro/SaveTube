@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.08.08
+// @version		2016.08.09
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -994,12 +994,7 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 
 // =====DailyMotion===== //
 
-else if (page.url.indexOf('dailymotion.com/video') != -1 || page.url.indexOf('dailymotion.com/playlist') != -1) {
-
-  /* Redirect Playlist To Video */
-  if (page.url.indexOf('dailymotion.com/playlist') != -1 && page.url.indexOf('#video=') != -1) {
-    page.win.location.href = page.url.replace(/playlist.*#/, '').replace("=", "/");
-  }
+else if (page.url.indexOf('dailymotion.com/video') != -1) {
 
   /* Get Player Window */
   var dmPlayerWindow = getMyElement ('', 'div', 'class', 'player-container', 0, false);
@@ -1035,20 +1030,23 @@ else if (page.url.indexOf('dailymotion.com/video') != -1 || page.url.indexOf('da
       if (dmVideoFound) {
 	/* Create Saver */
 	var dmDefaultVideo = 'Low Definition MP4';
-	saver = {'saverSocket': dmPlayerWindow, 'videoList': dmVideoList, 'videoSave': dmDefaultVideo, 'saverWidth': 800};
+	saver = {'saverSocket': dmPlayerWindow, 'videoList': dmVideoList, 'videoSave': dmDefaultVideo, 'saverWidth': 500};
 	feature['container'] = false;
 	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
 	option['containers'] = ['MP4'];
 	createMySaver ();
+	styleMyElement(saver['saverPanel'], {zIndex: '99999'});
       }
       else {
-	saver = {'saverSocket': dmPlayerWindow, 'saverWidth': 800, 'warnMess': '!videos'};
+	saver = {'saverSocket': dmPlayerWindow, 'saverWidth': 500, 'warnMess': '!videos'};
 	createMySaver ();
+	styleMyElement(saver['saverPanel'], {zIndex: '99999'});
       }
     }
     else {
-      saver = {'saverSocket': dmPlayerWindow, 'saverWidth': 800, 'warnMess': '!content'};
+      saver = {'saverSocket': dmPlayerWindow, 'saverWidth': 500, 'warnMess': '!content'};
       createMySaver ();
+      styleMyElement(saver['saverPanel'], {zIndex: '99999'});
     }
   }
 
