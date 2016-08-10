@@ -1,10 +1,10 @@
 ﻿[{
 	"author": "Sebaro (script) & A.S. (MX add-on)"
 	"website": "http://isebaro.com/savetube/" 
-	"date": "08.07.2016"
+	"date": "10.08.2016"
 	"type":"extension",
 		"frameworkVersion":"1.0.0",
-		"version":"2016.07.08.0",
+		"version":"2016.08.10.0",
         "guid": "{3DEDEE46-63BC-4024-9796-737F8820E16E}",
 	"name": "SaveTube"
 	"icon": "icon",
