@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube+
-// @version		2016.06.09
+// @version		2016.08.10
 // @description		Download videos from web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -104,22 +104,43 @@ if (links) {
   var panel = document.createElement('div');
   panel.style.position = 'fixed';
   panel.style.bottom = '0px';
-  panel.style.right = '5%';
+  panel.style.right = '25px';
   panel.style.zIndex = '9999999999';
-  panel.style.minWidth = '200px';
-  panel.style.height = '30px';
   panel.style.color = '#336699';
-  panel.style.backgroundColor = '#EEEEEE';
-  panel.style.padding = '5px';
-  panel.style.fontSize = '14px';
+  panel.style.backgroundColor = '#FFFFFF';
+  panel.style.padding = '5px 5px 10px 5px';
+  panel.style.fontSize = '12px';
   panel.style.fontWeight = 'bold';
-  panel.style.textAlign = 'center';
-  panel.style.borderLeft = '1px solid #999999';
-  panel.style.borderRight = '1px solid #999999';
-  panel.style.borderTop = '1px solid #999999';
+  panel.style.borderLeft = '3px solid #EEEEEE';
+  panel.style.borderRight = '3px solid #EEEEEE';
+  panel.style.borderTop = '3px solid #EEEEEE';
   panel.style.borderRadius = '5px 5px 0px 0px';
-  panel.style.opacity = '0.9';
-  panel.innerHTML = '<a href="' + contact + '" style="color:#77B753">' + userscript + '</a>: ' + links;
+  panel.innerHTML = '<a href="' + contact + '" style="color:#336699; font-weight:bold; text-decoration:none">' + userscript + '</a>: ' + links;
+  var button = document.createElement('div');
+  button.innerHTML = '<';
+  button.style.height = '12px';
+  button.style.border = '1px solid #CCCCCC';
+  button.style.borderRadius = '3px';
+  button.style.padding = '0px 5px';
+  button.style.display = 'inline';
+  button.style.color = '#CCCCCC';
+  button.style.fontSize = '12px';
+  button.style.textShadow = '0px 1px 1px #CCCCCC';
+  button.style.cursor = 'pointer';
+  button.style.marginLeft = '10px';
+  button.addEventListener('click', function() {
+    if (panel.style.right == '25px') {
+      panel.style.left = '25px';
+      panel.style.right = 'auto';
+      button.innerHTML = '>';
+    }
+    else {
+      panel.style.left = 'auto';
+      panel.style.right = '25px';
+      button.innerHTML = '<';
+    }
+  }, false);
+  panel.appendChild(button);
   document.body.appendChild(panel);
 }
 
