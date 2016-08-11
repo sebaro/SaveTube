@@ -68,5 +68,6 @@ Container (MP4, WebM etc):
 -> Click this button to change the default video container.  
 
 MPEG-DASH (MD):  
--> Click this button to enable/disable MPEG-DASH streams (video with audio) download. It requires an external application for demuxing, see http://isebaro.com/savetube/protocol  
-
+-> Click this button to enable/disable MPEG-DASH streams (video with audio) download. It 
+requires an external application for muxing the audio and video streams, see 
+http://isebaro.com/savetube/protocol  
