@@ -67,7 +67,7 @@ if (!source) return;
 
 /* Video Patterns */
 var patterns = [
-  '=(http[^=]*?\\.(mp4|flv|webm|m3u8).*?)&',
+  '=(http[^=\'"]*?\\.(mp4|flv|webm|m3u8).*?)&',
   'file\s*:\s*"(http[^")]*?\\.(mp4|flv|webm|m3u8).*?)"',
   'src="(http[^"]*?\\.(mp4|flv|webm|m3u8).*?)"',
   '"(http[^"]*?\\.(mp4|flv|webm|m3u8).*?)"',
