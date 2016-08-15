@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube+
-// @version		2016.08.10
+// @version		2016.08.15
 // @description		Download videos from web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -105,7 +105,7 @@ if (links) {
   panel.style.position = 'fixed';
   panel.style.bottom = '0px';
   panel.style.right = '25px';
-  panel.style.zIndex = '9999999999';
+  panel.style.zIndex = '2000000000';
   panel.style.color = '#336699';
   panel.style.backgroundColor = '#FFFFFF';
   panel.style.padding = '5px 5px 10px 5px';

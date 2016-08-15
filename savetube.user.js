@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.08.10
+// @version		2016.08.15
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -267,7 +267,7 @@ function createMySaver () {
 
   /* The Panel */
   saver['saverPanel'] = createMyElement ('div', '', '', '', '');
-  styleMyElement (saver['saverPanel'], {position: 'fixed', backgroundColor: '#FFFFFF', padding: '5px 5px 10px 5px', bottom: '0px', right: '25px', zIndex: '9999999999', borderTop: '3px solid #EEEEEE', borderLeft: '3px solid #EEEEEE', borderRight: '3px solid #EEEEEE', borderRadius: '5px 5px 0px 0px'});
+  styleMyElement (saver['saverPanel'], {position: 'fixed', backgroundColor: '#FFFFFF', padding: '5px 5px 10px 5px', bottom: '0px', right: '25px', zIndex: '2000000000', borderTop: '3px solid #EEEEEE', borderLeft: '3px solid #EEEEEE', borderRight: '3px solid #EEEEEE', borderRadius: '5px 5px 0px 0px'});
   appendMyElement (page.body, saver['saverPanel']);
 
   /* Warnings */
@@ -974,10 +974,8 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 else if (page.url.indexOf('dailymotion.com/video') != -1) {
 
   /* Get Videos Content */
-  var dmEmbed;
-  if (page.url.indexOf('dailymotion.com/video') != -1) dmEmbed = page.url.replace(/\/video\//, "/embed/video/");
-  else dmEmbed = page.url.replace(/playlist.*=/, "embed/video/");
-  dmVideosContent = getMyContent (dmEmbed, '"qualities":\\{(.*?)\\]\\},', false);
+  var dmVideosContent = getMyContent (page.url, '"qualities":\\{(.*?)\\]\\},', false);
+  if (!dmVideosContent) dmVideosContent = getMyContent (page.url.replace(/\/video\//, "/embed/video/"), '"qualities":\\{(.*?)\\]\\},', false);
 
   /* Get Videos */
   if (dmVideosContent) {
