@@ -3,6 +3,12 @@
 /* SaveTube Changelog */
 
 
+#2016.08.30
+- fixes Vimeo
+
+#2016.08.15
+- fixed panel shown in full-screen with some browsers
+
 #2016.08.10
 - moves the panel on bottom
 
