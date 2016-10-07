@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.08.30
+// @version		2016.10.07
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -789,7 +789,8 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
 	  }
 	  if (ytVideo.match(/type=(video|audio).*?&/)) ytVideo = ytVideo.replace(/type=(video|audio).*?&/, '');
 	  else ytVideo = ytVideo.replace(/&type=(video|audio).*$/, '');
-	  if (ytVideo.match(/&xtags=/)) ytVideo = ytVideo.replace(/&xtags=/, '');
+	  if (ytVideo.match(/xtags=[^%=]*&/)) ytVideo = ytVideo.replace(/xtags=[^%=]*?&/, '');
+	  else if (ytVideo.match(/&xtags=[^%=]*$/)) ytVideo = ytVideo.replace(/&xtags=[^%=]*$/, '');
 	  if (ytVideo.match(/&sig=/)) ytVideo = ytVideo.replace (/&sig=/, '&signature=');
 	  else if (ytVideo.match(/&s=/)) {
 	    var ytSig = ytVideo.match(/&s=(.*?)(&|$)/);

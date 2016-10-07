@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube+
-// @version		2016.08.15
+// @version		2016.10.07
 // @description		Download videos from web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -88,7 +88,7 @@ for (var i = 0; i < patterns.length; i++) {
 	video = video.replace(/\\/g, '');
 	if (video.indexOf('%') != -1) video = unescape(video);
 	if (video.indexOf('&amp;') != -1) video = video.replace(/&amp;/g, '&');
-	if (video.indexOf('http') == 0 && !video.match(/(thumb|\.jpg|\.png|\.gif|format=|\/\/[^\/]*?(mp4|flv|webm|m3u8))/)) {
+	if (video.indexOf('http') == 0 && !video.match(/(thumb|\.jpg|\.png|\.gif|\.htm|format=|\/\/[^\/]*?(mp4|flv|webm|m3u8))/)) {
 	  if (video.indexOf('.mp4') != -1) type = 'MP4';
 	  else if (video.indexOf('.flv') != -1) type = 'FLV';
 	  else if (video.indexOf('.webm') != -1) type = 'WebM';
