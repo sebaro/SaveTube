@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.10.07
+// @version		2016.10.18
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -986,7 +986,7 @@ else if (page.url.indexOf('dailymotion.com/video') != -1) {
     var dmVideoFound = false;
     var dmVideoParser, dmVideoParse, myVideoCode, dmVideo;
     for (var dmVideoCode in dmVideoFormats) {
-      dmVideoParser = '"' + dmVideoCode + '".*?"url":"(.*?)"';
+      dmVideoParser = '"' + dmVideoCode + '".*?"type":"video.*?mp4","url":"(.*?)"';
       dmVideoParse = dmVideosContent.match(dmVideoParser);
       dmVideo = (dmVideoParse) ? dmVideoParse[1] : null;
       if (dmVideo) {
