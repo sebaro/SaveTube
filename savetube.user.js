@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2016.10.18
+// @version		2016.11.05
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -458,7 +458,7 @@ function getMyVideo() {
     if (saver['videoTitle']) vdoT = saver['videoTitle'] + vdoD;
     vdoURL = 'savetube:' + vdoT + '=SAVETUBE=' + vdoV + '=SAVETUBE=' + vdoA;
   }
-  if (feature['autoget'] && !saver['videoSave'].match(/(Video|Audio)/)) page.win.location.href = vdoURL;
+  if (feature['autoget'] && player['videoPlay'] == 'High Definition MP4') page.win.location.href = vdoURL;
   else {
     var vdoLink = 'Get <a href="' + vdoURL + '" style="color:#00892C">Link</a>';
     modifyMyElement(saver['buttonGet'] , 'div', vdoLink, false);
