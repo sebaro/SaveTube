@@ -458,7 +458,7 @@ function getMyVideo() {
     if (saver['videoTitle']) vdoT = saver['videoTitle'] + vdoD;
     vdoURL = 'savetube:' + vdoT + '=SAVETUBE=' + vdoV + '=SAVETUBE=' + vdoA;
   }
-  if (feature['autoget'] && player['videoPlay'] == 'High Definition MP4') page.win.location.href = vdoURL;
+  if (feature['autoget'] && saver['videoPlay'] == 'High Definition MP4') page.win.location.href = vdoURL;
   else {
     var vdoLink = 'Get <a href="' + vdoURL + '" style="color:#00892C">Link</a>';
     modifyMyElement(saver['buttonGet'] , 'div', vdoLink, false);
