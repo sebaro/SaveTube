@@ -1,6 +1,6 @@
 ﻿// ==UserScript==
 // @name		SaveTube
-// @version		2016.10.07
+// @version		2016.11.05
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -458,7 +458,7 @@ function getMyVideo() {
     if (saver['videoTitle']) vdoT = saver['videoTitle'] + vdoD;
     vdoURL = 'savetube:' + vdoT + '=SAVETUBE=' + vdoV + '=SAVETUBE=' + vdoA;
   }
-  if (feature['autoget'] && !saver['videoSave'].match(/(Video|Audio)/)) page.win.location.href = vdoURL;
+  if (feature['autoget'] && saver['videoSave'] == 'High Definition MP4') page.win.location.href = vdoURL;
   else {
     var vdoLink = 'Get <a href="' + vdoURL + '" style="color:#00892C">Link</a>';
     modifyMyElement(saver['buttonGet'] , 'div', vdoLink, false);
@@ -986,7 +986,7 @@ else if (page.url.indexOf('dailymotion.com/video') != -1) {
     var dmVideoFound = false;
     var dmVideoParser, dmVideoParse, myVideoCode, dmVideo;
     for (var dmVideoCode in dmVideoFormats) {
-      dmVideoParser = '"' + dmVideoCode + '".*?"url":"(.*?)"';
+      dmVideoParser = '"' + dmVideoCode + '".*?"type":"video.*?mp4","url":"(.*?)"';
       dmVideoParse = dmVideosContent.match(dmVideoParser);
       dmVideo = (dmVideoParse) ? dmVideoParse[1] : null;
       if (dmVideo) {

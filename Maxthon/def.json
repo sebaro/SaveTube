@@ -1,10 +1,10 @@
 ﻿[{
 	"author": "Sebaro (script) & A.S. (MX add-on)"
 	"website": "http://isebaro.com/savetube/" 
-	"date": "07.10.2016"
+	"date": "05.11.2016"
 	"type":"extension",
-		"frameworkVersion":"1.0.0",
-		"version":"2016.10.07.0",
+	"frameworkVersion":"1.0.0",
+	"version":"2016.11.05.0",
         "guid": "{3DEDEE46-63BC-4024-9796-737F8820E16E}",
 	"name": "SaveTube"
 	"icon": "icon",
@@ -52,7 +52,7 @@
 				"type": "page",
 				"title": {"_t": "app.Changelog"},
 				"icon": "point.png",
-				"main": "http://isebaro.com/savetube/include/files/changelog"
+				"main": "http://isebaro.com/savetube/include/files/CHANGES"
 				},
 			{"type": "separator"},
 				{
