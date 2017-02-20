@@ -1,6 +1,6 @@
 ﻿// ==UserScript==
 // @name		SaveTube
-// @version		2016.11.05
+// @version		2017.02.10
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -56,7 +56,7 @@
 
 /*
 
-  Copyright (C) 2010 - 2016 Sebastian Luncan
+  Copyright (C) 2010 - 2017 Sebastian Luncan
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -980,7 +980,7 @@ else if (page.url.indexOf('dailymotion.com/video') != -1) {
 
   /* Get Videos */
   if (dmVideosContent) {
-    var dmVideoFormats = {'240': 'Very Low Definition MP4', '380': 'Low Definition MP4', '480': 'Standard Definition MP4',
+    var dmVideoFormats = {'auto': 'Low Definition MP4', '240': 'Very Low Definition MP4', '380': 'Low Definition MP4', '480': 'Standard Definition MP4',
 			  '720': 'High Definition MP4', '1080': 'Full High Definition MP4'};
     var dmVideoList = {};
     var dmVideoFound = false;
@@ -988,6 +988,10 @@ else if (page.url.indexOf('dailymotion.com/video') != -1) {
     for (var dmVideoCode in dmVideoFormats) {
       dmVideoParser = '"' + dmVideoCode + '".*?"type":"video.*?mp4","url":"(.*?)"';
       dmVideoParse = dmVideosContent.match(dmVideoParser);
+      if (!dmVideoParse) {
+	dmVideoParser = '"' + dmVideoCode + '".*?"type":"application.*?mpegURL","url":"(.*?)"';
+	dmVideoParse = dmVideosContent.match(dmVideoParser);
+      }
       dmVideo = (dmVideoParse) ? dmVideoParse[1] : null;
       if (dmVideo) {
 	if (!dmVideoFound) dmVideoFound = true;

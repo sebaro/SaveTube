@@ -1,10 +1,10 @@
 ﻿[{
 	"author": "Sebaro (script) & A.S. (MX add-on)"
 	"website": "http://isebaro.com/savetube/" 
-	"date": "05.11.2016"
+	"date": "10.02.2017"
 	"type":"extension",
 	"frameworkVersion":"1.0.0",
-	"version":"2016.11.05.0",
+	"version":"2017.02.10.0",
         "guid": "{3DEDEE46-63BC-4024-9796-737F8820E16E}",
 	"name": "SaveTube"
 	"icon": "icon",
@@ -46,26 +46,26 @@
 				"type": "page",
 				"title": {"_t": "app.About"},
 				"icon": "point.png",
-				"main": "http://isebaro.com/savetube/?ln=en"
+				"main": "http://isebaro.com/savetube/"
 				},
 				{
 				"type": "page",
-				"title": {"_t": "app.Changelog"},
+				"title": {"_t": "app.GitHub"},
 				"icon": "point.png",
-				"main": "http://isebaro.com/savetube/include/files/CHANGES"
+				"main": "https://github.com/sebaro/SaveTube"
 				},
 			{"type": "separator"},
 				{
 				"type": "page",
 				"title": {"_t": "app.Script"},
 				"icon": "point.png",
-				"main": "http://isebaro.com/savetube/include/files/savetube.user.js"
+				"main": "https://github.com/sebaro/SaveTube/raw/master/savetube.user.js"
 				},
 				{
 				"type": "page",
 				"title": {"_t": "app.Plus"},
 				"icon": "point.png",
-				"main": "http://isebaro.com/savetube/include/files/savetubeplus.user.js"
+				"main": "https://github.com/sebaro/SaveTube/raw/master/savetubeplus.user.js"
 				},
 				{
 				"type": "page",
@@ -78,7 +78,7 @@
 				"type": "page",
 				"title": {"_t": "app.ScriptDev"},
 				"icon": "point.png",
-				"main": "http://isebaro.com/?ln=en"
+				"main": "http://isebaro.com/"
 				},
 				{
 				"type": "page",
@@ -97,5 +97,5 @@
 		}
 		}]
 
-	"config": "http://isebaro.com/savetube/?ln=en",
+	"config": "http://isebaro.com/savetube/",
 }]
