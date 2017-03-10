@@ -1,6 +1,6 @@
 ﻿// ==UserScript==
 // @name		SaveTube
-// @version		2017.02.10
+// @version		2017.03.08
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -629,7 +629,7 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
   function ytDecryptFunction() {
     var ytSignFuncName, ytSignFuncBody, ytSwapFuncName, ytSwapFuncBody, ytFuncMatch;
     ytScriptSrc = ytScriptSrc.replace(/(\r\n|\n|\r)/gm, '');
-    ytSignFuncName = ytScriptSrc.match(/"signature"\s*,\s*(.*?)\(/);
+    ytSignFuncName = ytScriptSrc.match(/"signature"\s*,\s*([^\)]*?)\(/);
     ytSignFuncName = (ytSignFuncName) ? ytSignFuncName[1] : null;
     if (ytSignFuncName) {
       ytFuncMatch = ytSignFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\}';
