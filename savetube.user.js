@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2017.03.08
+// @version		2017.06.15
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -677,6 +677,7 @@ if (page.url.indexOf('youtube.com/watch') != -1) {
     if (!ytHLSVideos) ytHLSVideos = getMyContent(page.url, '\\\\"hlsvp\\\\":\\s*\\\\"(.*?)\\\\"', false);
     if (ytHLSVideos) {
       ytHLSVideos = cleanMyContent(ytHLSVideos, false);
+      if (ytHLSVideos.indexOf('keepalive/yes/') != -1) ytHLSVideos = ytHLSVideos.replace('keepalive/yes/', '');
     }
     else {
       var ytVideoID = page.url.match(/(\?|&)v=(.*?)(&|$)/);
