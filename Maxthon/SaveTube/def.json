@@ -1,14 +1,15 @@
 ﻿[{
 	"author": "Sebaro (script) & A.S. (MX add-on)"
 	"website": "http://isebaro.com/savetube/" 
-	"date": "08.03.2017"
+	"date": "11.08.2017"
 	"type":"extension",
 	"frameworkVersion":"1.0.0",
-	"version":"2017.03.08.0",
+	"version":"2017.08.11.0",
         "guid": "{3DEDEE46-63BC-4024-9796-737F8820E16E}",
 	"name": "SaveTube"
 	"icon": "icon",
-	"title": {"_t": "app.SaveTube"}
+	"title": {"_t": "app.SaveTube"},
+	"description": {"_t": "app.Description"},
 
 	"actions": [{
 		"type": "script", 
@@ -38,7 +39,8 @@
 	"actions": [{
 		"type": "mxcmd",
 		"title": {"_t": "app.SaveTube"},
-		"entryPoints": ["toolbar"],        
+		"entryPoints": ["toolbar"],
+		"icon": "toolbar.png",
 		{"type": "script",
 			"js": ["page.js"]
 			"menu": [
@@ -76,17 +78,10 @@
 			{"type": "separator"},
 				{
 				"type": "page",
-				"title": {"_t": "app.ScriptDev"},
+				"title": {"_t": "app.Developer"},
 				"icon": "point.png",
 				"main": "http://isebaro.com/"
 				},
-				{
-				"type": "page",
-				"title": {"_t": "app.AddonDev"},
-				"icon": "point.png",
-				"main": "https://semenov-sherin.blogspot.com/"
-				},
-			{"type": "separator"},
 				{
 				"type": "page",
 				"title": {"_t": "app.Rate"},
