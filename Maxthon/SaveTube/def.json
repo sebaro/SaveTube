@@ -4,7 +4,7 @@
 	"date": "11.08.2017"
 	"type":"extension",
 	"frameworkVersion":"1.0.0",
-	"version":"2017.08.11.0",
+	"version":"2017.08.11.2",
         "guid": "{3DEDEE46-63BC-4024-9796-737F8820E16E}",
 	"name": "SaveTube"
 	"icon": "icon",
@@ -33,6 +33,14 @@
 			"viki.com",
 			"*.imdb.com",
 			"imdb.com",],
+		"exclude": [
+			"*.gooogle.com",
+			"google.com",
+			"*.google.*",
+			"google.*",
+			"*mail.google.com",
+			"mail.google.com",
+			"],
 		"js": ["script.js"],
 		}]
 
