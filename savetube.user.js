@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2017.08.11
+// @version		2017.09.14
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://isebaro.com/savetube
@@ -1361,8 +1361,8 @@ else if (page.url.indexOf('viki.com/videos') != -1) {
     b=d.length;for(a=0;a<b;a+=16)h=z(d.slice(a,a+16),h);return h}"function"===typeof define&&define.amd?define(function(){return r}):"undefined"!==typeof exports?("undefined"!==typeof module&&module.exports&&(module.exports=r),exports=r):G.jsSHA=r})(this);
 
     var vkTimestamp = parseInt(Date.now() / 1000);
-    var vkQuery = "/v4/videos/" + vkVideoID + "/streams.json?app=65535a&t=" + vkTimestamp + "&site=www.viki.com"
-    var vkToken = "-$iJ}@p7!G@SyU/je1bEyWg}upLu-6V6-Lg9VD(]siH,r.,m-r|ulZ,U4LC/SeR)"
+    var vkQuery = "/v5/videos/" + vkVideoID + "/streams.json?app=100005a&t=" + vkTimestamp + "&site=www.viki.com"
+    var vkToken = "MM_d*yP@`&1@]@!AVrXf_o-HVEnoTnm$O-ti4[G~$JDI/Dc-&piU&z&5.;:}95\=Iad";
     var shaObj = new jsSHA("SHA-1", "TEXT");
     shaObj.setHMACKey(vkToken, "TEXT");
     shaObj.update(vkQuery);
@@ -1378,7 +1378,7 @@ else if (page.url.indexOf('viki.com/videos') != -1) {
     var vkVideoFound = false;
     var vkVideoParser, vkVideoParse, vkVideo, myVideoCode;
     for (var vkVideoCode in vkVideoFormats) {
-      vkVideoParser = '"' + vkVideoCode + '".*?"url":"(.*?)"';
+      vkVideoParser = '"' + vkVideoCode + '".*?"https":\{"url":"(.*?)"';
       vkVideoParse = vkVideosContent.match(vkVideoParser);
       vkVideo = (vkVideoParse) ? vkVideoParse[1] : null;
       if (vkVideo) {
