@@ -1,7 +1,7 @@
 
 SaveTube is a browser user script for downloading videos from video websites.
 
-![](https://raw.github.com/sebaro/SaveTube/master/screenshot.png)
+![](https://raw.github.com/sebaro/SaveTube/master/Images/screenshot.png)
 
 # Installation
 
@@ -70,4 +70,4 @@ Container (MP4, WebM etc):
 MPEG-DASH (MD):  
 -> Click this button to enable/disable MPEG-DASH streams (video with audio) download. It 
 requires an external application for muxing the audio and video streams, see 
-http://isebaro.com/savetube/protocol  
+http://sebaro.pro/savetube/protocol  
