@@ -1,0 +1,8 @@
+#! /bin/bash
+
+d="/home/Videos/YouTube"
+t="$(echo "$1" | awk -F '=SAVETUBE=' '{print $1}' | sed -e "s/savetube://" | sed -e "s/%20/ /g" -e "s/ +$//" -e "s/^ +//")"
+v="$(echo "$1" | awk -F '=SAVETUBE=' '{print $2}')"
+a="$(echo "$1" | awk -F '=SAVETUBE=' '{print $3}')"
+f="$(echo "$v" | grep -q "video/mp4" && echo "mp4" || echo "webm")"
+ffmpeg -i "$v" -i "$a" -c:v copy -c:a copy "$d/$t.$f"
