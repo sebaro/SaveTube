@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2018.01.10
+// @version		2018.02.06
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
-// @namespace		http://isebaro.com/savetube
+// @namespace		http://sebaro.pro/savetube
 // @license		GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @downloadURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetube.user.js
 // @updateURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetube.user.js
@@ -68,8 +68,8 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-  Website: http://isebaro.com/savetube
-  Contact: http://isebaro.com/contact
+  Website: http://sebaro.pro/savetube
+  Contact: http://sebaro.pro/contact
 
 */
 
@@ -96,8 +96,8 @@ var option = {'definition': 'HD', 'container': 'MP4', 'autoget': false, 'dash': 
 var sources = {};
 
 // Links
-var website = 'http://isebaro.com/savetube';
-var contact = 'http://isebaro.com/contact';
+var website = 'http://sebaro.pro/savetube';
+var contact = 'http://sebaro.pro/contact';
 
 
 // ==========Functions========== //
@@ -1319,7 +1319,7 @@ function SaveTube() {
   else if (page.url.indexOf('imdb.com') != -1) {
 
     /* Redirect To Video Page */
-    if (page.url.indexOf('imdb.com/video/') == -1) {
+    if (page.url.indexOf('/video/') == -1 && page.url.indexOf('/videoplayer/') == -1) {
       page.doc.addEventListener('click', function(e) {
 	var p = e.target.parentNode;
 	while (p) {
@@ -1332,37 +1332,59 @@ function SaveTube() {
       return;
     }
 
-    /* Get Videos Content */
-    var imdbVideoList = {};
-    var imdbVideoFormats = {'SD': 'Low Definition MP4', '720p': 'High Definition MP4'};
-    var imdbURL, imdbVideo, myVideoCode;
-    var imdbVideoFound = false;
-    var imdbPageURL = page.url.replace(/\?.*$/, '').replace(/\/$/, '');
-    for (var imdbVideoCode in imdbVideoFormats) {
-      imdbURL = imdbPageURL + '/imdb/single?vPage=1&format=' + imdbVideoCode;
-      imdbVideo = getMyContent(imdbURL, '"videoUrl":"(.*?)"', false);
-      if (imdbVideo) {
-	if (!imdbVideoFound) imdbVideoFound = true;
-	myVideoCode = imdbVideoFormats[imdbVideoCode];
-	imdbVideoList[myVideoCode] = imdbVideo;
-      }
-      if (imdbVideoCode == 'SD') {
-	if (!getMyContent(imdbURL, 'format=(.*?)&', false)) break;
-      }
-    }
+    /* Get Video Id*/
+    var imdbVideoId = page.url.replace(/.*videoplayer\//, '').replace(/(\/|\?).*/, '');
 
-    if (imdbVideoFound) {
-      /* Create Saver */
-      var imdbDefaultVideo = 'Low Definition MP4';
-      saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo};
-      feature['container'] = false;
-      option['definitions'] = ['High Definition', 'Low Definition'];
-      option['containers'] = ['MP4'];
-      createMySaver();
+    /* Get Videos Content */
+    var imdbVideosContent = getMyContent(page.url, '"' + imdbVideoId + '":\\{("aggregateUpVotes.*?videoId)', false);
+
+    /* Get Videos */
+    var imdbVideoList = {};
+    if (imdbVideosContent) {
+      var imdbVideoFormats = {'SD': 'Low Definition MP4', '480p': 'Standard Definition MP4', '720p': 'High Definition MP4', '1080p': 'Full High Definition MP4'};
+      var imdbVideoFound = false;
+      var imdbVideoParser, imdbVideoParse, myVideoCode, imdbVideo;
+      for (var imdbVideoCode in imdbVideoFormats) {
+	imdbVideoParser = '"definition":"' + imdbVideoCode + '".*?"videoUrl":"(.*?)"';
+	imdbVideoParse = imdbVideosContent.match(imdbVideoParser);
+	imdbVideo = (imdbVideoParse) ? imdbVideoParse[1] : null;
+	if (imdbVideo) {
+	  if (!imdbVideoFound) imdbVideoFound = true;
+	  myVideoCode = imdbVideoFormats[imdbVideoCode];
+	  if (!imdbVideoList[myVideoCode]) imdbVideoList[myVideoCode] = imdbVideo;
+	}
+      }
+
+      if (imdbVideoFound) {
+	/* Create Saver */
+	var imdbDefaultVideo = 'Low Definition MP4';
+	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo};
+	feature['container'] = false;
+	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition'];
+	option['containers'] = ['MP4'];
+	createMySaver();
+      }
+      else {
+	saver = {'warnMess': '!videos'};
+	createMySaver();
+      }
     }
     else {
-      saver = {'warnMess': '!videos'};
-      createMySaver();
+      imdbVideo = getMyContent(page.url, '"videoUrl":"(.*?)"', false);
+      if (imdbVideo) {
+	/* Create Saver */
+	imdbVideoList[imdbDefaultVideo] = imdbVideo;
+	var imdbDefaultVideo = 'Low Definition MP4';
+	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo};
+	feature['container'] = false;
+	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition'];
+	option['containers'] = ['MP4'];
+	createMySaver();
+      }
+      else {
+	saver = {'warnMess': '!content'};
+	createMySaver();
+      }
     }
 
   }
@@ -1375,7 +1397,7 @@ function SaveTube() {
 SaveTube();
 
 page.win.setInterval(function() {
-  if (page.title != page.doc.title && page.url != page.win.location.href) {
+  if (page.url != page.win.location.href) {
     if(saver['saverPanel']) removeMyElement(page.body, saver['saverPanel']);
     page.doc = page.win.document;
     page.body = page.doc.body;

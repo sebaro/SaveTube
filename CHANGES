@@ -3,6 +3,9 @@
 /* SaveTube Changelog */
 
 
+#2018.02.06
+- fixes IMDb
+
 #2018.01.10
 - don't reload the page on video change
 
