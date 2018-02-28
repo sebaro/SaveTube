@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "SaveTube",
-  "version": "2018.2.6",
+  "version": "2018.2.28",
 
   "description": "Download videos from video sharing web sites.",
 
@@ -61,6 +61,15 @@
       ],
       "js": ["savetube.user.js"]
     }
+  ],
+
+  "permissions": [
+    "http://manifest.googlevideo.com/*",
+    "https://manifest.googlevideo.com/*",
+    "http://player.vimeo.com/*",
+    "https://player.vimeo.com/*",
+    "http://api.viki.io/*",
+    "https://api.viki.io/*"
   ]
 
 }

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2018.02.06
+// @version		2018.02.28
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -1202,13 +1202,12 @@ function SaveTube() {
       }
       else {
 	saver = {};
-	var veVideoSource = getMyContent(page.url, '"videoContentSource":"(.*?)"', false);
-	if (veVideoSource == 'YouTube') var ytVideoId = getMyContent(page.url, '"videoId":"yapi-(.*?)"', false);
+	var ytVideoId = getMyContent(page.url, 'youtube.com/embed/(.*?)("|\\?)', false);
+	if (!ytVideoId) ytVideoId = getMyContent(page.url, '"videoId":"yapi-(.*?)"', false);
 	if (ytVideoId) {
 	  var ytVideoLink = 'http://youtube.com/watch?v=' + ytVideoId;
 	  saver['warnMess'] = 'embed';
 	  saver['warnContent'] = ytVideoLink;
-	  styleMyElement(vePlayerWindow, {margin: '0px 0px 20px 0px'});
 	}
 	else saver['warnMess'] = '!videos';
 	createMySaver();
