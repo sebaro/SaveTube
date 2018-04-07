@@ -1,12 +1,12 @@
 ﻿[{
-	"author": "Sebaro (script) & A.S. (MX add-on)"
-	"website": "http://isebaro.com/savetube/" 
-	"date": "11.08.2017"
+	"author": "Sebaro (script) & A.S. (MX add-on)",
+	"website": "http://isebaro.com/savetube/",
+	"date": "11.02.2018",
 	"type":"extension",
-	"frameworkVersion":"1.0.0",
-	"version":"2017.08.11.2",
+	"frameworkVersion": "1.0.0",
+	"version": "2018.02.11.0",
         "guid": "{3DEDEE46-63BC-4024-9796-737F8820E16E}",
-	"name": "SaveTube"
+	"name": "SaveTube",
 	"icon": "icon",
 	"title": {"_t": "app.SaveTube"},
 	"description": {"_t": "app.Description"},
@@ -40,7 +40,7 @@
 			"google.*",
 			"*mail.google.com",
 			"mail.google.com",
-			"],
+			],
 		"js": ["script.js"],
 		}]
 
@@ -48,7 +48,7 @@
 		"type": "mxcmd",
 		"title": {"_t": "app.SaveTube"},
 		"entryPoints": ["toolbar"],
-		"icon": "toolbar.png",
+		"icon": "icon_16.png",
 		{"type": "script",
 			"js": ["page.js"]
 			"menu": [
@@ -58,24 +58,18 @@
 				"icon": "point.png",
 				"main": "http://isebaro.com/savetube/"
 				},
-				{
-				"type": "page",
-				"title": {"_t": "app.GitHub"},
-				"icon": "point.png",
-				"main": "https://github.com/sebaro/SaveTube"
-				},
 			{"type": "separator"},
 				{
 				"type": "page",
 				"title": {"_t": "app.Script"},
 				"icon": "point.png",
-				"main": "https://github.com/sebaro/SaveTube/raw/master/savetube.user.js"
+				"main": "http://isebaro.com/savetube/savetube.user.js"
 				},
 				{
 				"type": "page",
 				"title": {"_t": "app.Plus"},
 				"icon": "point.png",
-				"main": "https://github.com/sebaro/SaveTube/raw/master/savetubeplus.user.js"
+				"main": "http://isebaro.com/savetube/savetubeplus.user.js"
 				},
 				{
 				"type": "page",
@@ -86,19 +80,18 @@
 			{"type": "separator"},
 				{
 				"type": "page",
-				"title": {"_t": "app.Developer"},
+				"title": {"_t": "app.GitHub"},
 				"icon": "point.png",
-				"main": "http://isebaro.com/"
+				"main": "https://github.com/sebaro/SaveTube"
 				},
 				{
 				"type": "page",
-				"title": {"_t": "app.Rate"},
+				"title": {"_t": "app.Developer"},
 				"icon": "point.png",
-				"main": "http://extension.maxthon.com/server/go.php?guid={3DEDEE46-63BC-4024-9796-737F8820E16E}"
+				"main": "http://isebaro.com/"
 				}
 				]
 		}
 		}]
-
 	"config": "http://isebaro.com/savetube/",
 }]
