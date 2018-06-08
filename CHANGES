@@ -3,6 +3,11 @@
 /* SaveTube Changelog */
 
 
+#2018.06.07
+- move source from GitHub to GitLab
+- fixes Break
+- download file name for Chromium browsers
+
 #2018.02.28
 - fixes YouTube Live, Vimeo, VIKI, Veoh
 

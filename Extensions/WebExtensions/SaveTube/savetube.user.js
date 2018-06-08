@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2018.02.28
+// @version		2018.06.07
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
 // @license		GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
-// @downloadURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetube.user.js
-// @updateURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetube.user.js
-// @icon		https://raw.githubusercontent.com/sebaro/saveTube/master/savetube.png
+// @downloadURL		https://gitlab.com/sebaro/savetube/raw/master/savetube.user.js
+// @updateURL		https://gitlab.com/sebaro/savetube/raw/master/savetube.user.js
+// @icon		https://gitlab.com/sebaro/savetube/raw/master/savetube.png
 // @include		http://youtube.com*
 // @include		http://www.youtube.com*
 // @include		https://youtube.com*
@@ -87,7 +87,7 @@ if (window.top != window.self) return;
 var userscript = 'SaveTube';
 
 // Page
-var page = {win: window, doc: window.document, body: window.document.body, url: window.location.href, title: window.document.title, site: window.location.hostname.match(/([^.]+)\.[^.]+$/)[1]};
+var page = {win: window, doc: window.document, body: window.document.body, url: window.location.href, site: window.location.hostname.match(/([^.]+)\.[^.]+$/)[1]};
 
 // Saver
 var saver = {};
@@ -415,50 +415,53 @@ function selectMyVideo() {
 
 function getMyVideo() {
   var vdoURL = saver['videoList'][saver['videoSave']];
-  if (saver['videoTitle']) {
-    var vdoD = ' (' + saver['videoSave'] + ')';
-    vdoD = vdoD.replace(/Ultra High Definition/, 'UHD');
-    vdoD = vdoD.replace(/Full High Definition/, 'FHD');
-    vdoD = vdoD.replace(/High Definition/, 'HD');
-    vdoD = vdoD.replace(/Standard Definition/, 'SD');
-    vdoD = vdoD.replace(/Very Low Definition/, 'VLD');
-    vdoD = vdoD.replace(/Low Definition/, 'LD');
-    vdoD = vdoD.replace(/\sFLV|\sMP4|\sWebM|\s3GP/g, '');
-    vdoURL = vdoURL + '&title=' + saver['videoTitle'] + vdoD;
+  var vdoDef = ' (' + saver['videoSave'].split(' ').slice(0, -1).join('').match(/[A-Z]/g).join('') + ')';
+  var vdoExt = '.' + saver['videoSave'].split(' ').slice(-1).join('').toLowerCase();
+  var vdoTle = (saver['videoTitle']) ? saver['videoTitle'] : '';
+  if (feature['autoget'] && vdoTle && saver['videoSave'] == 'High Definition MP4') {
+    page.win.location.href = vdoURL + '&title=' + vdoTle + vdoDef;
   }
-  if (saver['videoList'][saver['videoSave']] == 'DASH') {
-    if (saver['videoSave'].indexOf('MP4') != -1) {
-      var vdoV = saver['videoList'][saver['videoSave'].replace(/MP4/, 'Video MP4')];
-      if (saver['videoList']['High Bitrate Audio MP4']) {
-	var vdoA = saver['videoList']['High Bitrate Audio MP4'];
-      }
-      else if (saver['videoList']['Medium Bitrate Audio MP4']) {
-	var vdoA = saver['videoList']['Medium Bitrate Audio MP4'];
+  else {
+    if (saver['videoList'][saver['videoSave']] == 'DASH') {
+      if (saver['videoSave'].indexOf('MP4') != -1) {
+	var vdoV = saver['videoList'][saver['videoSave'].replace(/MP4/, 'Video MP4')];
+	if (saver['videoList']['High Bitrate Audio MP4']) {
+	  var vdoA = saver['videoList']['High Bitrate Audio MP4'];
+	}
+	else if (saver['videoList']['Medium Bitrate Audio MP4']) {
+	  var vdoA = saver['videoList']['Medium Bitrate Audio MP4'];
+	}
+	else {
+	  var vdoA = saver['videoList']['Low Bitrate Audio MP4'];
+	}
       }
       else {
-	var vdoA = saver['videoList']['Low Bitrate Audio MP4'];
+	var vdoV = saver['videoList'][saver['videoSave'].replace(/WebM/, 'Video WebM')];
+	if (saver['videoList']['High Bitrate Audio Opus']) {
+	  var vdoA = saver['videoList']['High Bitrate Audio Opus'];
+	}
+	else if (saver['videoList']['Medium Bitrate Audio Opus']) {
+	  var vdoA = saver['videoList']['Medium Bitrate Audio Opus'];
+	}
+	else {
+	  var vdoA = saver['videoList']['Low Bitrate Audio Opus'];
+	}
       }
+      var vdoT = (vdoTle) ? vdoTle + vdoDef : page.site + vdoDef;
+      vdoURL = 'savetube:' + vdoT + '=SAVETUBE=' + vdoV + '=SAVETUBE=' + vdoA;
+      page.win.location.href = vdoURL;
     }
     else {
-      var vdoV = saver['videoList'][saver['videoSave'].replace(/WebM/, 'Video WebM')];
-      if (saver['videoList']['High Bitrate Audio Opus']) {
-	var vdoA = saver['videoList']['High Bitrate Audio Opus'];
-      }
-      else if (saver['videoList']['Medium Bitrate Audio Opus']) {
-	var vdoA = saver['videoList']['Medium Bitrate Audio Opus'];
+      var vdoLnk = '';
+      if (vdoTle) {
+	var vdoNme = vdoTle + vdoDef + vdoExt;
+	vdoLnk = 'Get <a href="' + vdoURL + '" style="color:#00892C" download="' + vdoNme + '" target="_blank">Link</a>';
       }
       else {
-	var vdoA = saver['videoList']['Low Bitrate Audio Opus'];
+	vdoLnk = 'Get <a href="' + vdoURL + '" style="color:#00892C" target="_blank">Link</a>';
       }
+      modifyMyElement(saver['buttonGet'] , 'div', vdoLnk, false);
     }
-    var vdoT = 'video';
-    if (saver['videoTitle']) vdoT = saver['videoTitle'] + vdoD;
-    vdoURL = 'savetube:' + vdoT + '=SAVETUBE=' + vdoV + '=SAVETUBE=' + vdoA;
-  }
-  if (feature['autoget'] && saver['videoSave'] == 'High Definition MP4') page.win.location.href = vdoURL;
-  else {
-    var vdoLink = 'Get <a href="' + vdoURL + '" style="color:#00892C">Link</a>';
-    modifyMyElement(saver['buttonGet'] , 'div', vdoLink, false);
   }
 }
 
@@ -571,6 +574,7 @@ function SaveTube() {
     }
 
     /* Video Availability */
+    if (getMyContent(page.url, '"simpleText":"(This video is (private|unavailable|not available).)"', false)) return;
     var ytVideoUnavailable = getMyElement('', 'div', 'id', 'player-unavailable', -1, false);
     if (ytVideoUnavailable) {
       if (ytVideoUnavailable.className.indexOf('hid') == -1) {
@@ -610,16 +614,16 @@ function SaveTube() {
     }
 
     /* Get Video Title */
-    var ytVideoTitle = getMyContent(page.url, 'meta\\s+itemprop="name"\\s+content="(.*?)"', false);
+    var ytVideoTitle = getMyContent(page.url, '"title":"(.*?)"', false);
+    if (!ytVideoTitle) ytVideoTitle = getMyContent(page.url, '"videoPrimaryInfoRenderer":\\{"title":\\{"simpleText":"(.*?)"', false);
     if (!ytVideoTitle) ytVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
-    if (!ytVideoTitle) ytVideoTitle = page.doc.title;
+    if (!ytVideoTitle) ytVideoTitle = getMyContent(page.url, 'meta\\s+itemprop="name"\\s+content="(.*?)"', false);
     if (ytVideoTitle) {
       ytVideoTitle = ytVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
       ytVideoTitle = ytVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
       ytVideoTitle = ytVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
       ytVideoTitle = ytVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
       ytVideoTitle = ytVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
-      ytVideoTitle = ytVideoTitle.replace(/^YouTube\s-\s/, '');
     }
 
     /* Get Videos Content */
@@ -671,54 +675,39 @@ function SaveTube() {
     function ytSaver() {
       saver = {'videoList': ytVideoList, 'videoSave': ytDefaultVideo, 'videoTitle': ytVideoTitle};
       option['definitions'] = ['Ultra High Definition', 'Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
-      option['containers'] = ['MP4', 'WebM', 'FLV', '3GP', 'Any'];
+      option['containers'] = ['MP4', 'WebM', '3GP', 'Any'];
     }
 
     /* Parse Videos */
     function ytVideos() {
       var ytVideoFormats = {
-	'5': 'Very Low Definition FLV',
 	'17': 'Very Low Definition 3GP',
 	'18': 'Low Definition MP4',
 	'22': 'High Definition MP4',
-	'34': 'Low Definition FLV',
-	'35': 'Standard Definition FLV',
 	'36': 'Low Definition 3GP',
-	'37': 'Full High Definition MP4',
-	'38': 'Ultra High Definition MP4',
 	'43': 'Low Definition WebM',
-	'44': 'Standard Definition WebM',
-	'45': 'High Definition WebM',
-	'46': 'Full High Definition WebM',
-	'82': 'Low Definition 3D MP4',
-	'83': 'Standard Definition 3D MP4',
-	'84': 'High Definition 3D MP4',
-	'85': 'Full High Definition 3D MP4',
-	'100': 'Low Definition 3D WebM',
-	'101': 'Standard Definition 3D WebM',
-	'102': 'High Definition 3D WebM',
 	'135': 'Standard Definition Video MP4',
 	'136': 'High Definition Video MP4',
 	'137': 'Full High Definition Video MP4',
-	'138': 'Ultra High Definition Video MP4',
-	'139': 'Low Bitrate Audio MP4',
 	'140': 'Medium Bitrate Audio MP4',
-	'141': 'High Bitrate Audio MP4',
 	'171': 'Medium Bitrate Audio WebM',
-	'172': 'High Bitrate Audio WebM',
 	'244': 'Standard Definition Video WebM',
 	'247': 'High Definition Video WebM',
 	'248': 'Full High Definition Video WebM',
 	'249': 'Low Bitrate Audio Opus',
 	'250': 'Medium Bitrate Audio Opus',
 	'251': 'High Bitrate Audio Opus',
-	'266': 'Ultra High Definition Video MP4',
 	'272': 'Ultra High Definition Video WebM',
 	'298': 'High Definition Video MP4',
 	'299': 'Full High Definition Video MP4',
 	'302': 'High Definition Video WebM',
 	'303': 'Full High Definition Video WebM',
-	'313': 'Ultra High Definition Video WebM'
+	'313': 'Ultra High Definition Video WebM',
+	'315': 'Ultra High Definition Video WebM',
+	'333': 'Standard Definition Video WebM',
+	'334': 'High Definition Video WebM',
+	'335': 'Full High Definition Video WebM',
+	'337': 'Ultra High Definition Video WebM'
       };
       var ytVideoFound = false;
       var ytVideos = ytVideosContent.split(',');
@@ -874,6 +863,16 @@ function SaveTube() {
 
   else if (page.url.indexOf('dailymotion.com/video') != -1) {
 
+    /* Get Video Title */
+    var dmVideoTitle = getMyContent(page.url.replace(/\/video\//, "/embed/video/"), '"title":"(.*?)"', false);
+    if (dmVideoTitle) {
+      dmVideoTitle = dmVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
+      dmVideoTitle = dmVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
+      dmVideoTitle = dmVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
+      dmVideoTitle = dmVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
+      dmVideoTitle = dmVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
+    }
+
     /* Get Videos Content */
     var dmVideosContent = getMyContent(page.url.replace(/\/video\//, "/embed/video/"), '"qualities":\\{(.*?)\\]\\},', false);
 
@@ -903,7 +902,7 @@ function SaveTube() {
       if (dmVideoFound) {
 	/* Create Saver */
 	var dmDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': dmVideoList, 'videoSave': dmDefaultVideo};
+	saver = {'videoList': dmVideoList, 'videoSave': dmDefaultVideo, 'videoTitle': dmVideoTitle};
 	feature['container'] = false;
 	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
 	option['containers'] = ['MP4'];
@@ -927,6 +926,17 @@ function SaveTube() {
 
     /* Multi Video Page */
     if (getMyElement('', 'div', 'class', 'player_container', -1, false).length > 1) return;
+
+    /* Get Video Title */
+    var viVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
+    if (viVideoTitle) {
+      viVideoTitle = viVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
+      viVideoTitle = viVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
+      viVideoTitle = viVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
+      viVideoTitle = viVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
+      viVideoTitle = viVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
+      viVideoTitle = viVideoTitle.replace(/on\sVimeo$/, '');
+    }
 
     /* Get Content Source */
     var viVideoSource = getMyContent(page.url, '"config_url":"(.*?)"', false);
@@ -963,7 +973,7 @@ function SaveTube() {
       if (viVideoFound) {
 	/* Create Saver */
 	var viDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': viVideoList, 'videoSave': viDefaultVideo};
+	saver = {'videoList': viVideoList, 'videoSave': viDefaultVideo, 'videoTitle': viVideoTitle};
 	feature['container'] = false;
 	option['definitions'] = ['High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
 	option['containers'] = ['MP4'];
@@ -1040,61 +1050,42 @@ function SaveTube() {
 
   // =====Break===== //
 
-  else if (page.url.indexOf('break.com/video') != -1 || page.url.indexOf('break.com/movies') != -1) {
+  else if (page.url.indexOf('break.com/video') != -1) {
 
-    /* Get Video ID */
-    var brVideoID = page.url.match(/-(\d+)($|\?)/);
-    brVideoID = (brVideoID) ? brVideoID[1] : null;
+    /* Get Video Title */
+    var brVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
+    if (brVideoTitle) {
+      brVideoTitle = brVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
+      brVideoTitle = brVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
+      brVideoTitle = brVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
+      brVideoTitle = brVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
+      brVideoTitle = brVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
+      brVideoTitle = brVideoTitle.replace(/\s\|\sVideo\s\|\sBreak$/, '');
+    }
 
-    /* Get Videos Content */
-    var brSource = page.win.location.protocol + '//' + page.win.location.hostname + '/embed/' + brVideoID;
-    var brVideosContent = getMyContent(brSource, 'TEXT', false);
+    /* Get Video */
+    var brVideo = getMyContent(page.url, '\\[\\{"url":"(.*?)"\\}\\]', false);
+    if (!brVideo) brVideo = getMyContent(page.url, 'youtube.com\/embed\/(.*?)(\\?|&|")', false);
 
     /* Get Videos */
-    if (brVideosContent) {
-      var brVideoList = {};
-      var brVideoFormats = {};
-      var brVideoFound = false;
-      var brVideoFormats = {'320_kbps.mp4': 'Very Low Definition MP4', '496_kbps.mp4': 'Low Definition MP4', '864_kbps.mp4': 'Standard Definition MP4', '2240_kbps.mp4': 'High Definition MP4', '3264_kbps.mp4': 'Full High Definition MP4'};
-      var brVideoPath, brVideoToken, brVideoThumb, brVideo, myVideoCode;
-      brVideoPath = brVideosContent.match(/"videoUri":\s"(.*?)496_kbps/);
-      brVideoPath = (brVideoPath) ? brVideoPath[1] : null;
-      brVideoToken = brVideosContent.match(/"AuthToken":\s"(.*?)"/);
-      brVideoToken = (brVideoToken) ? brVideoToken[1] : null;
-      if (brVideoPath && brVideoToken) {
-	for (var brVideoCode in brVideoFormats) {
-	  if (brVideosContent.match(brVideoPath + brVideoCode)) {
-	    if (!brVideoFound) brVideoFound = true;
-	    myVideoCode = brVideoFormats[brVideoCode];
-	    brVideo = brVideoPath + brVideoCode + '?' + brVideoToken;
-	    brVideoList[myVideoCode] = brVideo;
-	  }
-	}
-      }
-
-      if (brVideoFound) {
-	/* Create Saver */
-	var brDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': brVideoList, 'videoSave': brDefaultVideo};
-	option['definitions'] = ['Very Low Definition', 'Low Definition', 'Standard Definition', 'High Definition', 'Full High Definition'];
-	option['containers'] = ['MP4', 'FLV', 'Any'];
-	createMySaver();
+    if (brVideo) {
+      if (brVideo.length == 11) {
+	var ytVideoLink = 'http://youtube.com/watch?v=' + brVideo;
+	showMyMessage('embed', ytVideoLink);
       }
       else {
-	saver = {};
-	var ytVideoId =  brVideosContent.match(/"youtubeId":\s"(.*?)"/);
-	if (ytVideoId && ytVideoId[1]) {
-	  var ytVideoLink = 'http://youtube.com/watch?v=' + ytVideoId[1];
-	  saver['warnMess'] = 'embed';
-	  saver['warnContent'] = ytVideoLink;
-	}
-	else saver['warnMess'] = '!videos';
+	/* Create Player */
+	var brDefaultVideo = 'Low Definition MP4';
+	var brVideoList = {};
+	brVideoList[brDefaultVideo] = brVideo;
+	saver = {'videoList': brVideoList, 'videoSave': brDefaultVideo, 'videoTitle': brVideoTitle};
+	option['definitions'] = ['Low Definition'];
+	option['containers'] = ['MP4'];
 	createMySaver();
       }
     }
     else {
-      saver = {'warnMess': '!content'};
-      createMySaver();
+      showMyMessage('!videos');
     }
 
   }
@@ -1102,6 +1093,16 @@ function SaveTube() {
   // =====FunnyOrDie===== //
 
   else if (page.url.indexOf('funnyordie.com/videos') != -1) {
+
+    /* Get Video Title */
+    var fodVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
+    if (fodVideoTitle) {
+      fodVideoTitle = fodVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
+      fodVideoTitle = fodVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
+      fodVideoTitle = fodVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
+      fodVideoTitle = fodVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
+      fodVideoTitle = fodVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
+    }
 
     /* Get Videos Content */
     var fodVideosContent = getMyContent(page.url, '<video([\\s\\S]*?)video>', false);
@@ -1142,7 +1143,7 @@ function SaveTube() {
       if (fodVideoFound) {
 	/* Create Saver */
 	fodDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': fodVideoList, 'videoSave': fodDefaultVideo};
+	saver = {'videoList': fodVideoList, 'videoSave': fodDefaultVideo, 'videoTitle': fodVideoTitle};
 	feature['container'] = false;
 	option['definitions'] = ['High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
 	option['containers'] = ['MP4'];
@@ -1168,6 +1169,16 @@ function SaveTube() {
     /* Get Video Availability */
     if (getMyElement('', 'div', 'class', 'veoh-video-player-error', 0, false)) return;
 
+    /* Get Video Title */
+    var veVideoTitle = getMyContent(page.url, 'meta\\s+name="og:title"\\s+content="(.*?)"', false);
+    if (veVideoTitle) {
+      veVideoTitle = veVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
+      veVideoTitle = veVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
+      veVideoTitle = veVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
+      veVideoTitle = veVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
+      veVideoTitle = veVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
+    }
+
     /* Get Videos Content */
     var veVideosContent = getMyContent(page.url, '__watch.videoDetailsJSON = \'\\{(.*?)\\}', false);
     veVideosContent = cleanMyContent(veVideosContent, true);
@@ -1192,7 +1203,7 @@ function SaveTube() {
       if (veVideoFound) {
 	/* Create Saver */
 	var veDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': veVideoList, 'videoSave': veDefaultVideo};
+	saver = {'videoList': veVideoList, 'videoSave': veDefaultVideo, 'videoTitle': veVideoTitle};
 	feature['container'] = false;
 	feature['fullsize'] = false;
 	option['definition'] = 'LD';
@@ -1223,6 +1234,16 @@ function SaveTube() {
   // =====Viki===== //
 
   else if (page.url.indexOf('viki.com/videos') != -1) {
+
+    /* Get Video Title */
+    var vkVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
+    if (vkVideoTitle) {
+      vkVideoTitle = vkVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
+      vkVideoTitle = vkVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
+      vkVideoTitle = vkVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
+      vkVideoTitle = vkVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
+      vkVideoTitle = vkVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
+    }
 
     /* Get Video ID */
     var vkVideoID = page.url.match(/videos\/(\d+v)/);
@@ -1288,7 +1309,7 @@ function SaveTube() {
       /* Create Saver */
       if (vkVideo) {
 	var vkDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': vkVideoList, 'videoSave': vkDefaultVideo};
+	saver = {'videoList': vkVideoList, 'videoSave': vkDefaultVideo, 'videoTitle': vkVideoTitle};
 	feature['container'] = false;
 	option['definition'] = 'LD';
 	option['definitions'] = ['High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
@@ -1331,7 +1352,17 @@ function SaveTube() {
       return;
     }
 
-    /* Get Video Id*/
+    /* Get Video Title */
+    var imdbVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
+    if (imdbVideoTitle) {
+      imdbVideoTitle = imdbVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
+      imdbVideoTitle = imdbVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
+      imdbVideoTitle = imdbVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
+      imdbVideoTitle = imdbVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
+      imdbVideoTitle = imdbVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
+    }
+
+    /* Get Video Id */
     var imdbVideoId = page.url.replace(/.*videoplayer\//, '').replace(/(\/|\?).*/, '');
 
     /* Get Videos Content */
@@ -1357,7 +1388,7 @@ function SaveTube() {
       if (imdbVideoFound) {
 	/* Create Saver */
 	var imdbDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo};
+	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo, 'videoTitle': imdbVideoTitle};
 	feature['container'] = false;
 	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition'];
 	option['containers'] = ['MP4'];
@@ -1374,7 +1405,7 @@ function SaveTube() {
 	/* Create Saver */
 	imdbVideoList[imdbDefaultVideo] = imdbVideo;
 	var imdbDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo};
+	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo, 'videoTitle': imdbVideoTitle};
 	feature['container'] = false;
 	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition'];
 	option['containers'] = ['MP4'];
@@ -1401,7 +1432,6 @@ page.win.setInterval(function() {
     page.doc = page.win.document;
     page.body = page.doc.body;
     page.url = page.win.location.href;
-    page.title = page.doc.title;
     SaveTube();
   }
 }, 500);
