@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2018.06.07
+// @version		2018.07.07
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -632,6 +632,37 @@ function SaveTube() {
     if (!ytVideosEncodedFmts) ytVideosEncodedFmts = getMyContent(page.url, '\\\\"url_encoded_fmt_stream_map\\\\":\\s*\\\\"(.*?)\\\\"', false);
     ytVideosAdaptiveFmts = getMyContent(page.url, '"adaptive_fmts":\\s*"(.*?)"', false);
     if (!ytVideosAdaptiveFmts) ytVideosAdaptiveFmts = getMyContent(page.url, '\\\\"adaptive_fmts\\\\":\\s*\\\\"(.*?)\\\\"', false);
+    if (!ytVideosAdaptiveFmts) {
+      var ytDASHVideos, ytDASHContent;
+      ytDASHVideos = getMyContent(page.url, '"dashmpd":\\s*"(.*?)"', false);
+      if (!ytDASHVideos) ytDASHVideos = getMyContent(page.url, '\\\\"dashmpd\\\\":\\s*\\\\"(.*?)\\\\"', false);
+      if (ytDASHVideos) {
+	ytDASHVideos = cleanMyContent(ytDASHVideos, false);
+	ytDASHContent = getMyContent(ytDASHVideos + '?pacing=0', 'TEXT', false);
+	if (ytDASHContent) {
+	  var ytDASHVideo, ytDASHVideoParts, ytDASHVideoServer, ytDASHVideoParams;
+	  ytDASHVideos = ytDASHContent.match(new RegExp('<BaseURL>.*?</BaseURL>', 'g'));
+	  if (ytDASHVideos) {
+	    ytVideosAdaptiveFmts = '';
+	    for (var i = 0; i < ytDASHVideos.length; i++) {
+	      ytDASHVideo = ytDASHVideos[i].replace('<BaseURL>', '').replace('</BaseURL>', '');
+	      if (ytDASHVideo.indexOf('source/youtube') == -1) continue;
+	      ytDASHVideoParts = ytDASHVideo.split('videoplayback/');
+	      ytDASHVideoServer = ytDASHVideoParts[0] + 'videoplayback?';
+	      ytDASHVideoParams = ytDASHVideoParts[1].split('/');
+	      ytDASHVideo = '';
+	      for (var p = 0; p < ytDASHVideoParams.length; p++) {
+		if (p % 2) ytDASHVideo += ytDASHVideoParams[p] + '&';
+		else ytDASHVideo += ytDASHVideoParams[p] + '=';
+	      }
+	      ytDASHVideo = encodeURIComponent(ytDASHVideoServer + ytDASHVideo);
+	      ytDASHVideo = ytDASHVideo.replace('itag%3D', 'itag=');
+	      ytVideosAdaptiveFmts += ytDASHVideo + ',';
+	    }
+	  }
+	}
+      }
+    }
     if (ytVideosEncodedFmts) {
       ytVideosContent = ytVideosEncodedFmts;
     }
@@ -1071,7 +1102,9 @@ function SaveTube() {
     if (brVideo) {
       if (brVideo.length == 11) {
 	var ytVideoLink = 'http://youtube.com/watch?v=' + brVideo;
-	showMyMessage('embed', ytVideoLink);
+	saver['warnMess'] = 'embed';
+	saver['warnContent'] = ytVideoLink;
+	createMySaver();
       }
       else {
 	/* Create Player */
@@ -1085,7 +1118,8 @@ function SaveTube() {
       }
     }
     else {
-      showMyMessage('!videos');
+      saver = {'warnMess': '!videos'};
+      createMySaver();
     }
 
   }
@@ -1307,7 +1341,7 @@ function SaveTube() {
       }
 
       /* Create Saver */
-      if (vkVideo) {
+      if (vkVideoFound) {
 	var vkDefaultVideo = 'Low Definition MP4';
 	saver = {'videoList': vkVideoList, 'videoSave': vkDefaultVideo, 'videoTitle': vkVideoTitle};
 	feature['container'] = false;
