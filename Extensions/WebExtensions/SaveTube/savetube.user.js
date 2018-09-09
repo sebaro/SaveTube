@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2018.07.07
+// @version		2018.09.09
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -593,6 +593,7 @@ function SaveTube() {
       var ytSignFuncName, ytSignFuncBody, ytSwapFuncName, ytSwapFuncBody, ytFuncMatch;
       ytScriptSrc = ytScriptSrc.replace(/(\r\n|\n|\r)/gm, '');
       ytSignFuncName = ytScriptSrc.match(/"signature"\s*,\s*([^\)]*?)\(/);
+      if (!ytSignFuncName) ytSignFuncName = ytScriptSrc.match(/d.set\(b,(.*?)\(/);
       ytSignFuncName = (ytSignFuncName) ? ytSignFuncName[1] : null;
       if (ytSignFuncName) {
 	ytFuncMatch = ytSignFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\}';
@@ -1405,7 +1406,7 @@ function SaveTube() {
     /* Get Videos */
     var imdbVideoList = {};
     if (imdbVideosContent) {
-      var imdbVideoFormats = {'SD': 'Low Definition MP4', '480p': 'Standard Definition MP4', '720p': 'High Definition MP4', '1080p': 'Full High Definition MP4'};
+      var imdbVideoFormats = {'1080p': 'Full High Definition MP4', '720p': 'High Definition MP4', '480p': 'Standard Definition MP4', '360p': 'Low Definition MP4', 'SD': 'Low Definition MP4', '240p': 'Very Low Definition MP4'};
       var imdbVideoFound = false;
       var imdbVideoParser, imdbVideoParse, myVideoCode, imdbVideo;
       for (var imdbVideoCode in imdbVideoFormats) {
@@ -1424,7 +1425,7 @@ function SaveTube() {
 	var imdbDefaultVideo = 'Low Definition MP4';
 	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo, 'videoTitle': imdbVideoTitle};
 	feature['container'] = false;
-	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition'];
+	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
 	option['containers'] = ['MP4'];
 	createMySaver();
       }
@@ -1441,7 +1442,7 @@ function SaveTube() {
 	var imdbDefaultVideo = 'Low Definition MP4';
 	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo, 'videoTitle': imdbVideoTitle};
 	feature['container'] = false;
-	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition'];
+	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
 	option['containers'] = ['MP4'];
 	createMySaver();
       }
