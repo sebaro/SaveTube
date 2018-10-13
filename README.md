@@ -52,6 +52,8 @@ SaveTube is a browser user script for downloading videos from video websites.
    > http://extension.maxthon.com/detail/index.php?view_id=1680
    - with Tampermonkey Chrome extension:
    > https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
+   - Maxthon extension:
+   > http://extension.maxthon.com/detail/index.php?view_id=2816
 
 #### Internet Explorer:
    - with IE7Pro extension:
