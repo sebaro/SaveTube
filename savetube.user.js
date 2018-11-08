@@ -1,10 +1,9 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2018.09.09
+// @version		2018.11.07
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
-// @license		GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // @downloadURL		https://gitlab.com/sebaro/savetube/raw/master/savetube.user.js
 // @updateURL		https://gitlab.com/sebaro/savetube/raw/master/savetube.user.js
 // @icon		https://gitlab.com/sebaro/savetube/raw/master/savetube.png
@@ -48,6 +47,9 @@
 // @include		http://www.imdb.com*
 // @include		https://imdb.com*
 // @include		https://www.imdb.com*
+// @noframes
+// @grant		none
+// @run-at		document-end
 // ==/UserScript==
 
 
@@ -593,7 +595,7 @@ function SaveTube() {
       var ytSignFuncName, ytSignFuncBody, ytSwapFuncName, ytSwapFuncBody, ytFuncMatch;
       ytScriptSrc = ytScriptSrc.replace(/(\r\n|\n|\r)/gm, '');
       ytSignFuncName = ytScriptSrc.match(/"signature"\s*,\s*([^\)]*?)\(/);
-      if (!ytSignFuncName) ytSignFuncName = ytScriptSrc.match(/d.set\(b,(.*?)\(/);
+      if (!ytSignFuncName) ytSignFuncName = ytScriptSrc.match(/d.set\(b,.*?([a-zA-Z0-9]+)\(/);
       ytSignFuncName = (ytSignFuncName) ? ytSignFuncName[1] : null;
       if (ytSignFuncName) {
 	ytFuncMatch = ytSignFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\}';
@@ -1463,7 +1465,9 @@ SaveTube();
 
 page.win.setInterval(function() {
   if (page.url != page.win.location.href) {
-    if(saver['saverPanel']) removeMyElement(page.body, saver['saverPanel']);
+    if (saver['saverPanel'] && saver['saverPanel'].parentNode) {
+      removeMyElement(saver['saverPanel'].parentNode, saver['saverPanel']);
+    }
     page.doc = page.win.document;
     page.body = page.doc.body;
     page.url = page.win.location.href;

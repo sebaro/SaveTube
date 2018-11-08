@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "SaveTube",
-  "version": "2018.9.9",
+  "version": "2018.11.7",
 
   "description": "Download videos from video sharing web sites.",
 
@@ -59,7 +59,8 @@
 	"https://imdb.com/*",
 	"https://www.imdb.com/*"
       ],
-      "js": ["savetube.user.js"]
+      "js": ["savetube.user.js"],
+      "run_at": "document_end"
     }
   ],
 
