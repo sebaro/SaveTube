@@ -31,8 +31,8 @@
   You should have received a copy of the GNU General Public License
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-  Website: http://isebaro.com/savetube
-  Contact: http://isebaro.com/contact
+  Website: http://sebaro.pro/savetube
+  Contact: http://sebaro.pro/contact
 
 */
 
@@ -58,11 +58,10 @@ if (window.top && window.top != window.self)  return;
 // ==========Websites========== //
 
 /* Page Source */
-var source = document.getElementsByTagName('html')[0].innerHTML || document.body.innerHTML;
 var xmlHTTP = new XMLHttpRequest();
 xmlHTTP.open('GET', window.location.href, false);
 xmlHTTP.send();
-source = (source) ? source + xmlHTTP.responseText : xmlHTTP.responseText;
+var source = xmlHTTP.responseText + document.getElementsByTagName('html')[0].innerHTML;
 if (!source) return;
 
 /* Video Patterns */
