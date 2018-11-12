@@ -1,21 +1,22 @@
 // ==UserScript==
 // @name		SaveTube+
-// @version		2016.10.07
+// @version		2018.11.12
 // @description		Download videos from web sites.
 // @author		sebaro
-// @namespace		http://isebaro.com/savetube
-// @license		GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
-// @downloadURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetubeplus.user.js
-// @updateURL		https://raw.githubusercontent.com/sebaro/savetube/master/savetubeplus.user.js
-// @icon		https://raw.githubusercontent.com/sebaro/saveTube/master/savetube.png
+// @namespace		http://sebaro.pro/savetube
+// @downloadURL		https://gitlab.com/sebaro/savetube/raw/master/savetubeplus.user.js
+// @updateURL		https://gitlab.com/sebaro/savetube/raw/master/savetubeplus.user.js
+// @icon		https://gitlab.com/sebaro/savetube/raw/master/savetube.png
 // @include		*
+// @noframes
 // @grant		none
+// @run-at		document-end
 // ==/UserScript==
 
 
 /*
 
-  Copyright (C) 2014 - 2016 Sebastian Luncan
+  Copyright (C) 2014 - 2018 Sebastian Luncan
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -45,7 +46,7 @@
 var userscript = 'SaveTube';
 
 // Contact
-var contact = 'http://isebaro.com/contact/?ln=en&sb=savetube';
+var contact = 'http://sebaro.pro/contact';
 
 
 // ==========Fixes========== //
@@ -57,12 +58,11 @@ if (window.top && window.top != window.self)  return;
 // ==========Websites========== //
 
 /* Page Source */
+var source = document.getElementsByTagName('html')[0].innerHTML || document.body.innerHTML;
 var xmlHTTP = new XMLHttpRequest();
 xmlHTTP.open('GET', window.location.href, false);
 xmlHTTP.send();
-var source = xmlHTTP.responseText;
-if (!source) source = document.getElementsByTagName('html')[0].innerHTML;
-if (!source) source = document.body.innerHTML;
+source = (source) ? source + xmlHTTP.responseText : xmlHTTP.responseText;
 if (!source) return;
 
 /* Video Patterns */
