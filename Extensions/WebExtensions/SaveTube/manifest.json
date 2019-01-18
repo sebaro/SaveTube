@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "SaveTube",
-  "version": "2018.11.7",
+  "version": "2019.1.18",
 
   "description": "Download videos from video sharing web sites.",
 
@@ -38,14 +38,6 @@
 	"http://www.metacafe.com/*",
 	"https://metacafe.com/*",
 	"https://www.metacafe.com/*",
-	"http://break.com/*",
-	"http://www.break.com/*",
-	"https://break.com/*",
-	"https://www.break.com/*",
-	"http://funnyordie.com/*",
-	"http://www.funnyordie.com/*",
-	"https://funnyordie.com/*",
-	"https://www.funnyordie.com/*",
 	"http://veoh.com/*",
 	"http://www.veoh.com/*",
 	"https://veoh.com/*",

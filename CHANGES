@@ -3,6 +3,11 @@
 /* SaveTube Changelog */
 
 
+#2019.01.18
+- fixes YouTube, IMDb
+- removes support for Break because of regional restrictions
+- removes support for FunnyOrDie, videos hosted on YouTube
+
 #2018.11.07
 - fixes YouTube
 

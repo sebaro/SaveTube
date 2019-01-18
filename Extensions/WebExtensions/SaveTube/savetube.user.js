@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2018.11.07
+// @version		2019.01.18
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -27,14 +27,6 @@
 // @include		http://www.metacafe.com*
 // @include		https://metacafe.com*
 // @include		https://www.metacafe.com*
-// @include		http://break.com*
-// @include		http://www.break.com*
-// @include		https://break.com*
-// @include		https://www.break.com*
-// @include		http://funnyordie.com*
-// @include		http://www.funnyordie.com*
-// @include		https://funnyordie.com*
-// @include		https://www.funnyordie.com*
 // @include		http://veoh.com*
 // @include		http://www.veoh.com*
 // @include		https://veoh.com*
@@ -55,7 +47,7 @@
 
 /*
 
-  Copyright (C) 2010 - 2018 Sebastian Luncan
+  Copyright (C) 2010 - 2019 Sebastian Luncan
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -470,10 +462,11 @@ function getMyVideo() {
 function cleanMyContent(content, unesc) {
   var myNewContent = content;
   if (unesc) myNewContent = unescape(myNewContent);
-  myNewContent = myNewContent.replace(/\\u0025/g,'%');
-  myNewContent = myNewContent.replace(/\\u0026/g,'&');
-  myNewContent = myNewContent.replace(/\\/g,'');
-  myNewContent = myNewContent.replace(/\n/g,'');
+  myNewContent = myNewContent.replace(/\\u0025/g, '%');
+  myNewContent = myNewContent.replace(/\\u0026/g, '&');
+  myNewContent = myNewContent.replace(/\\u002F/g, '/');
+  myNewContent = myNewContent.replace(/\\/g, '');
+  myNewContent = myNewContent.replace(/\n/g, '');
   return myNewContent;
 }
 
@@ -595,7 +588,7 @@ function SaveTube() {
       var ytSignFuncName, ytSignFuncBody, ytSwapFuncName, ytSwapFuncBody, ytFuncMatch;
       ytScriptSrc = ytScriptSrc.replace(/(\r\n|\n|\r)/gm, '');
       ytSignFuncName = ytScriptSrc.match(/"signature"\s*,\s*([^\)]*?)\(/);
-      if (!ytSignFuncName) ytSignFuncName = ytScriptSrc.match(/d.set\(b,.*?([a-zA-Z0-9]+)\(/);
+      if (!ytSignFuncName) ytSignFuncName = ytScriptSrc.match(/d.set\(b,(?:encodeURIComponent\()?.*?([a-zA-Z0-9]+)\(/);
       ytSignFuncName = (ytSignFuncName) ? ytSignFuncName[1] : null;
       if (ytSignFuncName) {
 	ytFuncMatch = ytSignFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\}';
@@ -1082,123 +1075,6 @@ function SaveTube() {
 
   }
 
-  // =====Break===== //
-
-  else if (page.url.indexOf('break.com/video') != -1) {
-
-    /* Get Video Title */
-    var brVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
-    if (brVideoTitle) {
-      brVideoTitle = brVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
-      brVideoTitle = brVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
-      brVideoTitle = brVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
-      brVideoTitle = brVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
-      brVideoTitle = brVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
-      brVideoTitle = brVideoTitle.replace(/\s\|\sVideo\s\|\sBreak$/, '');
-    }
-
-    /* Get Video */
-    var brVideo = getMyContent(page.url, '\\[\\{"url":"(.*?)"\\}\\]', false);
-    if (!brVideo) brVideo = getMyContent(page.url, 'youtube.com\/embed\/(.*?)(\\?|&|")', false);
-
-    /* Get Videos */
-    if (brVideo) {
-      if (brVideo.length == 11) {
-	var ytVideoLink = 'http://youtube.com/watch?v=' + brVideo;
-	saver['warnMess'] = 'embed';
-	saver['warnContent'] = ytVideoLink;
-	createMySaver();
-      }
-      else {
-	/* Create Player */
-	var brDefaultVideo = 'Low Definition MP4';
-	var brVideoList = {};
-	brVideoList[brDefaultVideo] = brVideo;
-	saver = {'videoList': brVideoList, 'videoSave': brDefaultVideo, 'videoTitle': brVideoTitle};
-	option['definitions'] = ['Low Definition'];
-	option['containers'] = ['MP4'];
-	createMySaver();
-      }
-    }
-    else {
-      saver = {'warnMess': '!videos'};
-      createMySaver();
-    }
-
-  }
-
-  // =====FunnyOrDie===== //
-
-  else if (page.url.indexOf('funnyordie.com/videos') != -1) {
-
-    /* Get Video Title */
-    var fodVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
-    if (fodVideoTitle) {
-      fodVideoTitle = fodVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
-      fodVideoTitle = fodVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
-      fodVideoTitle = fodVideoTitle.replace(/&amp;/g, 'and').replace(/&/g, 'and');
-      fodVideoTitle = fodVideoTitle.replace(/\?/g, '').replace(/[#:\*]/g, '-').replace(/\//g, '-');
-      fodVideoTitle = fodVideoTitle.replace(/^\s+|\s+$/, '').replace(/\.+$/g, '');
-    }
-
-    /* Get Videos Content */
-    var fodVideosContent = getMyContent(page.url, '<video([\\s\\S]*?)video>', false);
-
-    /* Get Videos */
-    if (fodVideosContent) {
-      var fodVideoFormats = {'v2500.mp4': 'High Definition MP4', 'v1800.mp4': 'Standard Definition MP4', 'v600.mp4': 'Low Definition MP4', 'v600.webm': 'Low Definition WebM', 'v110.mp4': 'Very Low Definition MP4'};
-      var fodVideoList = {};
-      var fodVideoFound = false;
-      var fodVideoPath, fodVideoCodes, fodVideo, myVideoCode;
-      fodVideoPath = fodVideosContent.match(/src="(.*?)v\d+.*?\.mp4"/);
-      fodVideoPath = (fodVideoPath) ? fodVideoPath[1] : null;
-      fodVideoCodes = fodVideosContent.match(/v([^\/]*?)\/master/);
-      fodVideoCodes = (fodVideoCodes) ? fodVideoCodes[1] : '';
-      if (fodVideoPath) {
-	if (fodVideoCodes) {
-	  for (var fodVideoCode in fodVideoFormats) {
-	    if (fodVideoCodes.indexOf(fodVideoCode.replace(/v/, '').replace(/\..*/, '')) != -1) {
-	      if (!fodVideoFound) fodVideoFound = true;
-	      fodVideo = fodVideoPath + fodVideoCode;
-	      myVideoCode = fodVideoFormats[fodVideoCode];
-	      fodVideoList[myVideoCode] = fodVideo;
-	    }
-	  }
-	}
-	else {
-	  for (var fodVideoCode in fodVideoFormats) {
-	    fodVideo = fodVideoPath + fodVideoCode;
-	    if (fodVideosContent.match(fodVideo)) {
-	      if (!fodVideoFound) fodVideoFound = true;
-	      myVideoCode = fodVideoFormats[fodVideoCode];
-	      fodVideoList[myVideoCode] = fodVideo;
-	    }
-	  }
-	}
-      }
-
-      if (fodVideoFound) {
-	/* Create Saver */
-	fodDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': fodVideoList, 'videoSave': fodDefaultVideo, 'videoTitle': fodVideoTitle};
-	feature['container'] = false;
-	option['definitions'] = ['High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
-	option['containers'] = ['MP4'];
-	createMySaver();
-      }
-      else {
-	saver = {'warnMess': '!videos'};
-	createMySaver();
-      }
-    }
-    else {
-      saver = {'warnMess': '!content'};
-      createMySaver();
-    }
-
-
-  }
-
   // =====Veoh===== //
 
   else if (page.url.indexOf('veoh.com/watch') != -1) {
@@ -1416,6 +1292,7 @@ function SaveTube() {
 	imdbVideoParse = imdbVideosContent.match(imdbVideoParser);
 	imdbVideo = (imdbVideoParse) ? imdbVideoParse[1] : null;
 	if (imdbVideo) {
+	  imdbVideo = cleanMyContent(imdbVideo, false);
 	  if (!imdbVideoFound) imdbVideoFound = true;
 	  myVideoCode = imdbVideoFormats[imdbVideoCode];
 	  if (!imdbVideoList[myVideoCode]) imdbVideoList[myVideoCode] = imdbVideo;
@@ -1440,6 +1317,7 @@ function SaveTube() {
       imdbVideo = getMyContent(page.url, '"videoUrl":"(.*?)"', false);
       if (imdbVideo) {
 	/* Create Saver */
+	imdbVideo = cleanMyContent(imdbVideo, false);
 	imdbVideoList[imdbDefaultVideo] = imdbVideo;
 	var imdbDefaultVideo = 'Low Definition MP4';
 	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo, 'videoTitle': imdbVideoTitle};
