@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2019.03.02
+// @version		2019.04.02
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
