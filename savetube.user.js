@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2019.04.02
+// @version		2019.06.05
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -624,14 +624,11 @@ function SaveTube() {
 
     /* Get Videos Content */
     var ytVideosEncodedFmts, ytVideosAdaptiveFmts, ytVideosContent, ytHLSVideos, ytHLSContent;
-    ytVideosEncodedFmts = getMyContent(page.url, '"url_encoded_fmt_stream_map":\\s*"(.*?)"', false);
-    if (!ytVideosEncodedFmts) ytVideosEncodedFmts = getMyContent(page.url, '\\\\"url_encoded_fmt_stream_map\\\\":\\s*\\\\"(.*?)\\\\"', false);
-    ytVideosAdaptiveFmts = getMyContent(page.url, '"adaptive_fmts":\\s*"(.*?)"', false);
-    if (!ytVideosAdaptiveFmts) ytVideosAdaptiveFmts = getMyContent(page.url, '\\\\"adaptive_fmts\\\\":\\s*\\\\"(.*?)\\\\"', false);
+    ytVideosEncodedFmts = getMyContent(page.url, '"url_encoded_fmt_stream_map\\\\?":\\s*\\\\?"(.*?)\\\\?"', false);
+    ytVideosAdaptiveFmts = getMyContent(page.url, '"adaptive_fmts\\\\?":\\s*\\\\?"(.*?)\\\\?"', false);
     if (!ytVideosAdaptiveFmts) {
       var ytDASHVideos, ytDASHContent;
-      ytDASHVideos = getMyContent(page.url, '"dashmpd":\\s*"(.*?)"', false);
-      if (!ytDASHVideos) ytDASHVideos = getMyContent(page.url, '\\\\"dashmpd\\\\":\\s*\\\\"(.*?)\\\\"', false);
+      ytDASHVideos = getMyContent(page.url, '"dashmpd\\\\?":\\s*\\\\?"(.*?)\\\\?"', false);
       if (ytDASHVideos) {
 	ytDASHVideos = cleanMyContent(ytDASHVideos, false);
 	ytDASHContent = getMyContent(ytDASHVideos + '?pacing=0', 'TEXT', false);
@@ -663,8 +660,7 @@ function SaveTube() {
       ytVideosContent = ytVideosEncodedFmts;
     }
     else {
-      ytHLSVideos = getMyContent(page.url, '"hlsvp":\\s*"(.*?)"', false);
-      if (!ytHLSVideos) ytHLSVideos = getMyContent(page.url, '\\\\"hlsvp\\\\":\\s*\\\\"(.*?)\\\\"', false);
+      ytHLSVideos = getMyContent(page.url, '"hls(?:vp|ManifestUrl)\\\\?":\\s*\\\\?"(.*?)\\\\?"', false);
       if (ytHLSVideos) {
 	ytHLSVideos = cleanMyContent(ytHLSVideos, false);
 	if (ytHLSVideos.indexOf('keepalive/yes/') != -1) ytHLSVideos = ytHLSVideos.replace('keepalive/yes/', '');
@@ -738,7 +734,7 @@ function SaveTube() {
       };
       var ytVideoFound = false;
       var ytVideos = ytVideosContent.split(',');
-      var ytVideoParse, ytVideoCodeParse, ytVideoCode, myVideoCode, ytVideo;
+      var ytVideoParse, ytVideoCodeParse, ytVideoCode, myVideoCode, ytVideo, ytSign, ytSignP;
       for (var i = 0; i < ytVideos.length; i++) {
 	if (!ytVideos[i].match(/^url/)) {
 	  ytVideoParse = ytVideos[i].match(/(.*)(url=.*$)/);
@@ -767,13 +763,17 @@ function SaveTube() {
 	    else ytVideo = ytVideo.replace(/&type=(video|audio).*$/, '');
 	    if (ytVideo.match(/xtags=[^%=]*&/)) ytVideo = ytVideo.replace(/xtags=[^%=]*?&/, '');
 	    else if (ytVideo.match(/&xtags=[^%=]*$/)) ytVideo = ytVideo.replace(/&xtags=[^%=]*$/, '');
-	    if (ytVideo.match(/&sig=/)) ytVideo = ytVideo.replace (/&sig=/, '&signature=');
+	    if (ytVideo.match(/&sig=/) && !ytVideo.match(/&lsig=/)) ytVideo = ytVideo.replace(/&sig=/, '&signature=');
 	    else if (ytVideo.match(/&s=/)) {
-	      var ytSig = ytVideo.match(/&s=(.*?)(&|$)/);
-	      if (ytSig) {
-		var s = ytSig[1];
-		s = ytDecryptSignature(s);
-		if (s) ytVideo = ytVideo.replace(/&s=.*?(&|$)/, '&signature=' + s + '$1');
+	      ytSign = ytVideo.match(/&s=(.*?)(&|$)/);
+	      ytSign = (ytSign) ? ytSign[1] : null;
+	      if (ytSign) {
+		ytSign = ytDecryptSignature(ytSign);
+		if (ytSign) {
+		  ytSignP = ytVideo.match(/&sp=(.*?)(&|$)/);
+		  ytSignP = (ytSignP) ? ytSignP[1] : ((ytVideo.match(/&lsig=/)) ? 'sig' : 'signature');
+		  ytVideo = ytVideo.replace(/&s=.*?(&|$)/, '&' + ytSignP + '=' + ytSign + '$1');
+		}
 		else ytVideo = '';
 	      }
 	      else ytVideo = '';
@@ -1093,12 +1093,11 @@ function SaveTube() {
     }
 
     /* Get Videos Content */
-    var veVideosContent = getMyContent(page.url, '__watch.videoDetailsJSON = \'\\{(.*?)\\}', false);
-    veVideosContent = cleanMyContent(veVideosContent, true);
+    var veVideosContent = getMyContent(page.url.replace(/\/watch\//, '/watch/getVideo/'), '"src"\\s*:\\s*\\{(.*?)\\}', false);
 
     /* Get Videos */
     if (veVideosContent) {
-      var veVideoFormats = {'fullPreviewHashLowPath': 'Very Low Definition MP4', 'fullPreviewHashHighPath': 'Low Definition MP4'};
+      var veVideoFormats = {'Regular': 'Low Definition MP4', 'HQ': 'Standard Definition MP4'};
       var veVideoList = {};
       var veVideoFound = false;
       var veVideoParser, veVideoParse, veVideo, myVideoCode;
@@ -1109,7 +1108,7 @@ function SaveTube() {
 	if (veVideo) {
 	  if (!veVideoFound) veVideoFound = true;
 	  myVideoCode = veVideoFormats[veVideoCode];
-	  veVideoList[myVideoCode] = veVideo;
+	  veVideoList[myVideoCode] = cleanMyContent(veVideo, false);
 	}
       }
 
@@ -1120,7 +1119,7 @@ function SaveTube() {
 	feature['container'] = false;
 	feature['fullsize'] = false;
 	option['definition'] = 'LD';
-	option['definitions'] = ['Low Definition', 'Very Low Definition'];
+	option['definitions'] = ['Standard Definition', 'Low Definition'];
 	option['containers'] = ['MP4'];
 	createMySaver();
       }
