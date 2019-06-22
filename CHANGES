@@ -3,6 +3,10 @@
 /* SaveTube Changelog */
 
 
+#2019.06.21
+- fixes YouTube
+- adds VIKI HD videos (DASH and HLS) and subtitles
+
 #2019.06.05
 - fixes YouTube
 - fixes Veoh
