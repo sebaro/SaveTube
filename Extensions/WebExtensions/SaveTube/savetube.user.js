@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2019.06.21
+// @version		2019.07.17
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -269,20 +269,18 @@ function createMySaver() {
   }
 
   /* Panel Items */
-  saver['panelHeight'] = 18;
-  var panelItemBorder = 1;
-  var panelItemHeight = saver['panelHeight'] - panelItemBorder * 2;
+  var panelItemHeight = 18;
 
   /* Panel Logo */
-  saver['panelLogo'] = createMyElement('div', userscript + ': ', 'click', 'logo', '');
+  saver['panelLogo'] = createMyElement('div', userscript, 'click', 'logo', '');
   saver['panelLogo'].title = '{SaveTube: click to visit the script web page}';
-  styleMyElement(saver['panelLogo'], {height: panelItemHeight + 'px', padding: '0px', display: 'inline', color: '#336699', fontSize: '12px', fontWeight: 'bold', textShadow: '0px 1px 1px #CCCCCC', cursor: 'pointer'});
+  styleMyElement(saver['panelLogo'], {height: panelItemHeight + 'px', border: '1px solid #32d132', borderRadius: '3px', padding: '0px 2px', marginRight: '3px', display: 'inline', color: '#32d132', fontSize: '12px', textShadow: '0px 1px 1px #AAAAAA', verticalAlign: 'middle', cursor: 'pointer'});
   appendMyElement(saver['saverPanel'], saver['panelLogo']);
 
   /* Panel Video Menu */
   saver['videoMenu'] = createMyElement('select', '', 'change', '', 'video');
   saver['videoMenu'].title = '{Videos: select the video format for download}';
-  styleMyElement(saver['videoMenu'], {width: '200px', height: panelItemHeight + 'px', border: '1px solid transparent', padding: '0px', display: 'inline', backgroundColor: 'inherit', color: '#336699', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', verticalAlign: 'baseline', cursor: 'pointer'});
+  styleMyElement(saver['videoMenu'], {width: '200px', height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px', display: 'inline', backgroundColor: 'inherit', color: '#336699', fontSize: '12px', textShadow: '1px 1px 1px #CCCCCC', verticalAlign: 'middle', cursor: 'pointer'});
   appendMyElement(saver['saverPanel'], saver['videoMenu'] );
   for (var videoCode in saver['videoList']) {
     saver['videoItem'] = createMyElement('option', videoCode, '', '', '');
@@ -296,7 +294,7 @@ function createMySaver() {
   /* Panel Get Button */
   saver['buttonGet'] = createMyElement('div', 'Get', 'click', 'get', '');
   saver['buttonGet'].title = '{Get: click to download the selected video format}';
-  styleMyElement(saver['buttonGet'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#C000C0', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', cursor: 'pointer'});
+  styleMyElement(saver['buttonGet'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#C000C0', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', verticalAlign: 'middle', cursor: 'pointer'});
   if (option['autoget']) styleMyElement(saver['buttonGet'], {display: 'none'});
   appendMyElement(saver['saverPanel'], saver['buttonGet']);
 
@@ -304,7 +302,7 @@ function createMySaver() {
   if (feature['autoget']) {
     saver['buttonAutoget'] = createMyElement('div', 'AG', 'click', 'autoget', '');
     saver['buttonAutoget'].title = '{Autoget: click to enable/disable auto download on page load}';
-    styleMyElement(saver['buttonAutoget'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#CCCCCC', fontSize: '12px', cursor: 'pointer'});
+    styleMyElement(saver['buttonAutoget'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#CCCCCC', fontSize: '12px', verticalAlign: 'middle', cursor: 'pointer'});
     if (option['autoget']) styleMyElement(saver['buttonAutoget'], {color: '#008080', textShadow: '0px 1px 1px #CCCCCC'});
     appendMyElement(saver['saverPanel'], saver['buttonAutoget']);
   }
@@ -313,7 +311,7 @@ function createMySaver() {
   if (feature['definition']) {
     saver['buttonDefinition'] = createMyElement('div', option['definition'], 'click', 'definition', '');
     saver['buttonDefinition'].title = '{Definition: click to change the preferred video definition}';
-    styleMyElement(saver['buttonDefinition'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#008000', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', cursor: 'pointer'});
+    styleMyElement(saver['buttonDefinition'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#008000', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', verticalAlign: 'middle', cursor: 'pointer'});
     appendMyElement(saver['saverPanel'], saver['buttonDefinition']);
   }
 
@@ -321,7 +319,7 @@ function createMySaver() {
   if (feature['container']) {
     saver['buttonContainer'] = createMyElement('div', option['container'], 'click', 'container', '');
     saver['buttonContainer'].title = '{Container: click to change the preferred video container}';
-    styleMyElement(saver['buttonContainer'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#008000', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', cursor: 'pointer'});
+    styleMyElement(saver['buttonContainer'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#008000', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', verticalAlign: 'middle', cursor: 'pointer'});
     appendMyElement(saver['saverPanel'], saver['buttonContainer']);
   }
 
@@ -329,7 +327,7 @@ function createMySaver() {
   if (feature['dash']) {
     saver['buttonDASH'] = createMyElement('div', 'MD', 'click', 'dash', '');
     saver['buttonDASH'].title = '{MPEG-DASH: click to enable/disable DASH download using the SaveTube protocol}';
-    styleMyElement(saver['buttonDASH'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#CCCCCC', fontSize: '12px', cursor: 'pointer'});
+    styleMyElement(saver['buttonDASH'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#CCCCCC', fontSize: '12px', verticalAlign: 'middle', cursor: 'pointer'});
     if (option['dash']) styleMyElement(saver['buttonDASH'], {color: '#008080', textShadow: '0px 1px 1px #CCCCCC'});
     appendMyElement(saver['saverPanel'], saver['buttonDASH']);
   }
@@ -337,7 +335,7 @@ function createMySaver() {
   /* Panel Move Button */
   saver['buttonMove'] = createMyElement('div', '<', 'click', 'move', '');
   saver['buttonMove'].title = '{Move: click to toggle left/right panel position}';
-  styleMyElement(saver['buttonMove'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#CCCCCC', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', cursor: 'pointer'});
+  styleMyElement(saver['buttonMove'], {height: panelItemHeight + 'px', border: '1px solid #CCCCCC', borderRadius: '3px', padding: '0px 5px', display: 'inline', color: '#CCCCCC', fontSize: '12px', textShadow: '0px 1px 1px #CCCCCC', verticalAlign: 'middle', cursor: 'pointer'});
   appendMyElement(saver['saverPanel'], saver['buttonMove']);
 
   /* Disabled Features */
@@ -370,39 +368,18 @@ function selectMyVideo() {
       }
     }
   }
-  if (option['definition'] == 'UHD') {
-    if (vdoList['Ultra High Definition']) saver['videoSave'] = vdoList['Ultra High Definition'];
-    else if (vdoList['Full High Definition']) saver['videoSave'] = vdoList['Full High Definition'];
-    else if (vdoList['High Definition']) saver['videoSave'] = vdoList['High Definition'];
-    else if (vdoList['Standard Definition']) saver['videoSave'] = vdoList['Standard Definition'];
-    else if (vdoList['Low Definition']) saver['videoSave'] = vdoList['Low Definition'];
-    else if (vdoList['Very Low Definition']) saver['videoSave'] = vdoList['Very Low Definition'];
+  var vdoDef2 = [];
+  var keepDef = false;
+  for (var vD = 0; vD < vdoDef.length; vD++) {
+    var sD = vdoDef[vD].match(/[A-Z]/g).join('');
+    if (sD == option['definition'] && keepDef == false) keepDef = true;
+    if (keepDef == true) vdoDef2.push(vdoDef[vD])
   }
-  else if (option['definition'] == 'FHD') {
-    if (vdoList['Full High Definition']) saver['videoSave'] = vdoList['Full High Definition'];
-    else if (vdoList['High Definition']) saver['videoSave'] = vdoList['High Definition'];
-    else if (vdoList['Standard Definition']) saver['videoSave'] = vdoList['Standard Definition'];
-    else if (vdoList['Low Definition']) saver['videoSave'] = vdoList['Low Definition'];
-    else if (vdoList['Very Low Definition']) saver['videoSave'] = vdoList['Very Low Definition'];
-  }
-  else if (option['definition'] == 'HD') {
-    if (vdoList['High Definition']) saver['videoSave'] = vdoList['High Definition'];
-    else if (vdoList['Standard Definition']) saver['videoSave'] = vdoList['Standard Definition'];
-    else if (vdoList['Low Definition']) saver['videoSave'] = vdoList['Low Definition'];
-    else if (vdoList['Very Low Definition']) saver['videoSave'] = vdoList['Very Low Definition'];
-  }
-  else if (option['definition'] == 'SD') {
-    if (vdoList['Standard Definition']) saver['videoSave'] = vdoList['Standard Definition'];
-    else if (vdoList['Low Definition']) saver['videoSave'] = vdoList['Low Definition'];
-    else if (vdoList['Very Low Definition']) saver['videoSave'] = vdoList['Very Low Definition'];
-  }
-  else if (option['definition'] == 'LD') {
-    if (vdoList['Low Definition']) saver['videoSave'] = vdoList['Low Definition'];
-    else if (vdoList['Very Low Definition']) saver['videoSave'] = vdoList['Very Low Definition'];
-  }
-  else if (option['definition'] == 'VLD') {
-    if (vdoList['Very Low Definition']) saver['videoSave'] = vdoList['Very Low Definition'];
-    else if (vdoList['Low Definition']) saver['videoSave'] = vdoList['Low Definition'];
+  for (var vD = 0; vD < vdoDef2.length; vD++) {
+    if (vdoList[vdoDef2[vD]]) {
+      saver['videoSave'] = vdoList[vdoDef2[vD]];
+      break;
+    }
   }
   saver['videoMenu'].value = saver['videoSave'];
 }
@@ -417,13 +394,14 @@ function getMyVideo() {
   }
   else {
     if (saver['videoList'][saver['videoSave']] == 'DASH') {
+      var vdoV, vdoA;
       if (saver['videoSave'].indexOf('MP4') != -1) {
-	var vdoV = saver['videoList'][saver['videoSave'].replace('MP4', 'Video MP4')];
-	var vdoA = saver['videoList'][saver['videoSave'].replace('MP4', 'Audio MP4')] || saver['videoList']['High Bitrate Audio MP4'] || saver['videoList']['Medium Bitrate Audio MP4'];
+	vdoV = saver['videoList'][saver['videoSave'].replace('MP4', 'Video MP4')];
+	vdoA = saver['videoList']['High Bitrate Audio MP4'] || saver['videoList']['Medium Bitrate Audio MP4'] || saver['videoList'][saver['videoSave'].replace('MP4', 'Audio MP4')];
       }
       else {
-	var vdoV = saver['videoList'][saver['videoSave'].replace('WebM', 'Video WebM')];
-	var vdoA = saver['videoList']['High Bitrate Audio Opus'] || saver['videoList']['Medium Bitrate Audio Opus'] || saver['videoList']['Low Bitrate Audio Opus'];
+	vdoV = saver['videoList'][saver['videoSave'].replace('WebM', 'Video WebM')];
+	vdoA = saver['videoList']['High Bitrate Audio Opus'] || saver['videoList']['Medium Bitrate Audio Opus'] || saver['videoList']['Low Bitrate Audio Opus'];
       }
       var vdoT = (vdoTle) ? vdoTle + vdoDef : page.site + vdoDef;
       vdoURL = 'savetube:' + vdoT + 'SEPARATOR' + vdoV + 'SEPARATOR' + vdoA;
@@ -648,9 +626,7 @@ function SaveTube() {
 	var ytVideoID = page.url.match(/(\?|&)v=(.*?)(&|$)/);
 	ytVideoID = (ytVideoID) ? ytVideoID[2] : null;
 	if (ytVideoID) {
-	  var ytVideoSts = getMyContent(page.url.replace(/watch.*?v=/, 'embed/').replace(/&.*$/, ''), '"sts"\\s*:\\s*(\\d+)', false);
-	  var ytVideosInfoURL = page.win.location.protocol + '//' + page.win.location.hostname + '/get_video_info?video_id=' + ytVideoID + '&eurl=https://youtube.googleapis.com/v/' + ytVideoID + '&sts=' + ytVideoSts;
-	  var ytVideosInfo = getMyContent(ytVideosInfoURL, 'TEXT', false);
+	  var ytVideosInfo = getMyContent(page.win.location.protocol + '//' + page.win.location.hostname + '/get_video_info?video_id=' + ytVideoID + '&eurl=https://youtube.googleapis.com/v/', 'TEXT', false);
 	  if (ytVideosInfo) {
 	    ytVideosEncodedFmts = ytVideosInfo.match(/url_encoded_fmt_stream_map=(.*?)&/);
 	    ytVideosEncodedFmts = (ytVideosEncodedFmts) ? ytVideosEncodedFmts[1] : null;
@@ -676,17 +652,15 @@ function SaveTube() {
     var ytDefaultVideo = 'Low Definition MP4';
     function ytSaver() {
       saver = {'videoList': ytVideoList, 'videoSave': ytDefaultVideo, 'videoTitle': ytVideoTitle};
-      option['definitions'] = ['Ultra High Definition', 'Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
-      option['containers'] = ['MP4', 'WebM', '3GP', 'Any'];
+      option['definitions'] = ['Ultra High Definition', 'Quad High Definition', 'Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
+      option['containers'] = ['MP4', 'WebM', 'Any'];
     }
 
     /* Parse Videos */
     function ytVideos() {
       var ytVideoFormats = {
-	'17': 'Very Low Definition 3GP',
 	'18': 'Low Definition MP4',
 	'22': 'High Definition MP4',
-	'36': 'Low Definition 3GP',
 	'43': 'Low Definition WebM',
 	'135': 'Standard Definition Video MP4',
 	'136': 'High Definition Video MP4',
@@ -699,11 +673,14 @@ function SaveTube() {
 	'249': 'Low Bitrate Audio Opus',
 	'250': 'Medium Bitrate Audio Opus',
 	'251': 'High Bitrate Audio Opus',
+	'264': 'Quad High Definition Video MP4',
+	'271': 'Quad High Definition Video WebM',
 	'272': 'Ultra High Definition Video WebM',
 	'298': 'High Definition Video MP4',
 	'299': 'Full High Definition Video MP4',
 	'302': 'High Definition Video WebM',
 	'303': 'Full High Definition Video WebM',
+	'308': 'Quad High Definition Video WebM',
 	'313': 'Ultra High Definition Video WebM',
 	'315': 'Ultra High Definition Video WebM',
 	'333': 'Standard Definition Video WebM',
@@ -769,14 +746,15 @@ function SaveTube() {
 
       if (ytVideoFound) {
 	/* DASH */
-	if (!ytVideoList['Standard Definition MP4'] && ytVideoList['Standard Definition Video MP4']) ytVideoList['Standard Definition MP4'] = 'DASH';
-	if (!ytVideoList['High Definition MP4'] && ytVideoList['High Definition Video MP4']) ytVideoList['High Definition MP4'] = 'DASH';
-	if (!ytVideoList['Full High Definition MP4'] && ytVideoList['Full High Definition Video MP4']) ytVideoList['Full High Definition MP4'] = 'DASH';
-	if (!ytVideoList['Ultra High Definition MP4'] && ytVideoList['Ultra High Definition Video MP4']) ytVideoList['Ultra High Definition MP4'] = 'DASH';
-	if (!ytVideoList['Standard Definition WebM'] && ytVideoList['Standard Definition Video WebM']) ytVideoList['Standard Definition WebM'] = 'DASH';
-	if (!ytVideoList['High Definition WebM'] && ytVideoList['High Definition Video WebM']) ytVideoList['High Definition WebM'] = 'DASH';
-	if (!ytVideoList['Full High Definition WebM'] && ytVideoList['Full High Definition Video WebM']) ytVideoList['Full High Definition WebM'] = 'DASH';
-	if (!ytVideoList['Ultra High Definition WebM'] && ytVideoList['Ultra High Definition Video WebM']) ytVideoList['Ultra High Definition WebM'] = 'DASH';
+	if (ytVideoList['Medium Bitrate Audio MP4'] || ytVideoList['Medium Bitrate Audio WebM'] || ytVideoList['Medium Bitrate Audio Opus']) {
+	  for (var myVideoCode in ytVideoList) {
+	    if (myVideoCode.indexOf('Video') != -1) {
+	      if (!ytVideoList[myVideoCode.replace(' Video', '')]) {
+		ytVideoList[myVideoCode.replace(' Video', '')] = 'DASH';
+	      }
+	    }
+	  }
+	}
 	feature['dash'] = true;
 
 	/* Create Saver */
@@ -888,8 +866,8 @@ function SaveTube() {
 
     /* Get Videos */
     if (dmVideosContent) {
-      var dmVideoFormats = {'auto': 'Low Definition MP4', '240': 'Very Low Definition MP4', '380': 'Low Definition MP4', '480': 'Standard Definition MP4',
-			    '720': 'High Definition MP4', '1080': 'Full High Definition MP4'};
+      var dmVideoFormats = {'auto': 'Low Definition MP4', '240': 'Very Low Definition MP4', '380': 'Low Definition MP4',
+			     '480': 'Standard Definition MP4', '720': 'High Definition MP4', '1080': 'Full High Definition MP4'};
       var dmVideoList = {};
       var dmVideoFound = false;
       var dmVideoParser, dmVideoParse, myVideoCode, dmVideo;
@@ -932,13 +910,20 @@ function SaveTube() {
 
   // =====Vimeo===== //
 
-  else if (page.url.match(/vimeo.com\/\d+/) || page.url.match(/vimeo.com\/channels\/[^\/]*($|\/$|\/page|\/\d+)/) || page.url.match(/vimeo.com\/originals\/[^\/]*($|\/$|\/\d+)/) || page.url.match(/vimeo.com\/album\/\d+\/video\/\d+/) || page.url.match(/vimeo.com\/groups\/[^\/]*\/videos\/\d+/)) {
+  else if (page.url.indexOf('vimeo.com/') != -1) {
 
-    /* Multi Video Page */
-    if (getMyElement('', 'div', 'class', 'player_container', -1, false).length > 1) return;
+    /* Page Type */
+    var viPageType = getMyContent(page.url, 'meta\\s+property="og:type"\\s+content="(.*?)"', false);
+    if (!viPageType || (viPageType != 'video' && viPageType != 'profile')) return;
 
     /* Get Video Title */
-    var viVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
+    var viVideoTitle;
+    if (viPageType == 'video') {
+      viVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
+    }
+    else {
+      viVideoTitle = getMyContent(page.url, '"title":"(.*?)"', false);
+    }
     if (viVideoTitle) {
       viVideoTitle = viVideoTitle.replace(/&quot;/g, '\'').replace(/&#34;/g, '\'').replace(/"/g, '\'');
       viVideoTitle = viVideoTitle.replace(/&#39;/g, '\'').replace(/'/g, '\'');
@@ -949,9 +934,12 @@ function SaveTube() {
     }
 
     /* Get Content Source */
-    var viVideoSource = getMyContent(page.url, '"config_url":"(.*?)"', false);
+    var viVideoSource = getMyContent(page.url, 'config_url":"(.*?)"', false);
     if (viVideoSource) viVideoSource = cleanMyContent(viVideoSource, false);
-    else viVideoSource = getMyContent(page.url, 'data-config-url="(.*?)"', false).replace(/&amp;/g, '&');
+    else {
+      viVideoSource = getMyContent(page.url, 'data-config-url="(.*?)"', false);
+      if (viVideoSource) viVideoSource = viVideoSource.replace(/&amp;/g, '&');
+    }
 
     /* Get Videos Content */
     var viVideosContent;
@@ -961,8 +949,8 @@ function SaveTube() {
 
     /* Get Videos */
     if (viVideosContent) {
-      var viVideoFormats = {'1080p': 'Full High Definition MP4', '720p': 'High Definition MP4', '480p': 'Standard Definition MP4',
-			     '360p': 'Low Definition MP4', '270p': 'Very Low Definition MP4'};
+      var viVideoFormats = {'1440p': 'Quad High Definition MP4', '1080p': 'Full High Definition MP4', '720p': 'High Definition MP4', '540p': 'Standard Definition MP4',
+			     '480p': 'Standard Definition MP4', '360p': 'Low Definition MP4', '270p': 'Very Low Definition MP4', '240p': 'Very Low Definition MP4'};
       var viVideoList = {};
       var viVideoFound = false;
       var viVideo, myVideoCode;
@@ -986,7 +974,7 @@ function SaveTube() {
 	var viDefaultVideo = 'Low Definition MP4';
 	saver = {'videoList': viVideoList, 'videoSave': viDefaultVideo, 'videoTitle': viVideoTitle};
 	feature['container'] = false;
-	option['definitions'] = ['High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
+	option['definitions'] = ['Quad High Definition', 'Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
 	option['containers'] = ['MP4'];
 	createMySaver();
       }
@@ -1198,6 +1186,9 @@ function SaveTube() {
 	}
       }
 
+      // Unauthorized
+      var vkUnauthorized = (vkVideosContent.indexOf('unauthorized') != -1) ? true : false;
+
       // DASH/HLS/Subtitles
       vkVideosContent = getMyContent(page.url.replace('/videos/', '/player5_fragment/'), 'TEXT', false);
       if (vkVideosContent) {
@@ -1255,7 +1246,8 @@ function SaveTube() {
 		var vkDASHVideos = vkDASHContent.match(new RegExp('<BaseURL>.*?</BaseURL>', 'g'));
 		if (vkDASHVideos) {
 		  for (var i = 0; i < vkDASHVideos.length; i++) {
-		    vkDASHVideo = vkDASHDomain + '/' + vkDASHVideos[i].replace('<BaseURL>', '').replace('</BaseURL>', '');
+		    vkDASHVideo = vkDASHVideos[i].replace('<BaseURL>', '').replace('</BaseURL>', '');
+		    if (vkDASHVideo.indexOf('http') != 0) vkDASHVideo = vkDASHDomain + '/' + vkDASHVideo;
 		    for (var vkVideoCode in vkVideoFormats) {
 		      if (vkDASHVideo.indexOf(vkVideoCode) != -1) {
 			myVideoCode = vkVideoFormats[vkVideoCode];
@@ -1304,7 +1296,7 @@ function SaveTube() {
 	createMySaver();
       }
       else {
-	if (vkVideosContent.indexOf('unauth') != -1) {
+	if (vkUnauthorized) {
 	  saver = {
 	    'warnMess': 'other',
 	    'warnContent': '<b>SaveTube:</b> Authorization required!'
