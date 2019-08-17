@@ -5,4 +5,4 @@ t="$(echo "$1" | awk -F 'SEPARATOR' '{print $1}' | sed -e "s/savetube://" | sed 
 v="$(echo "$1" | awk -F 'SEPARATOR' '{print $2}')"
 a="$(echo "$1" | awk -F 'SEPARATOR' '{print $3}')"
 f="$(echo "$v" | grep -q "video/mp4\|\.mp4" && echo "mp4" || echo "webm")"
-ffmpeg -i "$v" -i "$a" -c:v copy -c:a copy "$d/$t.$f"
+ffmpeg -y -i "$v" -i "$a" -c:v copy -c:a copy "$d/$t.$f"

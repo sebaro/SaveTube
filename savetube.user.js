@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2019.07.17
+// @version		2019.08.17
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -397,11 +397,11 @@ function getMyVideo() {
       var vdoV, vdoA;
       if (saver['videoSave'].indexOf('MP4') != -1) {
 	vdoV = saver['videoList'][saver['videoSave'].replace('MP4', 'Video MP4')];
-	vdoA = saver['videoList']['High Bitrate Audio MP4'] || saver['videoList']['Medium Bitrate Audio MP4'] || saver['videoList'][saver['videoSave'].replace('MP4', 'Audio MP4')];
+	vdoA = saver['videoList']['Medium Bitrate Audio MP4'] || saver['videoList'][saver['videoSave'].replace('MP4', 'Audio MP4')];
       }
       else {
 	vdoV = saver['videoList'][saver['videoSave'].replace('WebM', 'Video WebM')];
-	vdoA = saver['videoList']['High Bitrate Audio Opus'] || saver['videoList']['Medium Bitrate Audio Opus'] || saver['videoList']['Low Bitrate Audio Opus'];
+	vdoA = saver['videoList']['High Bitrate Audio WebM'] || saver['videoList']['Medium Bitrate Audio WebM'] || saver['videoList']['Medium Bitrate Audio MP4'];
       }
       var vdoT = (vdoTle) ? vdoTle + vdoDef : page.site + vdoDef;
       vdoURL = 'savetube:' + vdoT + 'SEPARATOR' + vdoV + 'SEPARATOR' + vdoA;
@@ -662,17 +662,20 @@ function SaveTube() {
 	'18': 'Low Definition MP4',
 	'22': 'High Definition MP4',
 	'43': 'Low Definition WebM',
+	'133': 'Very Low Definition Video MP4',
+	'134': 'Low Definition Video MP4',
 	'135': 'Standard Definition Video MP4',
 	'136': 'High Definition Video MP4',
 	'137': 'Full High Definition Video MP4',
 	'140': 'Medium Bitrate Audio MP4',
-	'171': 'Medium Bitrate Audio WebM',
+	'242': 'Very Low Definition Video WebM',
+	'243': 'Low Definition Video WebM',
 	'244': 'Standard Definition Video WebM',
 	'247': 'High Definition Video WebM',
 	'248': 'Full High Definition Video WebM',
-	'249': 'Low Bitrate Audio Opus',
-	'250': 'Medium Bitrate Audio Opus',
-	'251': 'High Bitrate Audio Opus',
+	'249': 'Low Bitrate Audio WebM',
+	'250': 'Medium Bitrate Audio WebM',
+	'251': 'High Bitrate Audio WebM',
 	'264': 'Quad High Definition Video MP4',
 	'271': 'Quad High Definition Video WebM',
 	'272': 'Ultra High Definition Video WebM',
@@ -746,7 +749,7 @@ function SaveTube() {
 
       if (ytVideoFound) {
 	/* DASH */
-	if (ytVideoList['Medium Bitrate Audio MP4'] || ytVideoList['Medium Bitrate Audio WebM'] || ytVideoList['Medium Bitrate Audio Opus']) {
+	if (ytVideoList['Medium Bitrate Audio MP4'] || ytVideoList['Medium Bitrate Audio WebM']) {
 	  for (var myVideoCode in ytVideoList) {
 	    if (myVideoCode.indexOf('Video') != -1) {
 	      if (!ytVideoList[myVideoCode.replace(' Video', '')]) {
