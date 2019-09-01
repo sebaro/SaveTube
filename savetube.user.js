@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2019.08.17
+// @version		2019.09.01
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -705,6 +705,9 @@ function SaveTube() {
 	  myVideoCode = ytVideoFormats[ytVideoCode];
 	  if (myVideoCode) {
 	    ytVideo = cleanMyContent(ytVideos[i], true);
+	    if (myVideoCode.indexOf('Video') != -1) {
+	      if (ytVideo.indexOf('source=yt_otf') != -1) continue;
+	    }
 	    ytVideo = ytVideo.replace(/url=/, '').replace(/&$/, '');
 	    if (ytVideo.match(/itag=/) && ytVideo.match(/itag=/g).length > 1) {
 	      if (ytVideo.match(/itag=\d{1,3}&/)) ytVideo = ytVideo.replace(/itag=\d{1,3}&/, '');
