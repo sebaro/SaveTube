@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube+
-// @version		2018.11.12
+// @version		2019.12.05
 // @description		Download videos from web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -16,7 +16,7 @@
 
 /*
 
-  Copyright (C) 2014 - 2018 Sebastian Luncan
+  Copyright (C) 2014 - 2019 Sebastian Luncan
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,16 +43,26 @@
 // ==========Variables========== //
 
 // Userscript
-var userscript = 'SaveTube';
-
-// Contact
+var userscript = 'SaveTube+';
+var website = 'http://sebaro.pro/savetube';
 var contact = 'http://sebaro.pro/contact';
 
+// Saver
+var panelHeight = 30;
 
 // ==========Fixes========== //
 
 // Don't run on frames or iframes
 if (window.top && window.top != window.self)  return;
+
+
+// ==========Functions========== //
+
+function styleMyElement(obj, styles) {
+  for (var stylekey in styles) {
+    obj.style[stylekey] = styles[stylekey];
+  }
+}
 
 
 // ==========Websites========== //
@@ -73,9 +83,11 @@ var patterns = [
   '\'(http[^\']*?\\.(mp4|flv|webm|m3u8).*?)\''
   ];
 
+var exclude = '(thumb|\\.jpg|\\.png|\\.gif|\\.htm|format=|\\/\\/[^\\/]*?(mp4|flv|webm|m3u8)|(mp4|flv|webm|m3u8)[0-9a-zA-Z])';
+
 /* Video Matcher */
 var pattern, matches, matcher, video, type;
-var links = '';
+var links = [];
 for (var i = 0; i < patterns.length; i++) {
   pattern = new RegExp(patterns[i], 'g');
   matches = source.match(pattern);
@@ -84,63 +96,48 @@ for (var i = 0; i < patterns.length; i++) {
       matcher = matches[v].match(patterns[i]);
       video = (matcher) ? matcher[1] : null;
       if (video) {
-	video = video.replace(/\\/g, '');
 	if (video.indexOf('%') != -1) video = unescape(video);
+	if (video.indexOf('\\u00') != -1) video = video.replace(/\\u002F/g, '/').replace(/\\u0026/g, '&');
 	if (video.indexOf('&amp;') != -1) video = video.replace(/&amp;/g, '&');
-	if (video.indexOf('http') == 0 && !video.match(/(thumb|\.jpg|\.png|\.gif|\.htm|format=|\/\/[^\/]*?(mp4|flv|webm|m3u8))/)) {
-	  if (video.indexOf('.mp4') != -1) type = 'MP4';
-	  else if (video.indexOf('.flv') != -1) type = 'FLV';
-	  else if (video.indexOf('.webm') != -1) type = 'WebM';
-	  else if (video.indexOf('.m3u8') != -1) type = 'M3U8';
-	  else type = 'Video';
-	  if (links.indexOf(video) == -1) links += ' <a href="' + video + '" style="color:#2C72C7">' + type + '</a>';
+	video = video.replace(/\\/g, '');
+	if (video.indexOf('http') == 0 && !video.match(exclude)) {
+	  if (links.indexOf(video) == -1) links.push(video);
 	}
       }
     }
   }
 }
-if (links) {
+if (links.length > 0) {
   var panel = document.createElement('div');
-  panel.style.position = 'fixed';
-  panel.style.bottom = '0px';
-  panel.style.right = '25px';
-  panel.style.zIndex = '2000000000';
-  panel.style.color = '#336699';
-  panel.style.backgroundColor = '#FFFFFF';
-  panel.style.padding = '5px 5px 10px 5px';
-  panel.style.fontSize = '12px';
-  panel.style.fontWeight = 'bold';
-  panel.style.borderLeft = '3px solid #EEEEEE';
-  panel.style.borderRight = '3px solid #EEEEEE';
-  panel.style.borderTop = '3px solid #EEEEEE';
-  panel.style.borderRadius = '5px 5px 0px 0px';
-  panel.innerHTML = '<a href="' + contact + '" style="color:#336699; font-weight:bold; text-decoration:none">' + userscript + '</a>: ' + links;
-  var button = document.createElement('div');
-  button.innerHTML = '<';
-  button.style.height = '12px';
-  button.style.border = '1px solid #CCCCCC';
-  button.style.borderRadius = '3px';
-  button.style.padding = '0px 5px';
-  button.style.display = 'inline';
-  button.style.color = '#CCCCCC';
-  button.style.fontSize = '12px';
-  button.style.textShadow = '0px 1px 1px #CCCCCC';
-  button.style.cursor = 'pointer';
-  button.style.marginLeft = '10px';
-  button.addEventListener('click', function() {
-    if (panel.style.right == '25px') {
-      panel.style.left = '25px';
-      panel.style.right = 'auto';
-      button.innerHTML = '>';
-    }
-    else {
-      panel.style.left = 'auto';
-      panel.style.right = '25px';
-      button.innerHTML = '<';
-    }
-  }, false);
-  panel.appendChild(button);
+  styleMyElement(panel, {position: 'fixed', height: panelHeight + 'px', backgroundColor: '#FFFFFF', padding: '0px 10px 5px 10px', bottom: '0px', right: '25px', lineHeight: (panelHeight - 2) + 'px', zIndex: '2000000000', borderTop: '1px solid #CCCCCC', borderLeft: '1px solid #CCCCCC', borderRight: '1px solid #CCCCCC', borderRadius: '5px 5px 0px 0px', boxSizing: 'content-box'});
   document.body.appendChild(panel);
+  var logo = document.createElement('div');
+  styleMyElement(logo, {display: 'inline-block', color: '#32d132', fontSize: '14px', fontWeight: 'bold', border: '1px solid #32d132', borderRadius: '3px', padding: '0px 4px', marginRight: '10px', lineHeight: 'normal', verticalAlign: 'middle'});
+  panel.appendChild(logo);
+  logo.innerHTML = userscript;
+  var menu = document.createElement('select');
+  styleMyElement(menu, {width: '270px', display: 'inline-block', fontSize: '14px', fontWeight: 'bold', padding: '0px 3px', overflow: 'hidden', border: '1px solid #CCCCCC', color: '#777777', backgroundColor: '#FFFFFF', lineHeight: 'normal', verticalAlign: 'middle', cursor: 'pointer'});
+  var option;
+  for (var i = 0; i < links.length; i++) {
+    option = document.createElement('option');
+    styleMyElement(option, {fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'});
+    option.value = links[i];
+    option.innerHTML = links[i].substr(0, 50) + '...';
+    option.title = links[i];
+    menu.appendChild(option);
+  }
+  panel.appendChild(menu);
+  var linkb = document.createElement('div');
+  styleMyElement(linkb, {display: 'inline-block', color: '#777777', fontSize: '14px', fontWeight: 'bold', padding: '0px 4px', verticalAlign: 'middle', marginLeft: '5px', cursor: 'pointer'});
+  panel.appendChild(linkb);
+  var link = document.createElement('a');
+  styleMyElement(link, {color: '#777777', textDecoration: 'underline'});
+  link.innerHTML = '[Link]';
+  link.href = links[0];
+  linkb.appendChild(link);
+  menu.addEventListener('change', function() {
+    link.href = this.value;
+  }, false);
 }
 
 })();
