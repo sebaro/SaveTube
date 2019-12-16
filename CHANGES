@@ -3,6 +3,9 @@
 /* SaveTube Changelog */
 
 
+#2019.12.15
+- Script: options fixes, DVL option to pass the video link to an external application
+
 #2019.12.05
 - Script: new design, options fixes
 

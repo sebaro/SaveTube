@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2019.12.05
+// @version		2019.12.15
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -90,8 +90,8 @@ var saver = {};
 var panelHeight = 30;
 
 // Features/Options
-var feature = {'definition': true, 'container': true, 'autoget': false, 'dash': false};
-var option = {'definition': 'High Definition', 'container': 'MP4', 'autoget': false, 'dash': false};
+var feature = {'definition': true, 'container': true, 'autoget': false, 'dash': false, 'direct': false};
+var option = {'definition': 'High Definition', 'container': 'MP4', 'autoget': false, 'dash': false, 'direct': false};
 
 // Sources
 var sources = {};
@@ -230,7 +230,7 @@ function getMyContent(url, pattern, clean) {
 function createMySaver() {
   /* The Panel */
   saver['saverPanel'] = createMyElement('div');
-  styleMyElement(saver['saverPanel'], {position: 'fixed', height: panelHeight + 'px', backgroundColor: '#FFFFFF', padding: '0px 10px 5px 10px', bottom: '0px', right: '25px', lineHeight: (panelHeight - 2) + 'px', zIndex: '2000000000', borderTop: '1px solid #CCCCCC', borderLeft: '1px solid #CCCCCC', borderRight: '1px solid #CCCCCC', borderRadius: '5px 5px 0px 0px', boxSizing: 'content-box'});
+  styleMyElement(saver['saverPanel'], {position: 'fixed', minHeight: panelHeight + 'px', backgroundColor: '#FFFFFF', padding: '0px 10px 5px 10px', bottom: '0px', right: '25px', lineHeight: (panelHeight - 2) + 'px', zIndex: '2000000000', borderTop: '1px solid #CCCCCC', borderLeft: '1px solid #CCCCCC', borderRight: '1px solid #CCCCCC', borderRadius: '5px 5px 0px 0px', textAlign: 'center', boxSizing: 'content-box'});
   appendMyElement(page.body, saver['saverPanel']);
 
   /* Warnings */
@@ -265,7 +265,7 @@ function createMySaver() {
   var videosAdaptiveMuxed = [];
   for (var videoCode in saver['videoList']) {
     if (videoCode.indexOf('Video') != -1) {
-      videosAdaptiveVideo.push(videoCode);
+      if (videoCode.indexOf('Direct') == -1) videosAdaptiveVideo.push(videoCode);
     }
     else if (videoCode.indexOf('Audio') != -1) videosAdaptiveAudio.push(videoCode);
     else {
@@ -313,16 +313,25 @@ function createMySaver() {
       appendMyElement(saver['videoMenu'], saver['videoItem']);
     }
   }
+  if (feature['direct']) {
+    saver['videoItem'] = createMyElement('option', {value: 'DVL (Open Video Link)', textContent: 'DVL (Open Video Link)'});
+    styleMyElement(saver['videoItem'], {fontSize: '14px', fontWeight: 'bold', color: '#FF0000'});
+    saver['videoItem'].disabled = 'disabled';
+    appendMyElement(saver['videoMenu'], saver['videoItem']);
+    saver['videoItem'] = createMyElement('option', {value: 'Direct Video Link', textContent: 'Direct Video Link'});
+    styleMyElement(saver['videoItem'], {fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'});
+    appendMyElement(saver['videoMenu'], saver['videoItem']);
+  }
 
   /* Panel Options Button */
   saver['buttonOptions'] = createMyElement('div', {title: '{Options: click to show the available options}'}, 'click', function() {
     if (saver['showsOptions']) {
       saver['showsOptions'] = false;
-      styleMyElement(saver['saverPanel'], {height: panelHeight + 'px'})
+      styleMyElement(saver['optionsContent'], {display: 'none'})
     }
     else {
       saver['showsOptions'] = true;
-      styleMyElement(saver['saverPanel'], {height: '200px'})
+      styleMyElement(saver['optionsContent'], {display: 'block'})
     }
   });
   styleMyElement(saver['buttonOptions'], {width: '1px', height: '14px', display: 'inline-block', paddingTop: '3px', borderLeft: '3px dotted #777777', lineHeight: 'normal', verticalAlign: 'middle', marginLeft: '20px', cursor: 'pointer'});
@@ -342,121 +351,74 @@ function createMySaver() {
 
   /* Panel Options */
   saver['optionsContent'] = createMyElement('div');
-  styleMyElement(saver['optionsContent'], {display: 'block', fontSize: '14px', fontWeight: 'bold', padding: '10px', textAlign: 'center'});
+  styleMyElement(saver['optionsContent'], {display: 'none', fontSize: '14px', fontWeight: 'bold', padding: '10px', textAlign: 'center'});
   appendMyElement(saver['saverPanel'], saver['optionsContent']);
 
-  /* Option Definition */
-  var definitionOption = createMyElement('div');
-  styleMyElement(definitionOption, {display: 'block', padding: '5px 0px 5px 0px'});
-  var definitionOptionLabel = createMyElement('div', {textContent: 'Definition'});
-  styleMyElement(definitionOptionLabel, {display: 'inline-block', color: '#777777', marginRight: '10px'});
-  var definitionOptionMenu = createMyElement('select', '', 'change', function() {
-    option['definition'] = this.value;
-    setMyOptions('definition', option['definition']);
-    if (saver['isGetting']) {
-      cleanMyElement(saver['buttonGetLink'], false);
-      saver['isGetting'] = false;
-    }
-    selectMyVideo();
-    if (option['autoget']) {
-      getMyVideo();
-    }
-  });
-  styleMyElement(definitionOptionMenu, {display: 'inline-block', color: '#777777', backgroundColor: '#FFFFFF', border: '1px solid #CCCCCC', fontSize: '14px', fontWeight: 'bold', marginRight: '10px'});
-  appendMyElement(definitionOption, definitionOptionLabel);
-  appendMyElement(definitionOption, definitionOptionMenu);
-  appendMyElement(saver['optionsContent'], definitionOption);
-  var definitionOptionMenuItem;
-  for (var i = 0; i < saver['videoDefinitions'].length; i++) {
-    definitionOptionMenuItem = createMyElement('option', {value: saver['videoDefinitions'][i], textContent: saver['videoDefinitions'][i]});
-    styleMyElement(definitionOptionMenuItem, {fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'});
-    appendMyElement(definitionOptionMenu, definitionOptionMenuItem);
-  }
-  if (!option['definition'] || saver['videoDefinitions'].indexOf(option['definition']) == -1) option['definition'] = saver['videoSave'].replace(/Definition.*/, 'Definition');
-  definitionOptionMenu.value = option['definition'];
+  /* Options Object => option: [label, options, new line, change video] */
+  var options = {
+    'definition': ['Definition', saver['videoDefinitions'], true, true],
+    'container': ['Container', saver['videoContainers'], true, true],
+    'autoget': ['Autoget', ['On', 'Off'], true, false, true],
+    'dash': ['DASH (Video With Audio) download support', ['On', 'Off'], true, false],
+    'direct': ['DVL (Pass the page video link to the downloader)', ['On', 'Off'], true, true]
+  };
 
-  /* Option Container */
-  if (feature['container']) {
-    var containerOption = createMyElement('div');
-    styleMyElement(containerOption, {display: 'block', padding: '5px 0px 5px 0px'});
-    var containerOptionLabel = createMyElement('div', {textContent: 'Container'});
-    styleMyElement(containerOptionLabel, {display: 'inline-block', color: '#777777', marginRight: '10px'});
-    var containerOptionMenu = createMyElement('select', '', 'change', function() {
-      option['container'] = this.value;
-      setMyOptions('container', option['container']);
-      if (saver['isGetting']) {
-	cleanMyElement(saver['buttonGetLink'], false);
-	saver['isGetting'] = false;
+  /* Options */
+  var optionsBox, optionBox, optionLabel, optionMenu, optionMenuItem;
+  for (var o in options) {
+    if (feature[o] === false) continue;
+    if (options[o][2]) {
+      optionsBox = createMyElement('div');
+      styleMyElement(optionsBox, {display: 'block', padding: '5px 0px 5px 0px'});
+      appendMyElement(saver['optionsContent'], optionsBox);
+    }
+    optionBox = createMyElement('div');
+    styleMyElement(optionBox, {display: 'inline-block'});
+    optionLabel = createMyElement('div', {textContent: options[o][0]});
+    styleMyElement(optionLabel, {display: 'inline-block', color: '#777777', marginRight: '10px'});
+    optionMenu = createMyElement('select', {id: o}, 'change', function() {
+      if (this.value == 'On' || this.value == 'Off') {
+	option[this.id] = (this.value == 'On') ? true : false;
       }
-      selectMyVideo();
-      if (option['autoget']) {
-	getMyVideo();
+      else {
+	option[this.id] = this.value;
+      }
+      setMyOptions(this.id, option[this.id]);
+      if (options[this.id][3]) {
+	if (saver['isGetting']) {
+	  cleanMyElement(saver['buttonGetLink'], false);
+	  saver['isGetting'] = false;
+	}
+	selectMyVideo();
+	if (option['autoget']) {
+	  getMyVideo();
+	}
       }
     });
-    styleMyElement(containerOptionMenu, {display: 'inline-block', color: '#777777', backgroundColor: '#FFFFFF', border: '1px solid #CCCCCC', fontSize: '14px', fontWeight: 'bold', marginRight: '10px'});
-    appendMyElement(containerOption, containerOptionLabel);
-    appendMyElement(containerOption, containerOptionMenu);
-    appendMyElement(saver['optionsContent'], containerOption);
-    var containerOptionMenuItem;
-    for (var i = 0; i < saver['videoContainers'].length; i++) {
-      containerOptionMenuItem = createMyElement('option', {value: saver['videoContainers'][i], textContent: saver['videoContainers'][i]});
-      styleMyElement(containerOptionMenuItem, {fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'});
-      appendMyElement(containerOptionMenu, containerOptionMenuItem);
+    styleMyElement(optionMenu, {display: 'inline-block', color: '#777777', backgroundColor: '#FFFFFF', border: '1px solid #CCCCCC', fontSize: '14px', fontWeight: 'bold', marginRight: '10px'});
+    appendMyElement(optionBox, optionLabel);
+    appendMyElement(optionBox, optionMenu);
+    appendMyElement(optionsBox, optionBox);
+    for (var i = 0; i < options[o][1].length; i++) {
+      optionMenuItem = createMyElement('option', {value: options[o][1][i], textContent: options[o][1][i]});
+      styleMyElement(optionMenuItem, {fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'});
+      appendMyElement(optionMenu, optionMenuItem);
     }
-    if (!option['container'] || saver['videoContainers'].indexOf(option['container']) == -1) option['container'] = saver['videoSave'].replace(/.*\s/, '');
-    containerOptionMenu.value = option['container'];
-  }
-
-  /* Option Autoget */
-  if (feature['autoget']) {
-    var autogetOption = createMyElement('div');
-    styleMyElement(autogetOption, {display: 'block', padding: '5px 0px 5px 0px'});
-    var autogetOptionLabel = createMyElement('div', {textContent: 'Autoget'});
-    styleMyElement(autogetOptionLabel, {display: 'inline-block', color: '#777777', marginRight: '10px'});
-    var autogetOptionMenu = createMyElement('select', '', 'change', function() {
-      option['autoget'] = (this.value == 'On') ? true : false;
-      setMyOptions('autoget', option['autoget']);
-    });
-    styleMyElement(autogetOptionMenu, {display: 'inline-block', color: '#777777', backgroundColor: '#FFFFFF', border: '1px solid #CCCCCC', fontSize: '14px', fontWeight: 'bold', marginRight: '10px'});
-    appendMyElement(autogetOption, autogetOptionLabel);
-    appendMyElement(autogetOption, autogetOptionMenu);
-    appendMyElement(saver['optionsContent'], autogetOption);
-    var autogetOptionMenuItem;
-    for (var i = 0; i < ['On', 'Off'].length; i++) {
-      autogetOptionMenuItem = createMyElement('option', {value: ['On', 'Off'][i], textContent: ['On', 'Off'][i]});
-      styleMyElement(autogetOptionMenuItem, {fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'});
-      appendMyElement(autogetOptionMenu, autogetOptionMenuItem);
+    if (optionMenu.value == 'On' || optionMenu.value == 'Off') {
+      if (option[o]) optionMenu.value = 'On';
+      else optionMenu.value = 'Off';
     }
-    if (option['autoget']) autogetOptionMenu.value = 'On';
-    else autogetOptionMenu.value = 'Off';
-  }
-
-  /* Option DASH */
-  if (feature['dash']) {
-    var dashOption = createMyElement('div');
-    styleMyElement(dashOption, {display: 'block', padding: '5px 0px 5px 0px'});
-    var dashOptionLabel = createMyElement('div', {textContent: 'DASH (Video With Audio) download support'});
-    styleMyElement(dashOptionLabel, {display: 'inline-block', color: '#777777', marginRight: '10px'});
-    var dashOptionMenu = createMyElement('select', '', 'change', function() {
-      option['dash'] = (this.value == 'On') ? true : false;
-      setMyOptions('dash', option['dash']);
-    });
-    styleMyElement(dashOptionMenu, {display: 'inline-block', color: '#777777', backgroundColor: '#FFFFFF', border: '1px solid #CCCCCC', fontSize: '14px', fontWeight: 'bold', marginRight: '10px'});
-    appendMyElement(dashOption, dashOptionLabel);
-    appendMyElement(dashOption, dashOptionMenu);
-    appendMyElement(saver['optionsContent'], dashOption);
-    var dashOptionMenuItem;
-    for (var i = 0; i < ['On', 'Off'].length; i++) {
-      dashOptionMenuItem = createMyElement('option', {value: ['On', 'Off'][i], textContent: ['On', 'Off'][i]});
-      styleMyElement(dashOptionMenuItem, {fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'});
-      appendMyElement(dashOptionMenu, dashOptionMenuItem);
+    else {
+      optionMenu.value = option[o];
     }
-    if (option['dash']) dashOptionMenu.value = 'On';
-    else dashOptionMenu.value = 'Off';
   }
 
   /* Select The Video */
-  if (feature['definition'] || feature['container']) selectMyVideo();
+  if (feature['definition'] || feature['container'] || feature['direct']) {
+    if (!option['definition'] || saver['videoDefinitions'].indexOf(option['definition']) == -1) option['definition'] = saver['videoPlay'].replace(/Definition.*/, 'Definition');
+    if (!option['container'] || saver['videoContainers'].indexOf(option['container']) == -1) option['container'] = saver['videoPlay'].replace(/.*\s/, '');
+    selectMyVideo();
+  }
 
   /* Get The Video On Autoget */
   if (option['autoget']) getMyVideo();
@@ -496,8 +458,10 @@ function getMyOptions() {
       }
     }
   }
-  option['autoget'] = (option['autoget'] === true || option['autoget'] == 'true') ? true : false;
-  option['dash'] = (option['dash'] === true || option['dash'] == 'true') ? true : false;
+  var boolOptions = ['autoget', 'dash', 'direct'];
+  for (var i = 0; i < boolOptions.length; i++) {
+    option[boolOptions[i]] = (option[boolOptions[i]] === true || option[boolOptions[i]] == 'true') ? true : false;
+  }
 }
 
 function selectMyVideo() {
@@ -531,6 +495,7 @@ function selectMyVideo() {
       break;
     }
   }
+  if (option['direct']) saver['videoSave'] = 'Direct Video Link';
   saver['videoMenu'].value = saver['videoSave'];
 }
 
@@ -542,15 +507,22 @@ function getMyVideo() {
   if (feature['autoget'] && vdoTle && saver['videoSave'] == 'High Definition MP4') {
     page.win.location.href = vdoURL + '&title=' + vdoTle + vdoDef;
   }
-  if (saver['videoList'][saver['videoSave']] == 'DASH') {
+  if (saver['videoList'][saver['videoSave']] == 'DASH' || saver['videoSave'] == 'Direct Video Link') {
     var vdoV, vdoA;
-    if (saver['videoSave'].indexOf('MP4') != -1) {
-      vdoV = saver['videoList'][saver['videoSave'].replace('MP4', 'Video MP4')];
-      vdoA = saver['videoList']['Medium Bitrate Audio MP4'] || saver['videoList'][saver['videoSave'].replace('MP4', 'Audio MP4')];
+    if (saver['videoSave'] == 'Direct Video Link') {
+      vdoV = saver['videoList'][saver['videoSave']];
+      vdoA = '';
+      vdoDef = '';
     }
     else {
-      vdoV = saver['videoList'][saver['videoSave'].replace('WebM', 'Video WebM')];
-      vdoA = saver['videoList']['High Bitrate Audio WebM'] || saver['videoList']['Medium Bitrate Audio WebM'] || saver['videoList']['Medium Bitrate Audio MP4'];
+      if (saver['videoSave'].indexOf('MP4') != -1) {
+	vdoV = saver['videoList'][saver['videoSave'].replace('MP4', 'Video MP4')];
+	vdoA = saver['videoList']['Medium Bitrate Audio MP4'] || saver['videoList'][saver['videoSave'].replace('MP4', 'Audio MP4')];
+      }
+      else {
+	vdoV = saver['videoList'][saver['videoSave'].replace('WebM', 'Video WebM')];
+	vdoA = saver['videoList']['High Bitrate Audio WebM'] || saver['videoList']['Medium Bitrate Audio WebM'] || saver['videoList']['Medium Bitrate Audio MP4'];
+      }
     }
     var vdoT = (vdoTle) ? vdoTle + vdoDef : page.site + vdoDef;
     vdoURL = 'savetube:' + vdoT + 'SEPARATOR' + vdoV + 'SEPARATOR' + vdoA;
@@ -896,6 +868,10 @@ function SaveTube() {
 	  }
 	}
 
+	/* DVL */
+	feature['direct'] = true;
+	ytVideoList['Direct Video Link'] = page.url;
+
 	/* Create Saver */
 	feature['autoget'] = true;
 	ytSaver();
@@ -937,6 +913,10 @@ function SaveTube() {
 	  }
 	}
       }
+
+      /* DVL */
+      feature['direct'] = true;
+      ytVideoList['Direct Video Link'] = page.url;
 
       /* Create Saver */
       ytVideoTitle = null;
@@ -1026,6 +1006,10 @@ function SaveTube() {
       }
 
       if (dmVideoFound) {
+	/* DVL */
+	feature['direct'] = true;
+	dmVideoList['Direct Video Link'] = page.url;
+
 	/* Create Saver */
 	var dmDefaultVideo = 'Low Definition MP4';
 	if (!dmVideoList[dmDefaultVideo]) dmDefaultVideo = 'Low Definition M3U8';
@@ -1111,6 +1095,10 @@ function SaveTube() {
       }
 
       if (viVideoFound) {
+	/* DVL */
+	feature['direct'] = true;
+	viVideoList['Direct Video Link'] = page.url;
+
 	/* Create Saver */
 	var viDefaultVideo = 'Low Definition MP4';
 	saver = {
