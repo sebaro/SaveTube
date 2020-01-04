@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		SaveTube
-// @version		2019.12.15
+// @version		2020.01.03
 // @description		Download videos from video sharing web sites.
 // @author		sebaro
 // @namespace		http://sebaro.pro/savetube
@@ -47,7 +47,7 @@
 
 /*
 
-  Copyright (C) 2010 - 2019 Sebastian Luncan
+  Copyright (C) 2010 - 2020 Sebastian Luncan
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -230,22 +230,25 @@ function getMyContent(url, pattern, clean) {
 function createMySaver() {
   /* The Panel */
   saver['saverPanel'] = createMyElement('div');
-  styleMyElement(saver['saverPanel'], {position: 'fixed', minHeight: panelHeight + 'px', backgroundColor: '#FFFFFF', padding: '0px 10px 5px 10px', bottom: '0px', right: '25px', lineHeight: (panelHeight - 2) + 'px', zIndex: '2000000000', borderTop: '1px solid #CCCCCC', borderLeft: '1px solid #CCCCCC', borderRight: '1px solid #CCCCCC', borderRadius: '5px 5px 0px 0px', textAlign: 'center', boxSizing: 'content-box'});
+  styleMyElement(saver['saverPanel'], {position: 'fixed', fontFamily: 'sans-serif', fontSize: '16px', minHeight: panelHeight + 'px', backgroundColor: '#FFFFFF', padding: '0px 10px 5px 10px', bottom: '0px', right: '25px', lineHeight: (panelHeight - 2) + 'px', zIndex: '2000000000', borderTop: '1px solid #CCCCCC', borderLeft: '1px solid #CCCCCC', borderRight: '1px solid #CCCCCC', borderRadius: '5px 5px 0px 0px', textAlign: 'center', boxSizing: 'content-box'});
   appendMyElement(page.body, saver['saverPanel']);
-
-  /* Warnings */
-  if (saver['warnMess']) {
-    if (saver['warnContent']) showMyMessage(saver['warnMess'], saver['warnContent']);
-    else showMyMessage(saver['warnMess']);
-    return;
-  }
 
   /* Panel Logo */
   saver['panelLogo'] = createMyElement('div', {title: '{SaveTube: click to visit the script wesite}', textContent: userscript}, 'click', function() {
     page.win.location.href = website;
   });
-  styleMyElement(saver['panelLogo'], {display: 'inline-block', color: '#32D132', fontSize: '14px', fontWeight: 'bold', border: '1px solid #32D132', borderRadius: '3px', padding: '0px 4px', marginRight: '10px', lineHeight: 'normal', verticalAlign: 'middle', cursor: 'pointer'});
+  styleMyElement(saver['panelLogo'], {display: 'inline-block', color: '#32D132', fontSize: '14px', fontWeight: 'bold', border: '1px solid #32D132', borderRadius: '3px', padding: '0px 4px', marginRight: '10px', lineHeight: 'normal', verticalAlign: 'middle', cursor: 'pointer', boxSizing: 'content-box'});
   appendMyElement(saver['saverPanel'], saver['panelLogo']);
+
+  /* Warnings */
+  if (saver['warnMess']) {
+    saver['saverMessage'] = createMyElement('div');
+    styleMyElement(saver['saverMessage'], {display: 'inline-block', fontSize: '12px', color: '#AD0000'});
+    appendMyElement(saver['saverPanel'], saver['saverMessage']);
+    if (saver['warnContent']) showMyMessage(saver['warnMess'], saver['warnContent']);
+    else showMyMessage(saver['warnMess']);
+    return;
+  }
 
   /* Panel Video Menu */
   saver['videoMenu'] = createMyElement('select', {title: '{Videos: select the video format for download}'}, 'change', function() {
@@ -257,7 +260,7 @@ function createMySaver() {
       getMyVideo();
     }
   });
-  styleMyElement(saver['videoMenu'], {width: '270px', display: 'inline-block', fontSize: '14px', fontWeight: 'bold', padding: '0px 3px', overflow: 'hidden', border: '1px solid #CCCCCC', color: '#777777', backgroundColor: '#FFFFFF', lineHeight: 'normal', verticalAlign: 'middle', cursor: 'pointer'});
+  styleMyElement(saver['videoMenu'], {display: 'inline-block', fontFamily: 'inherit', fontSize: '14px', fontWeight: 'bold', padding: '0px 3px', overflow: 'hidden', border: '1px solid #CCCCCC', color: '#777777', backgroundColor: '#FFFFFF', lineHeight: 'normal', verticalAlign: 'middle', cursor: 'pointer', boxSizing: 'content-box'});
   appendMyElement(saver['saverPanel'], saver['videoMenu']);
   var videosProgressive = [];
   var videosAdaptiveVideo = [];
@@ -334,24 +337,34 @@ function createMySaver() {
       styleMyElement(saver['optionsContent'], {display: 'block'})
     }
   });
-  styleMyElement(saver['buttonOptions'], {width: '1px', height: '14px', display: 'inline-block', paddingTop: '3px', borderLeft: '3px dotted #777777', lineHeight: 'normal', verticalAlign: 'middle', marginLeft: '20px', cursor: 'pointer'});
+  styleMyElement(saver['buttonOptions'], {width: '1px', height: '14px', display: 'inline-block', paddingTop: '3px', borderLeft: '3px dotted #777777', lineHeight: 'normal', verticalAlign: 'middle', marginLeft: '20px', cursor: 'pointer', boxSizing: 'content-box'});
   appendMyElement(saver['saverPanel'], saver['buttonOptions']);
 
   /* Panel Get Button */
   saver['buttonGet'] = createMyElement('div', {title: '{Get: click to download the selected video format}'}, 'click', function() {
     getMyVideo();
   });
-  styleMyElement(saver['buttonGet'], {width: '0px', height: '0px', display: 'inline-block', borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '15px solid #777777', lineHeight: 'normal', verticalAlign: 'middle', marginLeft: '20px', cursor: 'pointer'});
+  styleMyElement(saver['buttonGet'], {width: '0px', height: '0px', display: 'inline-block', borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '15px solid #777777', lineHeight: 'normal', verticalAlign: 'middle', marginLeft: '20px', cursor: 'pointer', boxSizing: 'content-box'});
   appendMyElement(saver['saverPanel'], saver['buttonGet']);
 
   /* Panel Get Button Link */
   saver['buttonGetLink'] = createMyElement('div', {title: '{Get: right click & save as to download the selected video format}'});
-  styleMyElement(saver['buttonGetLink'], {display: 'inline-block', color: '#777777', fontSize: '14px', fontWeight: 'bold', lineHeight: 'normal', verticalAlign: 'middle', marginLeft: '5px'});
+  styleMyElement(saver['buttonGetLink'], {display: 'inline-block', color: '#777777', fontSize: '14px', fontWeight: 'bold', lineHeight: 'normal', verticalAlign: 'middle', marginLeft: '5px', boxSizing: 'content-box'});
   appendMyElement(saver['saverPanel'], saver['buttonGetLink']);
+
+  /* Select The Video */
+  if (feature['definition'] || feature['container'] || feature['direct']) {
+    if (!option['definition'] || saver['videoDefinitions'].indexOf(option['definition']) == -1) option['definition'] = saver['videoSave'].replace(/Definition.*/, 'Definition');
+    if (!option['container'] || saver['videoContainers'].indexOf(option['container']) == -1) option['container'] = saver['videoSave'].replace(/.*\s/, '');
+    selectMyVideo();
+  }
+
+  /* Get The Video On Autoget */
+  if (option['autoget']) getMyVideo();
 
   /* Panel Options */
   saver['optionsContent'] = createMyElement('div');
-  styleMyElement(saver['optionsContent'], {display: 'none', fontSize: '14px', fontWeight: 'bold', padding: '10px', textAlign: 'center'});
+  styleMyElement(saver['optionsContent'], {display: 'none', fontSize: '14px', fontWeight: 'bold', padding: '10px', textAlign: 'center', boxSizing: 'content-box'});
   appendMyElement(saver['saverPanel'], saver['optionsContent']);
 
   /* Options Object => option: [label, options, new line, change video] */
@@ -375,7 +388,7 @@ function createMySaver() {
     optionBox = createMyElement('div');
     styleMyElement(optionBox, {display: 'inline-block'});
     optionLabel = createMyElement('div', {textContent: options[o][0]});
-    styleMyElement(optionLabel, {display: 'inline-block', color: '#777777', marginRight: '10px'});
+    styleMyElement(optionLabel, {display: 'inline-block', color: '#777777', marginRight: '10px', verticalAlign: 'middle'});
     optionMenu = createMyElement('select', {id: o}, 'change', function() {
       if (this.value == 'On' || this.value == 'Off') {
 	option[this.id] = (this.value == 'On') ? true : false;
@@ -395,7 +408,7 @@ function createMySaver() {
 	}
       }
     });
-    styleMyElement(optionMenu, {display: 'inline-block', color: '#777777', backgroundColor: '#FFFFFF', border: '1px solid #CCCCCC', fontSize: '14px', fontWeight: 'bold', marginRight: '10px'});
+    styleMyElement(optionMenu, {display: 'inline-block', color: '#777777', backgroundColor: '#FFFFFF', border: '1px solid #CCCCCC', fontFamily: 'inherit', fontSize: '14px', fontWeight: 'bold', marginRight: '10px', verticalAlign: 'middle'});
     appendMyElement(optionBox, optionLabel);
     appendMyElement(optionBox, optionMenu);
     appendMyElement(optionsBox, optionBox);
@@ -412,16 +425,6 @@ function createMySaver() {
       optionMenu.value = option[o];
     }
   }
-
-  /* Select The Video */
-  if (feature['definition'] || feature['container'] || feature['direct']) {
-    if (!option['definition'] || saver['videoDefinitions'].indexOf(option['definition']) == -1) option['definition'] = saver['videoPlay'].replace(/Definition.*/, 'Definition');
-    if (!option['container'] || saver['videoContainers'].indexOf(option['container']) == -1) option['container'] = saver['videoPlay'].replace(/.*\s/, '');
-    selectMyVideo();
-  }
-
-  /* Get The Video On Autoget */
-  if (option['autoget']) getMyVideo();
 }
 
 function setMyOptions(key, value) {
@@ -537,21 +540,20 @@ function getMyVideo() {
 }
 
 function showMyMessage(cause, content) {
-  styleMyElement(saver['saverPanel'], {color: '#AD0000', fontSize: '12px'});
   if (cause == '!content') {
-    modifyMyElement(saver['saverPanel'], {innerHTML: '<b>SaveTube:</b> Couldn\'t get the videos content. Please report it <a href="' + contact + '" style="color:#00892C">here</a>.'});
+    modifyMyElement(saver['saverMessage'], {innerHTML: 'Couldn\'t get the videos content. Please report it <a href="' + contact + '" style="color:#00892C">here</a>.'});
   }
   else if (cause == '!videos') {
-    modifyMyElement(saver['saverPanel'], {innerHTML: '<b>SaveTube:</b> Couldn\'t get any video. Please report it <a href="' + contact + '" style="color:#00892C">here</a>.'});
+    modifyMyElement(saver['saverMessage'], {innerHTML: 'Couldn\'t get any video. Please report it <a href="' + contact + '" style="color:#00892C">here</a>.'});
   }
   else if (cause == '!support') {
-    modifyMyElement(saver['saverPanel'], {innerHTML: '<b>SaveTube:</b> This video uses the RTMP protocol which is not supported.'});
+    modifyMyElement(saver['saverMessage'], {innerHTML: 'This video uses the RTMP protocol which is not supported.'});
   }
   else if (cause == 'embed') {
-    modifyMyElement(saver['saverPanel'], {innerHTML: '<b>SaveTube:</b> This is an embedded video. You can get it <a href="' + content + '" style="color:#00892C">here</a>.'});
+    modifyMyElement(saver['saverMessage'], {innerHTML: 'This is an embedded video. You can get it <a href="' + content + '" style="color:#00892C">here</a>.'});
   }
   else if (cause == 'other') {
-    modifyMyElement(saver['saverPanel'], {innerHTML: content});
+    modifyMyElement(saver['saverMessage'], {innerHTML: content});
   }
 }
 
@@ -1474,21 +1476,21 @@ function SaveTube() {
     var imdbVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
     if (imdbVideoTitle) imdbVideoTitle = cleanMyContent(imdbVideoTitle, false, true);
 
-    /* Get Video Id */
-    var imdbVideoId = page.url.replace(/.*videoplayer\//, '').replace(/(\/|\?).*/, '');
+    /* Get Data Key */
+    var imdbDataKey = getMyContent(page.url, '"playbackDataKey":\\["(.*?)"\\]');
 
     /* Get Videos Content */
-    var imdbVideosContent = getMyContent(page.url, '"' + imdbVideoId + '":\\{("aggregateUpVotes.*?videoId)', false);
+    var imdbVideosContent = getMyContent(page.url.replace(/video\/.*/, 've/data/VIDEO_PLAYBACK_DATA?key=' + imdbDataKey), '"videoLegacyEncodings":\\[(.*?)\\]', false);
 
     /* Get Videos */
     var imdbVideoList = {};
     if (imdbVideosContent) {
       var imdbVideoFormats = {'1080p': 'Full High Definition MP4', '720p': 'High Definition MP4', '480p': 'Standard Definition MP4',
-			       '360p': 'Low Definition MP4', 'SD': 'Low Definition MP4', '240p': 'Very Low Definition MP4'};
+			       '360p': 'Low Definition MP4', 'SD': 'Low Definition MP4', '240p': 'Very Low Definition MP4', 'AUTO': 'Any Definition M3U8'};
       var imdbVideoFound = false;
       var imdbVideoParser, imdbVideoParse, myVideoCode, imdbVideo;
       for (var imdbVideoCode in imdbVideoFormats) {
-	imdbVideoParser = '"definition":"' + imdbVideoCode + '".*?"videoUrl":"(.*?)"';
+	imdbVideoParser = '"definition":"' + imdbVideoCode + '".*?"url":"(.*?)"';
 	imdbVideoParse = imdbVideosContent.match(imdbVideoParser);
 	imdbVideo = (imdbVideoParse) ? imdbVideoParse[1] : null;
 	if (imdbVideo) {
@@ -1505,7 +1507,7 @@ function SaveTube() {
 	saver = {
 	  'videoList': imdbVideoList,
 	  'videoDefinitions': ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'],
-	  'videoContainers': ['MP4'],
+	  'videoContainers': ['MP4', 'M3U8', 'Any'],
 	  'videoSave': imdbDefaultVideo,
 	  'videoTitle': imdbVideoTitle
 	};
@@ -1514,24 +1516,6 @@ function SaveTube() {
       }
       else {
 	saver = {'warnMess': '!videos'};
-	createMySaver();
-      }
-    }
-    else {
-      imdbVideo = getMyContent(page.url, '"videoUrl":"(.*?)"', false);
-      if (imdbVideo) {
-	/* Create Saver */
-	imdbVideo = cleanMyContent(imdbVideo, false);
-	imdbVideoList[imdbDefaultVideo] = imdbVideo;
-	var imdbDefaultVideo = 'Low Definition MP4';
-	saver = {'videoList': imdbVideoList, 'videoSave': imdbDefaultVideo, 'videoTitle': imdbVideoTitle};
-	feature['container'] = false;
-	option['definitions'] = ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'];
-	option['containers'] = ['MP4'];
-	createMySaver();
-      }
-      else {
-	saver = {'warnMess': '!content'};
 	createMySaver();
       }
     }
