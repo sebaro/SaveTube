@@ -7,7 +7,11 @@ v="$(echo "$s" | awk -F 'SEPARATOR' '{print $2}')"
 a="$(echo "$s" | awk -F 'SEPARATOR' '{print $3}')"
 f="$(echo "$v" | grep -q "video/web\|\.webm" && echo "webm" || echo "mp4")"
 if [ "$a" = "" ]; then
-  youtube-dl "$v" -o "$d/$t"
+	if echo "$v" | grep -qi "\.m3u8"; then
+		ffmpeg -y -i "$v" -c copy "$d/$t.$f"
+	else
+		youtube-dl "$v" -o "$d/$t"
+	fi
 else
-  ffmpeg -y -i "$v" -i "$a" -c:v copy -c:a copy "$d/$t.$f"
+	ffmpeg -y -i "$v" -i "$a" -c copy "$d/$t.$f"
 fi

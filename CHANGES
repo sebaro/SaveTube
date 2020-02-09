@@ -3,6 +3,13 @@
 /* SaveTube Changelog */
 
 
+#2020.02.09
+- Script: support for direct download when browser supports it
+- Script: group streams by type
+- Script: HLS download through protocol
+- Dailymotion: fixed progressive (MP4) streams
+- Viki: fixed HLS/DASH streams
+
 #2020.01.24
 - Script: style/design fixes
 - YouTube: fixed for new signature
