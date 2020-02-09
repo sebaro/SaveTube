@@ -3,6 +3,10 @@
 /* SaveTube Changelog */
 
 
+#2020.02.10
+- Script: fixed file extention when title contains dots
+- Script: fixed video selection when DASH download is disabled
+
 #2020.02.09
 - Script: support for direct download when browser supports it
 - Script: group streams by type

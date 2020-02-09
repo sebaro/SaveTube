@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2020.02.09
+// @version         2020.02.10
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -334,6 +334,11 @@ function createMySaver() {
 				appendMyElement(saver['videoMenu'], saver['videoItem']);
 			}
 		}
+		else {
+			for (var videoCode in saver['videoList']) {
+				if (saver['videoList'][videoCode] == 'DASH') delete saver['videoList'][videoCode];
+			}
+		}
 	}
 	if (videosExtra.length > 0) {
 		saver['videoItem'] = createMyElement('option', {value: 'Extra', textContent: 'Extra'});
@@ -399,7 +404,7 @@ function createMySaver() {
 		'openpagelink': ['Open Page Link', ['On', 'Off'], true, true],
 		'autosave': ['Autosave', ['On', 'Off'], true, true],
 		'showsavelink': ['Show Save Link', ['On', 'Off'], false, true],
-		'savedash': ['Save DASH', ['On', 'Off'], true, false]
+		'savedash': ['Save DASH (Video With Audio)', ['On', 'Off'], true, false]
 	};
 
 	/* Options */
@@ -591,7 +596,7 @@ function saveMyVideo() {
 							if (this.status === 200 && this.response) {
 								vdoBlob = new Blob([this.response], {type: mediatypes[vdoExt]});
 								vdoBlobLnk = page.win.URL.createObjectURL(vdoBlob);
-								modifyMyElement(vdoLnkBlob, {href: vdoBlobLnk, target: '_blank', download: vdoT});
+								modifyMyElement(vdoLnkBlob, {href: vdoBlobLnk, target: '_blank', download: vdoT + '.' + vdoExt.toLowerCase()});
 								vdoLnkBlob.click();
 								page.win.URL.revokeObjectURL(vdoBlobLnk);
 								removeMyElement(page.body, vdoLnkBlob);
