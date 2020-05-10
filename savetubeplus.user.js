@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube+
-// @version         2020.01.24
+// @version         2020.03.30
 // @description     Download videos from web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -109,7 +109,7 @@ for (var i = 0; i < patterns.length; i++) {
 }
 if (links.length > 0) {
 	var panel = document.createElement('div');
-	styleMyElement(panel, {position: 'fixed', fontFamily: 'sans-serif', fontSize: '10px', height: panelHeight + 'px', lineHeight: panelHeight + 'px', backgroundColor: '#FFFFFF', padding: '0px 10px 5px 10px', bottom: '0px', right: '25px', zIndex: '2000000000', borderTop: '1px solid #CCCCCC', borderLeft: '1px solid #CCCCCC', borderRight: '1px solid #CCCCCC', borderRadius: '5px 5px 0px 0px', textAlign: 'center', boxSizing: 'content-box'});
+	styleMyElement(panel, {position: 'fixed', display: 'block', fontFamily: 'sans-serif', fontSize: '10px', height: panelHeight + 'px', lineHeight: panelHeight + 'px', backgroundColor: '#FFFFFF', padding: '0px 10px 5px 10px', bottom: '0px', right: '25px', zIndex: '2000000000', borderTop: '1px solid #CCCCCC', borderLeft: '1px solid #CCCCCC', borderRight: '1px solid #CCCCCC', borderRadius: '5px 5px 0px 0px', textAlign: 'center', boxSizing: 'content-box'});
 	document.body.appendChild(panel);
 	var logo = document.createElement('div');
 	styleMyElement(logo, {display: 'inline-block', color: '#32D132', fontSize: '14px', fontWeight: 'bold', border: '1px solid #32D132', borderRadius: '3px', padding: '0px 4px', marginRight: '10px', lineHeight: 'normal', verticalAlign: 'middle', cursor: 'pointer', boxSizing: 'content-box'});

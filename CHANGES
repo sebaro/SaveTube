@@ -3,8 +3,11 @@
 /* SaveTube Changelog */
 
 
+#2020.05.10
+- fixes YouTube, IMDb
+
 #2020.02.10
-- Script: fixed file extention when title contains dots
+- Script: fixed file extension when title contains dots
 - Script: fixed video selection when DASH download is disabled
 
 #2020.02.09

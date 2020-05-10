@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2020.02.10
+// @version         2020.05.10
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -720,12 +720,12 @@ function SaveTube() {
 			if (ytVideosEncodedFmtsNew) {
 				ytVideosEncodedFmts = '';
 				ytVideosEncodedFmtsNew = cleanMyContent(ytVideosEncodedFmtsNew, false);
-				ytVideosEncodedFmtsNew = ytVideosEncodedFmtsNew.match(new RegExp('"(url|cipher)":\s*".*?"', 'g'));
+				ytVideosEncodedFmtsNew = ytVideosEncodedFmtsNew.match(new RegExp('"(url|cipher|signatureCipher)":\s*".*?"', 'g'));
 				if (ytVideosEncodedFmtsNew) {
 					for (var i = 0 ; i < ytVideosEncodedFmtsNew.length; i++) {
-						ytVideosEncodedFmts += ytVideosEncodedFmtsNew[i].replace(/"/g, '').replace('url:', 'url=').replace('cipher:', '') + ',';
+						ytVideosEncodedFmts += ytVideosEncodedFmtsNew[i].replace(/"/g, '').replace('url:', 'url=').replace('cipher:', '').replace('signatureCipher:', '') + ',';
 					}
-					if (ytVideosEncodedFmts.indexOf('%3A%2F%2F') != -1) {
+					if (ytVideosEncodedFmts.indexOf('itag%3D') != -1) {
 						ytVideosEncodedFmts = cleanMyContent(ytVideosEncodedFmts, true);
 					}
 				}
@@ -737,12 +737,12 @@ function SaveTube() {
 			if (ytVideosAdaptiveFmtsNew) {
 				ytVideosAdaptiveFmts = '';
 				ytVideosAdaptiveFmtsNew = cleanMyContent(ytVideosAdaptiveFmtsNew, false);
-				ytVideosAdaptiveFmtsNew = ytVideosAdaptiveFmtsNew.match(new RegExp('"(url|cipher)":\s*".*?"', 'g'));
+				ytVideosAdaptiveFmtsNew = ytVideosAdaptiveFmtsNew.match(new RegExp('"(url|cipher|signatureCipher)":\s*".*?"', 'g'));
 				if (ytVideosAdaptiveFmtsNew) {
 					for (var i = 0 ; i < ytVideosAdaptiveFmtsNew.length; i++) {
-						ytVideosAdaptiveFmts += ytVideosAdaptiveFmtsNew[i].replace(/"/g, '').replace('url:', 'url=').replace('cipher:', '') + ',';
+						ytVideosAdaptiveFmts += ytVideosAdaptiveFmtsNew[i].replace(/"/g, '').replace('url:', 'url=').replace('cipher:', '').replace('signatureCipher:', '') + ',';
 					}
-					if (ytVideosAdaptiveFmts.indexOf('%3A%2F%2F') != -1) {
+					if (ytVideosAdaptiveFmts.indexOf('itag%3D') != -1) {
 						ytVideosAdaptiveFmts = cleanMyContent(ytVideosAdaptiveFmts, true);
 					}
 				}
@@ -802,12 +802,12 @@ function SaveTube() {
 						if (ytVideosEncodedFmtsNew) {
 							ytVideosEncodedFmts = '';
 							ytVideosEncodedFmtsNew = cleanMyContent(ytVideosEncodedFmtsNew, true);
-							ytVideosEncodedFmtsNew = ytVideosEncodedFmtsNew.match(new RegExp('"(url|cipher)":\s*".*?"', 'g'));
+							ytVideosEncodedFmtsNew = ytVideosEncodedFmtsNew.match(new RegExp('"(url|cipher|signatureCipher)":\s*".*?"', 'g'));
 							if (ytVideosEncodedFmtsNew) {
 								for (var i = 0 ; i < ytVideosEncodedFmtsNew.length; i++) {
-									ytVideosEncodedFmts += ytVideosEncodedFmtsNew[i].replace(/"/g, '').replace('url:', 'url=').replace('cipher:', '') + ',';
+									ytVideosEncodedFmts += ytVideosEncodedFmtsNew[i].replace(/"/g, '').replace('url:', 'url=').replace('cipher:', '').replace('signatureCipher:', '') + ',';
 								}
-								if (ytVideosEncodedFmts.indexOf('%3A%2F%2F') != -1) {
+								if (ytVideosEncodedFmts.indexOf('itag%3D') != -1) {
 									ytVideosEncodedFmts = cleanMyContent(ytVideosEncodedFmts, true);
 								}
 								ytVideosContent = ytVideosEncodedFmts;
@@ -824,12 +824,12 @@ function SaveTube() {
 							if (ytVideosAdaptiveFmtsNew) {
 								ytVideosAdaptiveFmts = '';
 								ytVideosAdaptiveFmtsNew = cleanMyContent(ytVideosAdaptiveFmtsNew, true);
-								ytVideosAdaptiveFmtsNew = ytVideosAdaptiveFmtsNew.match(new RegExp('"(url|cipher)":\s*".*?"', 'g'));
+								ytVideosAdaptiveFmtsNew = ytVideosAdaptiveFmtsNew.match(new RegExp('"(url|cipher|signatureCipher)":\s*".*?"', 'g'));
 								if (ytVideosAdaptiveFmtsNew) {
 									for (var i = 0 ; i < ytVideosAdaptiveFmtsNew.length; i++) {
-										ytVideosAdaptiveFmts += ytVideosAdaptiveFmtsNew[i].replace(/"/g, '').replace('url:', 'url=').replace('cipher:', '') + ',';
+										ytVideosAdaptiveFmts += ytVideosAdaptiveFmtsNew[i].replace(/"/g, '').replace('url:', 'url=').replace('cipher:', '').replace('signatureCipher:', '') + ',';
 									}
-									if (ytVideosAdaptiveFmts.indexOf('%3A%2F%2F') != -1) {
+									if (ytVideosAdaptiveFmts.indexOf('itag%3D') != -1) {
 										ytVideosAdaptiveFmts = cleanMyContent(ytVideosAdaptiveFmts, true);
 									}
 								}
@@ -1567,7 +1567,9 @@ function SaveTube() {
 		if (imdbVideoTitle) imdbVideoTitle = cleanMyContent(imdbVideoTitle, false, true);
 
 		/* Get Data Key */
-		var imdbDataKey = getMyContent(page.url, '"playbackDataKey":\\["(.*?)"\\]');
+		var imdbVideoId = page.url.replace(/^.*?\/(vi\d+).*/, '$1');
+		var imdbDataJSON = '{"type": "VIDEO_PLAYER", "subType": "FORCE_LEGACY", "id": "' + imdbVideoId + '"}';
+		var imdbDataKey = btoa(imdbDataJSON);
 
 		/* Get Videos Content */
 		var imdbVideosContent = getMyContent(page.url.replace(/video\/.*/, 've/data/VIDEO_PLAYBACK_DATA?key=' + imdbDataKey), '"videoLegacyEncodings":\\[(.*?)\\]', false);
