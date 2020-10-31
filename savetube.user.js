@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2020.10.15
+// @version         2020.10.31
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -1010,8 +1010,8 @@ function SaveTube() {
 		var ytVideoList = {};
 		if (ytVideosContent) {
       if (ytVideosContent.match(/^s=/) || ytVideosContent.match(/&s=/) || ytVideosContent.match(/,s=/) || ytVideosContent.match(/u0026s=/)) {
-				var ytScriptURL = getMyContent(page.url, '"js":\\s*"(.*?)"', true);
-				if (!ytScriptURL) ytScriptURL = getMyContent(page.url.replace(/watch.*?v=/, 'embed/').replace(/&.*$/, ''), '"js":\\s*"(.*?)"', true);
+				var ytScriptURL = getMyContent(page.url, '"js(?:Url)?":\\s*"(.*?)"', true);
+				if (!ytScriptURL) ytScriptURL = getMyContent(page.url.replace(/watch.*?v=/, 'embed/').replace(/&.*$/, ''), '"js(?:Url)?":\\s*"(.*?)"', true);
 				if (ytScriptURL) {
 					ytScriptURL = page.win.location.protocol + '//' + page.win.location.hostname + ytScriptURL;
 					ytScriptSrc = getMyContent(ytScriptURL, 'TEXT', false);
