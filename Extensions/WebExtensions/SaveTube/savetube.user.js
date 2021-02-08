@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2020.10.31
+// @version         2021.02.07
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -45,7 +45,7 @@
 
 /*
 
-	Copyright (C) 2010 - 2020 Sebastian Luncan
+	Copyright (C) 2010 - 2021 Sebastian Luncan
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -1140,7 +1140,7 @@ function SaveTube() {
 
 		/* Page Type */
 		var viPageType = getMyContent(page.url, 'meta\\s+property="og:type"\\s+content="(.*?)"', false);
-		if (!viPageType || (viPageType != 'video' && viPageType != 'profile')) return;
+		if (!viPageType || (viPageType.indexOf('video') == -1 && viPageType.indexOf('profile') == -1)) return;
 
 		/* Get Video Title */
 		var viVideoTitle;
@@ -1479,15 +1479,25 @@ function SaveTube() {
 											for (var vkVideoCode in vkVideoFormats) {
 												if (vkDASHVideo.indexOf(vkVideoCode) != -1) {
 													myVideoCode = vkVideoFormats[vkVideoCode];
-													if (vkDASHVideo.indexOf('track1') != -1) {
+													if (vkDASHVideo.indexOf('track1') != -1 || vkDASHVideo.indexOf('video') != -1) {
 														if (!vkVideoFound) vkVideoFound = true;
 														if (!vkVideoList[myVideoCode]) {
-															vkVideoList[myVideoCode.replace('MP4', 'Video MP4')] = vkDASHVideo;
+															if (vkDASHVideo.indexOf('drm') != -1) {
+																vkVideoList[myVideoCode.replace('MP4', 'Video MP4 [DRM]')] = vkDASHVideo;
+															}
+															else {
+																vkVideoList[myVideoCode.replace('MP4', 'Video MP4')] = vkDASHVideo;
+															}
 														}
 													}
-													if (vkDASHVideo.indexOf('track2') != -1) {
+													if (vkDASHVideo.indexOf('track2') != -1 || vkDASHVideo.indexOf('audio') != -1) {
 														if (!vkVideoList[myVideoCode]) {
-															vkVideoList[myVideoCode.replace('MP4', 'Audio MP4')] = vkDASHVideo;
+															if (vkDASHVideo.indexOf('drm') != -1) {
+																vkVideoList[myVideoCode.replace('MP4', 'Audio MP4 [DRM]')] = vkDASHVideo;
+															}
+															else {
+																vkVideoList[myVideoCode.replace('MP4', 'Audio MP4')] = vkDASHVideo;
+															}
 														}
 													}
 												}
