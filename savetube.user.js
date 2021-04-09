@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2021.02.07
+// @version         2021.03.23
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -89,7 +89,7 @@ var panelHeight = 30;
 
 // Features/Options
 var feature = {'definition': true, 'container': true, 'openpagelink': true, 'autosave': true, 'savedash': false, 'showsavelink': true};
-var option = {'definition': 'High Definition', 'container': 'MP4', 'openpagelink': false, 'autosave': false, 'savedash': false, 'showsavelink': false};
+var option = {'definition': 'High Definition', 'container': 'MP4', 'openpagelink': false, 'autosave': false, 'savedash': false, 'showsavelink': false, 'hidden': false};
 
 // Media
 var mediatypes = {'MP4': 'video/mp4', 'WebM': 'video/webm', 'M3U8': 'application/x-mpegURL', 'WebVTT': 'text/vtt'};
@@ -233,6 +233,13 @@ function createMySaver() {
 	saver['saverPanel'] = createMyElement('div');
 	styleMyElement(saver['saverPanel'], {position: 'fixed', fontFamily: 'sans-serif', fontSize: '10px', minHeight: panelHeight + 'px', lineHeight: panelHeight + 'px', backgroundColor: '#FFFFFF', padding: '0px 10px 5px 10px', bottom: '0px', right: '25px', zIndex: '2000000000', borderTop: '1px solid #CCCCCC', borderLeft: '1px solid #CCCCCC', borderRight: '1px solid #CCCCCC', borderRadius: '5px 5px 0px 0px', textAlign: 'center', boxSizing: 'content-box'});
 	appendMyElement(page.body, saver['saverPanel']);
+
+	/* Panel Hide/Show Toggle Button */
+	saver['buttonHide'] = createMyElement('div', {title: '{Hide/Show: click to hide/show this panel}'}, 'click', function() {
+		toggleMySaver();
+	});
+	styleMyElement(saver['buttonHide'], {width: '0px', height: '0px', display: 'inline-block', borderTop: '8px solid transparent', borderBottom: '8px solid transparent', borderLeft: '15px solid #777777', borderRight: '0px solid #777777', lineHeight: 'normal', verticalAlign: 'middle', marginLeft: '5px', marginRight: '10px', cursor: 'pointer', boxSizing: 'content-box'});
+	appendMyElement(saver['saverPanel'], saver['buttonHide']);
 
 	/* Panel Logo */
 	saver['panelLogo'] = createMyElement('div', {title: '{SaveTube: click to visit the script wesite}', textContent: userscript}, 'click', function() {
@@ -457,6 +464,31 @@ function createMySaver() {
 			optionMenu.value = option[o];
 		}
 	}
+
+	/* Hide */
+	if (option['hidden']) {
+		toggleMySaver('hide');
+	}
+}
+
+function toggleMySaver(toggle) {
+	if (toggle == 'hide') {
+		styleMyElement(saver['saverPanel'], {right: '-' + (saver['saverPanel'].offsetWidth - 40) + 'px', backgroundColor: 'transparent', borderColor: '#777777'});
+		styleMyElement(saver['buttonHide'], {borderTop: '8px solid transparent', borderBottom: '8px solid transparent', borderLeft: '0px solid #777777', borderRight: '15px solid #777777'});
+	}
+	else {
+		if (option['hidden']) {
+			styleMyElement(saver['saverPanel'], {right: '25px', backgroundColor: '#FFFFFF', borderColor: '#CCCCCC', transition: 'right 2s, background-color 5s, border-color 5s'});
+			styleMyElement(saver['buttonHide'], {borderTop: '8px solid transparent', borderBottom: '8px solid transparent', borderLeft: '15px solid #777777', borderRight: '0px solid #777777'});
+			option['hidden'] = false;
+		}
+		else {
+			styleMyElement(saver['saverPanel'], {right: '-' + (saver['saverPanel'].offsetWidth - 40) + 'px', backgroundColor: 'transparent', borderColor: '#777777', transition: 'right 2s, background-color 5s, border-color 5s'});
+			styleMyElement(saver['buttonHide'], {borderTop: '8px solid transparent', borderBottom: '8px solid transparent', borderLeft: '0px solid #777777', borderRight: '15px solid #777777'});
+			option['hidden'] = true;
+		}
+		setMyOptions('hidden', option['hidden']);
+	}
 }
 
 function setMyOptions(key, value) {
@@ -493,7 +525,7 @@ function getMyOptions() {
 			}
 		}
 	}
-	var boolOptions = ['openpagelink', 'autosave', 'showsavelink', 'savedash'];
+	var boolOptions = ['openpagelink', 'autosave', 'showsavelink', 'savedash', 'hidden'];
 	for (var i = 0; i < boolOptions.length; i++) {
 		option[boolOptions[i]] = (option[boolOptions[i]] === true || option[boolOptions[i]] == 'true') ? true : false;
 	}
@@ -683,7 +715,7 @@ function SaveTube() {
 			if (!ytSignFuncName) ytSignFuncName = ytScriptSrc.match(/c&&\([a-zA-Z0-9$]+=([a-zA-Z0-9$]+)\(decodeURIComponent/);
 			ytSignFuncName = (ytSignFuncName) ? ytSignFuncName[1] : null;
 			if (ytSignFuncName) {
-				ytFuncMatch = ytSignFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\}';
+				ytFuncMatch = ';' + ytSignFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\}';
 				ytSignFuncBody = ytScriptSrc.match(ytFuncMatch);
 				ytSignFuncBody = (ytSignFuncBody) ? ytSignFuncBody[1] : null;
 				if (ytSignFuncBody) {
