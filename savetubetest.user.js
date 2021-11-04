@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2999.99.99
+// @version         2021.11.04
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -960,20 +960,23 @@ function SaveTube() {
 
 	else if (page.url.indexOf('dailymotion.com/video') != -1) {
 
+		/* Video Source */
+		var dmEmbedUrl = page.url.replace(/\/video\//, "/embed/video/");
+
 		/* Video Availability */
-		if (getMyContent(page.url.replace(/\/video\//, "/embed/video/"), '"error":\\{"title":"(.*?)"', false)) return;
-		if (getMyContent(page.url.replace(/\/video\//, "/embed/video/"), '"error_title":"(.*?)"', false)) return;
+		if (getMyContent(dmEmbedUrl, /"error":\{"title":"(.*?)"'/)) return;
+		if (getMyContent(dmEmbedUrl, /"error_title":"(.*?)"/)) return;
 
 		/* Get Video Title */
-		var dmVideoTitle = getMyContent(page.url.replace(/\/video\//, "/embed/video/"), '"title":"((\\\\"|[^"])*?)"', false);
+		var dmVideoTitle = getMyContent(dmEmbedUrl, /"title":"((\\"|[^"])*?)"/);
 		if (dmVideoTitle) {
-			var dmVideoAuthor = getMyContent(page.url.replace(/\/video\//, "/embed/video/"), '"screenname":"((\\\\"|[^"])*?)"', false);
+			var dmVideoAuthor = getMyContent(dmEmbedUrl, /"screenname":"((\\"|[^"])*?)"/);
 			if (dmVideoAuthor) dmVideoTitle = dmVideoTitle + ' by ' + dmVideoAuthor;
 			dmVideoTitle = cleanMyContent(dmVideoTitle, false, true);
 		}
 
 		/* Get Videos Content */
-		var dmVideosContent = getMyContent(page.url.replace(/\/video\//, "/embed/video/"), '"qualities":\\{(.*?)\\]\\},', false);
+		var dmVideosContent = getMyContent(dmEmbedUrl, /"qualities":\{(.*?)\]\},/);
 
 		/* Get Videos */
 		if (dmVideosContent) {
@@ -981,11 +984,9 @@ function SaveTube() {
 														'480': 'Standard Definition MP4', '720': 'High Definition MP4', '1080': 'Full High Definition MP4'};
 			var dmVideoList = {};
 			var dmVideoFound = false;
-			var dmVideoParser, dmVideoParse, myVideoCode, dmVideo;
+			var myVideoCode, dmVideo;
 			for (var dmVideoCode in dmVideoFormats) {
-				dmVideoParser = '"' + dmVideoCode + '".*?"type":"video.*?mp4","url":"(.*?)"';
-				dmVideoParse = dmVideosContent.match(dmVideoParser);
-				dmVideo = (dmVideoParse) ? dmVideoParse[1] : null;
+				dmVideo = parseMyContent(dmVideosContent, new RegExp('"' + dmVideoCode + '".*?"type":"video.*?mp4","url":"(.*?)"'));
 				if (dmVideo) {
 					if (!dmVideoFound) dmVideoFound = true;
 					dmVideo = cleanMyContent(dmVideo, true);
@@ -994,28 +995,21 @@ function SaveTube() {
 				}
 			}
 			if (!dmVideoFound) {
-				dmVideoParser = '"' + dmVideoCode + '".*?"type":"application.*?mpegURL","url":"(.*?)"';
-				dmVideoParse = dmVideosContent.match(dmVideoParser);
-				if (dmVideoParse) {
-					dmVideo = (dmVideoParse) ? dmVideoParse[1] : null;
-					if (!dmVideoFound) dmVideoFound = true;
-					dmVideo = cleanMyContent(dmVideo, true);
-					dmVideoList["Multi Definition M3U8"] = dmVideo;
-					var dmManifestSource = getMyContent(dmVideo, 'TEXT', false);
-					if (dmManifestSource) {
-						dmManifestSource = cleanMyContent(dmManifestSource, false);
-						for (var dmVideoCode in dmVideoFormats) {
-							dmVideoParser = 'RESOLUTION=\\d*x\\d*?,NAME="' + dmVideoCode + '",PROGRESSIVE-URI="(.*?)"([^"]*)(#|$)';
-							dmVideoParse = dmManifestSource.match(dmVideoParser);
-							dmVideo = (dmVideoParse) ? dmVideoParse[1] : null;
-							if (dmVideo) {
-								myVideoCode = dmVideoFormats[dmVideoCode];
-								if (!dmVideoList[myVideoCode]) dmVideoList[myVideoCode] = dmVideo;
+				var dmHLSManifest = parseMyContent(dmVideosContent, /"type":"application.*?mpegURL","url":"(.*?)"/);
+				if (dmHLSManifest) {
+					dmVideoFound = true;
+					dmHLSManifest = cleanMyContent(dmHLSManifest, true);
+					dmVideoList["Multi Definition M3U8"] = dmHLSManifest;
+					for (var dmVideoCode in dmVideoFormats) {
+						dmVideo = getMyContent(dmHLSManifest, new RegExp('NAME="' + dmVideoCode + '.*?",PROGRESSIVE-URI="(.*?)(#EXT|$)'));
+						if (dmVideo) {
+							myVideoCode = dmVideoFormats[dmVideoCode];
+							if (!dmVideoList[myVideoCode] && dmVideo.split('"')[0]) {
+								dmVideoList[myVideoCode] = dmVideo.split('"')[0];
 							}
-							dmVideo = (dmVideoParse) ? dmVideoParse[2] : null;
-							if (dmVideo) {
-								myVideoCode = dmVideoFormats[dmVideoCode].replace('MP4', 'M3U8');
-								if (!dmVideoList[myVideoCode]) dmVideoList[myVideoCode] = dmVideo;
+							myVideoCode = dmVideoFormats[dmVideoCode].replace('MP4', 'M3U8');
+							if (!dmVideoList[myVideoCode] && dmVideo.split('"')[1]) {
+								dmVideoList[myVideoCode] = dmVideo.split('"')[1];
 							}
 						}
 					}
@@ -1052,36 +1046,36 @@ function SaveTube() {
 	else if (page.url.indexOf('vimeo.com/') != -1) {
 
 		/* Page Type */
-		var viPageType = getMyContent(page.url, 'meta\\s+property="og:type"\\s+content="(.*?)"', false);
+		var viPageType = getMyContent(page.url, /meta\s+property="og:type"\s+content="(.*?)"/);
 		if (!viPageType || (viPageType.indexOf('video') == -1 && viPageType.indexOf('profile') == -1)) return;
 
 		/* Get Video Title */
 		var viVideoTitle;
-		if (viPageType == 'video') {
-			viVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
+		if (viPageType.indexOf('video') != -1) {
+			viVideoTitle = getMyContent(page.url, /meta\s+property="og:title"\s+content="(.*?)"/);
 		}
 		else {
-			viVideoTitle = getMyContent(page.url, '"title":"((\\\\"|[^"])*?)"', false);
+			viVideoTitle = getMyContent(page.url, /"title":"((\\"|[^"])*?)"/);
 		}
 		if (viVideoTitle) {
 			viVideoTitle = viVideoTitle.replace(/\s*on\s*Vimeo$/, '');
-			var viVideoAuthor = getMyContent(page.url, '"display_name":"((\\\\"|[^"])*?)"', false);
+			var viVideoAuthor = getMyContent(page.url, /"display_name":"((\\"|[^"])*?)"/);
 			if (viVideoAuthor) viVideoTitle = viVideoTitle + ' by ' + viVideoAuthor;
 			viVideoTitle = cleanMyContent(viVideoTitle, false, true);
 		}
 
 		/* Get Content Source */
-		var viVideoSource = getMyContent(page.url, 'config_url":"(.*?)"', false);
+		var viVideoSource = getMyContent(page.url, /config_url":"(.*?)"/);
 		if (viVideoSource) viVideoSource = cleanMyContent(viVideoSource, false);
 		else {
-			viVideoSource = getMyContent(page.url, 'data-config-url="(.*?)"', false);
+			viVideoSource = getMyContent(page.url, /data-config-url="(.*?)"/);
 			if (viVideoSource) viVideoSource = viVideoSource.replace(/&amp;/g, '&');
 		}
 
 		/* Get Videos Content */
 		var viVideosContent;
 		if (viVideoSource) {
-			viVideosContent = getMyContent(viVideoSource, '"progressive":\\[(.*?)\\]', false);
+			viVideosContent = getMyContent(viVideoSource, /"progressive":\[(.*?)\]/);
 		}
 
 		/* Get Videos */
@@ -1095,8 +1089,7 @@ function SaveTube() {
 			for (var i = 0; i < viVideos.length; i++) {
 				for (var viVideoCode in viVideoFormats) {
 					if (viVideos[i].indexOf('"quality":"' + viVideoCode + '"') != -1) {
-						viVideo = viVideos[i].match(/"url":"(.*?)"/);
-						viVideo = (viVideo) ? viVideo[1] : null;
+						viVideo = parseMyContent(viVideos[i], /"url":"(.*?)"/);
 						if (viVideo) {
 							if (!viVideoFound) viVideoFound = true;
 							myVideoCode = viVideoFormats[viVideoCode];
@@ -1130,103 +1123,40 @@ function SaveTube() {
 
 	}
 
-	// =====MetaCafe===== //
-
-	else if (page.url.indexOf('metacafe.com/watch') != -1) {
-
-		/* Get Video Title */
-		var mcVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
-		if (mcVideoTitle) mcVideoTitle = cleanMyContent(mcVideoTitle, false, true);
-
-		/* Get Videos Content */
-		var mcVideosContent = getMyContent(page.url, 'flashvars\\s*=\\s*\\{(.*?)\\};', false);
-
-		/* Get Videos */
-		if (mcVideosContent) {
-			var mcVideoList = {};
-			var mcVideoFound = false;
-			var mcVideoFormats = {'video_alt_url2': 'High Definition M3U8', 'video_alt_url': 'Low Definition M3U8', 'video_url': 'Very Low Definition M3U8'};
-			var mcVideoFormatz = {'video_alt_url2': '_720p', 'video_alt_url': '_360p', 'video_url': '_240p'};
-			var mcVideoHLS = mcVideosContent.match(/"src":"(.*?)"/);
-			mcVideoHLS = (mcVideoHLS) ? cleanMyContent(mcVideoHLS[1], false) : null;
-			if (mcVideoHLS) {
-				var mcVideoParser, mcVideoParse, myVideoCode, mcVideo;
-				for (var mcVideoCode in mcVideoFormats) {
-					mcVideoParser = '"' + mcVideoCode + '":"(.*?)"';
-					mcVideoParse = mcVideosContent.match(mcVideoParser);
-					mcVideo = (mcVideoParse) ? mcVideoParse[1] : null;
-					if (mcVideo) {
-						if (!mcVideoFound) mcVideoFound = true;
-						myVideoCode = mcVideoFormats[mcVideoCode];
-						mcVideoList[myVideoCode] = mcVideoHLS.replace('.m3u8', mcVideoFormatz[mcVideoCode] + '.m3u8');
-					}
-				}
-			}
-
-			if (mcVideoFound) {
-				/* Create Saver */
-				var mcDefaultVideo = 'Low Definition M3U8';
-				saver = {
-					'videoList': mcVideoList,
-					'videoDefinitions': ['High Definition', 'Low Definition', 'Very Low Definition'],
-					'videoContainers': ['M3U8'],
-					'videoSave': mcDefaultVideo,
-					'videoTitle': mcVideoTitle
-				};
-				createMySaver();
-			}
-			else {
-				saver = {'warnMess': '!videos'};
-				createMySaver();
-			}
-		}
-		else {
-			saver = {};
-			var ytVideoId = page.url.match(/\/yt-(.*?)\//);
-			if (ytVideoId && ytVideoId[1]) {
-				var ytVideoLink = 'http://youtube.com/watch?v=' + ytVideoId[1];
-				saver['warnMess'] = 'embed';
-				saver['warnContent'] = ytVideoLink;
-			}
-			else saver['warnMess'] = '!videos';
-			createMySaver();
-		}
-
-	}
-
 	// =====Veoh===== //
 
 	else if (page.url.indexOf('veoh.com/watch') != -1) {
+
+		/* Video Info */
+		var veVideoInfoUrl = page.url.replace(/\/watch\//, '/watch/getVideo/');
 
 		/* Get Video Availability */
 		if (getMyElement('', 'div', 'class', 'veoh-video-player-error', 0, false)) return;
 
 		/* Get Video Title */
-		var veVideoTitle = getMyContent(page.url, 'meta\\s+name="og:title"\\s+content="(.*?)"', false);
+		var veVideoTitle = getMyContent(veVideoInfoUrl, /"title":"((\\"|[^"])*?)"/);
 		if (!veVideoTitle) {
-			veVideoTitle = getMyContent(page.url.replace(/\/watch\//, '/watch/getVideo/'), '"title":"((\\\\"|[^"])*?)"', false);
+			veVideoTitle = getMyContent(page.url, /meta\s+name="og:title"\s+content="(.*?)"/);
 		}
 		if (veVideoTitle) veVideoTitle = cleanMyContent(veVideoTitle, false, true);
 
 		/* Get Videos Content */
-		var veVideosContent = getMyContent(page.url.replace(/\/watch\//, '/watch/getVideo/'), '"src"\\s*:\\s*\\{(.*?)\\}', false);
+		var veVideosContent = getMyContent(veVideoInfoUrl, /"src"\s*:\s*\{(.*?)\}/);
 
 		/* Get Videos */
 		if (veVideosContent) {
 			var veVideoFormats = {'Regular': 'Low Definition MP4', 'HQ': 'Standard Definition MP4'};
 			var veVideoList = {};
 			var veVideoFound = false;
-			var veVideoParser, veVideoParse, veVideo, myVideoCode;
-			for (var veVideoCode in veVideoFormats) {
-				veVideoParser = veVideoCode + '":"(.*?)"';
-				veVideoParse = veVideosContent.match(veVideoParser);
-				veVideo = (veVideoParse) ? veVideoParse[1] : null;
-				if (veVideo) {
-					if (!veVideoFound) veVideoFound = true;
-					myVideoCode = veVideoFormats[veVideoCode];
-					veVideoList[myVideoCode] = cleanMyContent(veVideo, false);
+				var veVideo, myVideoCode;
+				for (var veVideoCode in veVideoFormats) {
+					veVideo = parseMyContent(veVideosContent, new RegExp(veVideoCode + '":"(.*?)"'));
+					if (veVideo) {
+						if (!veVideoFound) veVideoFound = true;
+						myVideoCode = veVideoFormats[veVideoCode];
+						veVideoList[myVideoCode] = cleanMyContent(veVideo, false);
+					}
 				}
-			}
 
 			if (veVideoFound) {
 				/* Create Saver */
@@ -1242,220 +1172,14 @@ function SaveTube() {
 			}
 			else {
 				saver = {};
-				var ytVideoId = getMyContent(page.url, 'youtube.com/embed/(.*?)("|\\?)', false);
-				if (!ytVideoId) ytVideoId = getMyContent(page.url, '"videoId":"yapi-(.*?)"', false);
+				var ytVideoId = getMyContent(page.url, /youtube.com\/embed\/(.*?)("|\?)/);
+				if (!ytVideoId) ytVideoId = getMyContent(page.url, /"videoId":"yapi-(.*?)"/);
 				if (ytVideoId) {
 					var ytVideoLink = 'http://youtube.com/watch?v=' + ytVideoId;
 					saver['warnMess'] = 'embed';
 					saver['warnContent'] = ytVideoLink;
 				}
 				else saver['warnMess'] = '!videos';
-				createMySaver();
-			}
-		}
-		else {
-			saver = {'warnMess': '!content'};
-			createMySaver();
-		}
-
-	}
-
-	// =====Viki===== //
-
-	else if (page.url.indexOf('viki.com/videos') != -1) {
-
-		/* Get Video Title */
-		var vkVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
-		if (vkVideoTitle) vkVideoTitle = cleanMyContent(vkVideoTitle, false, true);
-
-		/* Get Video ID */
-		var vkVideoID = page.url.match(/videos\/(\d+v)/);
-		vkVideoID = (vkVideoID) ? vkVideoID[1] : null;
-
-		/* Get Videos Content */
-		var vkVideosContent;
-		if (vkVideoID) {
-			/* SHA-1
-			Copyright 2008-2018 Brian Turek, 1998-2009 Paul Johnston & Contributors
-			Distributed under the BSD License
-			See https://caligatio.github.com/jsSHA/ for more information
-			*/
-			var SHA1FuncBody;
-			var SHA1Key = 'sha1js';
-			try {
-				if (localStorage.getItem(SHA1Key)) {
-					SHA1FuncBody = localStorage.getItem(SHA1Key);
-					if (SHA1FuncBody.indexOf('SHA-1') == -1) throw false;
-				}
-				else throw false;
-			}
-			catch(e) {
-				SHA1FuncBody = getMyContent('https://raw.githack.com/Caligatio/jsSHA/master/dist/sha1.js', 'TEXT', false);
-				localStorage.setItem(SHA1Key, SHA1FuncBody);
-			}
-			var SHA1Func = new Function('a', SHA1FuncBody);
-			var SHA1 = new SHA1Func();
-			var shaObj = (SHA1.jsSHA) ? new SHA1.jsSHA("SHA-1", "TEXT") : new jsSHA("SHA-1", "TEXT");
-			var vkTimestamp = parseInt(Date.now() / 1000);
-			var vkQuery = "/v5/videos/" + vkVideoID + "/streams.json?app=100005a&t=" + vkTimestamp + "&site=www.viki.com"
-			var vkToken = "MM_d*yP@`&1@]@!AVrXf_o-HVEnoTnm$O-ti4[G~$JDI/Dc-&piU&z&5.;:}95\=Iad";
-			shaObj.setHMACKey(vkToken, "TEXT");
-			shaObj.update(vkQuery);
-			var vkSig = shaObj.getHMAC("HEX");
-			var vkSource = "https://api.viki.io" + vkQuery + "&sig=" + vkSig;
-			vkVideosContent = getMyContent(vkSource, 'TEXT', false);
-		}
-
-		/* Get Videos */
-		if (vkVideosContent) {
-			var vkVideoList = {};
-			var vkVideoFormats = {'1080p': 'Full High Definition MP4', '720p': 'High Definition MP4', '480p': 'Standard Definition MP4',
-														'360p': 'Low Definition MP4', '240p': 'Very Low Definition MP4'};
-			var vkVideoFound = false;
-			var vkVideoParser, vkVideoParse, vkVideo, myVideoCode;
-			for (var vkVideoCode in vkVideoFormats) {
-				vkVideoParser = '"' + vkVideoCode + '".*?"https":\{"url":"(.*?)"';
-				vkVideoParse = vkVideosContent.match(vkVideoParser);
-				vkVideo = (vkVideoParse) ? vkVideoParse[1] : null;
-				if (vkVideo) {
-					if (!vkVideoFound) vkVideoFound = true;
-					myVideoCode = vkVideoFormats[vkVideoCode];
-					vkVideoList[myVideoCode] = vkVideo;
-				}
-			}
-
-			// Unauthorized
-			var vkUnauthorized = (vkVideosContent.indexOf('unauthorized') != -1) ? true : false;
-
-			// DASH/HLS/Subtitles
-			vkVideosContent = getMyContent(page.url.replace('/videos/', '/player5_fragment/'), 'TEXT', false);
-			if (vkVideosContent) {
-				vkVideoEncHLS = vkVideosContent.match(/x-mpegURL".*?stream=(.*?)"/);
-				vkVideoEncHLS = (vkVideoEncHLS) ? vkVideoEncHLS[1] : null;
-				vkVideoEncDASH = vkVideosContent.match(/dash\+xml".*?stream=(.*?)"/);
-				vkVideoEncDASH = (vkVideoEncDASH) ? vkVideoEncDASH[1] : null;
-				if (vkVideoEncHLS || vkVideoEncDASH) {
-					vkVideoEncKey = vkVideosContent.match(/chabi:\s*'(.*?)'/);
-					vkVideoEncKey = (vkVideoEncKey) ? vkVideoEncKey[1] : null;
-					vkVideoEncIV = vkVideosContent.match(/ecta:\s*'(.*?)'/);
-					vkVideoEncIV = (vkVideoEncIV) ? vkVideoEncIV[1] : null;
-					if (vkVideoEncKey && vkVideoEncIV) {
-						/* AES
-						Copyright 2015-2018 Richard Moore
-						MIT License.
-						See https://github.com/ricmoo/aes-js/ for more information
-						*/
-						var AESFuncBody;
-						var AESFuncKey = 'aesjs';
-						try {
-							if (localStorage.getItem(AESFuncKey)) {
-								AESFuncBody = localStorage.getItem(AESFuncKey);
-							}
-							else throw false;
-						}
-						catch(e) {
-							AESFuncBody = getMyContent('https://raw.githack.com/ricmoo/aes-js/master/index.js', 'TEXT', false);
-							localStorage.setItem(AESFuncKey, AESFuncBody);
-						}
-						var AESFunc = new Function('a', AESFuncBody);
-						var AES = new AESFunc();
-						var AESKey = AES.aesjs.utils.utf8.toBytes(vkVideoEncKey);
-						var AESIV = AES.aesjs.utils.utf8.toBytes(vkVideoEncIV);
-						var encryptedBytes, decryptedBytes;
-						// HLS
-						if (vkVideoEncHLS) {
-							encryptedBytes = AES.aesjs.utils.hex.toBytes(vkVideoEncHLS);
-							AESCBC = new AES.aesjs.ModeOfOperation.cbc(AESKey, AESIV);
-							decryptedBytes = AESCBC.decrypt(encryptedBytes);
-							var vkHLSManifest = AES.aesjs.utils.utf8.fromBytes(decryptedBytes);
-							if (vkHLSManifest) {
-								if (!vkVideoFound) vkVideoFound = true;
-								vkVideoList['Multi Definition M3U8'] = vkHLSManifest;
-							}
-						}
-						// DASH
-						if (vkVideoEncDASH) {
-							encryptedBytes = AES.aesjs.utils.hex.toBytes(vkVideoEncDASH);
-							AESCBC = new AES.aesjs.ModeOfOperation.cbc(AESKey, AESIV);
-							decryptedBytes = AESCBC.decrypt(encryptedBytes);
-							var vkDASHManifest = AES.aesjs.utils.utf8.fromBytes(decryptedBytes);
-							if (vkDASHManifest) {
-								var vkDASHDomain = vkDASHManifest.split('/').splice(0, 5).join('/');
-								var vkDASHContent = getMyContent(vkDASHManifest, 'TEXT', false);
-								if (vkDASHContent) {
-									var vkDASHVideo;
-									var vkDASHVideos = vkDASHContent.match(new RegExp('<BaseURL>.*?</BaseURL>', 'g'));
-									if (vkDASHVideos) {
-										for (var i = 0; i < vkDASHVideos.length; i++) {
-											vkDASHVideo = vkDASHVideos[i].replace('<BaseURL>', '').replace('</BaseURL>', '');
-											if (vkDASHVideo.indexOf('http') != 0) vkDASHVideo = vkDASHDomain + '/' + vkDASHVideo;
-											for (var vkVideoCode in vkVideoFormats) {
-												if (vkDASHVideo.indexOf(vkVideoCode) != -1) {
-													myVideoCode = vkVideoFormats[vkVideoCode];
-													if (vkDASHVideo.indexOf('track1') != -1 || vkDASHVideo.indexOf('video') != -1) {
-														if (!vkVideoFound) vkVideoFound = true;
-														if (!vkVideoList[myVideoCode]) {
-															if (vkDASHVideo.indexOf('drm') != -1) {
-																vkVideoList[myVideoCode.replace('MP4', 'Video MP4 [DRM]')] = vkDASHVideo;
-															}
-															else {
-																vkVideoList[myVideoCode.replace('MP4', 'Video MP4')] = vkDASHVideo;
-															}
-														}
-													}
-													if (vkDASHVideo.indexOf('track2') != -1 || vkDASHVideo.indexOf('audio') != -1) {
-														if (!vkVideoList[myVideoCode]) {
-															if (vkDASHVideo.indexOf('drm') != -1) {
-																vkVideoList[myVideoCode.replace('MP4', 'Audio MP4 [DRM]')] = vkDASHVideo;
-															}
-															else {
-																vkVideoList[myVideoCode.replace('MP4', 'Audio MP4')] = vkDASHVideo;
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-									for (var vkVideoCode in vkVideoFormats) {
-										myVideoCode = vkVideoFormats[vkVideoCode];
-										if (!vkVideoList[myVideoCode]) {
-											if (vkVideoList[myVideoCode.replace('MP4', 'Video MP4')] && vkVideoList[myVideoCode.replace('MP4', 'Audio MP4')]) {
-												vkVideoList[myVideoCode] = 'DASH';
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				// Subtitles
-				var vkSubtitles = vkVideosContent.match(/"srclang":"en".*?"src":"(.*?)"/);
-				vkSubtitles = (vkSubtitles) ? vkSubtitles[1] : null;
-				if (vkSubtitles) vkVideoList['EN Subtitles WebVTT'] = vkSubtitles;
-			}
-
-			/* Create Saver */
-			if (vkVideoFound) {
-				var vkDefaultVideo = 'Low Definition MP4';
-				saver = {
-					'videoList': vkVideoList,
-					'videoDefinitions': ['Full High Definition', 'High Definition', 'Standard Definition', 'Low Definition', 'Very Low Definition'],
-					'videoContainers': ['MP4', 'M3U8', 'Any'],
-					'videoSave': vkDefaultVideo,
-					'videoTitle': vkVideoTitle
-				};
-				createMySaver();
-			}
-			else {
-				if (vkUnauthorized) {
-					saver = {
-						'warnMess': 'other',
-						'warnContent': '<b>SaveTube:</b> Authorization required!'
-					};
-				}
-				else saver = {'warnMess': '!videos'};
 				createMySaver();
 			}
 		}
@@ -1485,7 +1209,7 @@ function SaveTube() {
 		}
 
 		/* Get Video Title */
-		var imdbVideoTitle = getMyContent(page.url, 'meta\\s+property="og:title"\\s+content="(.*?)"', false);
+		var imdbVideoTitle = getMyContent(page.url, /meta\s+property="og:title"\s+content="(.*?)"/);
 		if (imdbVideoTitle) imdbVideoTitle = cleanMyContent(imdbVideoTitle, false, true);
 
 		/* Get Data Key */
@@ -1502,11 +1226,9 @@ function SaveTube() {
 			var imdbVideoFormats = {'1080p': 'Full High Definition MP4', '720p': 'High Definition MP4', '480p': 'Standard Definition MP4',
 															'360p': 'Low Definition MP4', 'SD': 'Low Definition MP4', '240p': 'Very Low Definition MP4', 'AUTO': 'Multi Definition M3U8'};
 			var imdbVideoFound = false;
-			var imdbVideoParser, imdbVideoParse, myVideoCode, imdbVideo;
+			var myVideoCode, imdbVideo;
 			for (var imdbVideoCode in imdbVideoFormats) {
-				imdbVideoParser = '"definition":"' + imdbVideoCode + '".*?"url":"(.*?)"';
-				imdbVideoParse = imdbVideosContent.match(imdbVideoParser);
-				imdbVideo = (imdbVideoParse) ? imdbVideoParse[1] : null;
+				imdbVideo = parseMyContent(imdbVideosContent, new RegExp('"definition":"' + imdbVideoCode + '".*?"url":"(.*?)"'));
 				if (imdbVideo) {
 					imdbVideo = cleanMyContent(imdbVideo, false);
 					if (!imdbVideoFound) imdbVideoFound = true;
