@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2021.11.18
+// @version         2021.12.16
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -1062,7 +1062,7 @@ function SaveTube() {
 
 		/* Page Type */
 		var viPageType = getMyContent(page.url, /meta\s+property="og:type"\s+content="(.*?)"/);
-		if (!viPageType || (viPageType.indexOf('video') == -1 && viPageType.indexOf('profile') == -1)) return;
+		if (!viPageType || viPageType.indexOf('video') == -1) return;
 
 		/* Get Video Title */
 		var viVideoTitle;
@@ -1285,13 +1285,13 @@ getMyOptions();
 SaveTube();
 
 page.win.setInterval(function() {
-	if (page.url != page.win.location.href) {
+	if (page.url != page.win.location.href.replace(page.win.location.hash, '')) {
 		if (saver['saverPanel'] && saver['saverPanel'].parentNode) {
 			removeMyElement(saver['saverPanel'].parentNode, saver['saverPanel']);
 		}
 		page.doc = page.win.document;
 		page.body = page.doc.body;
-		page.url = page.win.location.href;
+		page.url = page.win.location.href.replace(page.win.location.hash, '');
 		SaveTube();
 	}
 }, 500);
