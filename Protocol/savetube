@@ -1,10 +1,10 @@
 #! /bin/bash
 
 d="/home/Videos/YouTube"
-s="$(echo "$1" | sed -e "s/savetube://")"
-t="$(echo "$s" | awk -F 'SEPARATOR' '{print $1}' | sed -e "s/%20/ /g" -e "s/ +$//" -e "s/^ +//")"
-v="$(echo "$s" | awk -F 'SEPARATOR' '{print $2}')"
-a="$(echo "$s" | awk -F 'SEPARATOR' '{print $3}')"
+i="$(echo "$1" | sed -e "s/savetube://" -e "s/SEPARATOR/|/g")"
+t="$(echo "$i" | cut -d "|" -f 1 | sed -e "s/%20/ /g" -e "s/ +$//" -e "s/^ +//")"
+v="$(echo "$i" | cut -d "|" -f 2)"
+a="$(echo "$i" | cut -d "|" -f 3)"
 f="$(echo "$v" | grep -q "video/web\|\.webm" && echo "webm" || echo "mp4")"
 if [ "$a" = "" ]; then
 	if echo "$v" | grep -qi "\.m3u8"; then

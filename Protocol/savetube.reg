@@ -1,0 +1,12 @@
+REGEDIT4
+
+[HKEY_CLASSES_ROOT\savetube]
+@="URL:savetube Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\savetube\shell]
+
+[HKEY_CLASSES_ROOT\savetube\shell\open]
+
+[HKEY_CLASSES_ROOT\savetube\shell\open\command]
+@="\"D:\\Scripts\\savetube.bat\" \"%1\""

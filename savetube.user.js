@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2021.12.16
+// @version         2022.02.06
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -37,7 +37,7 @@
 
 /*
 
-	Copyright (C) 2010 - 2021 Sebastian Luncan
+	Copyright (C) 2010 - 2022 Sebastian Luncan
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -773,6 +773,7 @@ function SaveTube() {
 			}
 			/* n */
 			ytMainFuncName = getMyContent(ytScriptUrl, /&&\([\w$]+=([\w$]+)\(\w+\),\w+\.set\("n"/);
+			if (!ytMainFuncName) ytMainFuncName = getMyContent(ytScriptUrl, /set\("n".*?\|\|([\w$]+)\(/);
 			if (ytMainFuncName) {
 				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp(';' + ytMainFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?)\\};'));
 				if (ytMainFuncBody) {
@@ -786,7 +787,7 @@ function SaveTube() {
 		var ytVideosContent = {};
 		var ytVideoInfoKey = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
 		var ytVideoInfoUrl = page.win.location.protocol + '//' + page.win.location.hostname + '/youtubei/v1/player?key=' + ytVideoInfoKey;
-		var ytVideoInfoClientVersion = {'WEB': '2.11111111', 'ANDROID': '16.20'};
+		var ytVideoInfoClientVersion = {'WEB': '2.11111111', 'ANDROID': '16.49'};
 		var ytVideoInfoDataRequest = {};
 		function ytGetVideos(api, client, embed) {
 			if (api) {
@@ -846,6 +847,9 @@ function SaveTube() {
 		else {
 			if (!ytVideosContent['formats']) {
 				ytGetVideos(true, 'ANDROID', true);
+			}
+			if (!ytVideosContent['formats']) {
+				ytGetVideos(false, 'WEB', false);
 			}
 			if (ytVideosContent['formats']) {
 				var ytVideoFormats = {

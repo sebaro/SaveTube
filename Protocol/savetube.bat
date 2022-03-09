@@ -3,15 +3,13 @@ setlocal
 
 set "d=C:\Videos"
 set "i=%~1"
-set "s=%i:savetube:=%"
-set "s=%s:SEPARATOR=^|%"
-
-for /f "tokens=1,2,3 delims=^|" %%a in ("%s%") do (
+set "i=%i:savetube:=%"
+set "i=%i:SEPARATOR=|%"
+for /f "tokens=1,2,3 delims=|" %%a in ("%i%") do (
 	set "t=%%a"
 	set "v=%%b"
 	set "a=%%c"
 )
-
 set "f=mp4"
 if not "x%v:video/webm=%"=="x%v%" set "f=webm"
 if not "x%v:.webm=%"=="x%v%" set "f=webm"
