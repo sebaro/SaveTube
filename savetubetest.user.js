@@ -1246,13 +1246,14 @@ function SaveTube() {
 		var imdbVideoTitle = getMyContent(page.url, /meta\s+property="og:title"\s+content="(.*?)"/);
 		if (imdbVideoTitle) imdbVideoTitle = cleanMyContent(imdbVideoTitle, false, true);
 
-		/* Get Data Key */
-		var imdbVideoId = page.url.replace(/^.*?\/(vi\d+).*/, '$1');
-		var imdbDataJSON = '{"type": "VIDEO_PLAYER", "subType": "FORCE_LEGACY", "id": "' + imdbVideoId + '"}';
-		var imdbDataKey = btoa(imdbDataJSON);
-
 		/* Get Videos Content */
-		var imdbVideosContent = getMyContent(page.url.replace(/video\/.*/, 've/data/VIDEO_PLAYBACK_DATA?key=' + imdbDataKey), '"videoLegacyEncodings":\\[(.*?)\\]', false);
+		var imdbVideosContent = getMyContent(page.url, /"playbackURLs":(\[.*?\])/);
+		try {
+			imdbVideosContent = JSON.parse(imdbVideosContent);
+		}
+		catch(e) {
+			imdbVideosContent = {};
+		}
 
 		/* Get Videos */
 		var imdbVideoList = {};
@@ -1262,12 +1263,14 @@ function SaveTube() {
 			var imdbVideoFound = false;
 			var myVideoCode, imdbVideo;
 			for (var imdbVideoCode in imdbVideoFormats) {
-				imdbVideo = parseMyContent(imdbVideosContent, new RegExp('"definition":"' + imdbVideoCode + '".*?"url":"(.*?)"'));
-				if (imdbVideo) {
-					imdbVideo = cleanMyContent(imdbVideo, false);
-					if (!imdbVideoFound) imdbVideoFound = true;
-					myVideoCode = imdbVideoFormats[imdbVideoCode];
-					if (!imdbVideoList[myVideoCode]) imdbVideoList[myVideoCode] = imdbVideo;
+				for (var i = 0; i < imdbVideosContent.length; i++) {
+					imdbVideo = parseMyContent(JSON.stringify(imdbVideosContent[i]), new RegExp('"url":"(.*?)".*?"value":"' + imdbVideoCode + '"'));
+					if (imdbVideo) {
+						imdbVideo = cleanMyContent(imdbVideo, false);
+						if (!imdbVideoFound) imdbVideoFound = true;
+						myVideoCode = imdbVideoFormats[imdbVideoCode];
+						if (!imdbVideoList[myVideoCode]) imdbVideoList[myVideoCode] = imdbVideo;
+					}
 				}
 			}
 
