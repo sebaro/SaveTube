@@ -2,7 +2,7 @@
 
 	"manifest_version": 2,
 	"name": "SaveTube",
-	"version": "2023.7.7",
+	"version": "2023.7.10",
 
 	"description": "Download videos from video sharing web sites.",
 
@@ -50,7 +50,9 @@
 		"http://manifest.googlevideo.com/*",
 		"https://manifest.googlevideo.com/*",
 		"http://player.vimeo.com/*",
-		"https://player.vimeo.com/*"
+		"https://player.vimeo.com/*",
+		"http://api.vimeo.com/*",
+		"https://api.vimeo.com/*"
 	]
 
 }
