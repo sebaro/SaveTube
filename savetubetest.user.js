@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2024.06.23
+// @version         2024.07.04
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -877,10 +877,7 @@ function SaveTube() {
 		}
 
 		/* Get Videos */
-		ytGetVideos(true, 'MWEB', false);
-		if (!ytVideosContent['formats']) {
-			ytGetVideos(false, 'WEB', false);
-		}
+		ytGetVideos(false, 'WEB', false);
 		if (!ytVideosContent['formats']) {
 			ytGetVideos(true, 'TVHTML5_SIMPLY_EMBEDDED_PLAYER', true);
 		}
