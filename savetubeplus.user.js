@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube+
-// @version         2023.07.14
+// @version         2024.07.08
 // @description     Download videos from web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -16,7 +16,7 @@
 
 /*
 
-	Copyright (C) 2014 - 2023 Sebastian Luncan
+	Copyright (C) 2014 - 2024 Sebastian Luncan
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -86,7 +86,8 @@ function SaveTube() {
 		'file\s*:\s*"(http[^")]*?\\.(mp4|flv|webm|m3u8).*?)"',
 		'src="(http[^"]*?\\.(mp4|flv|webm|m3u8).*?)"',
 		'"(http[^"]*?\\.(mp4|flv|webm|m3u8).*?)"',
-		'\'(http[^\']*?\\.(mp4|flv|webm|m3u8).*?)\''
+		'\'(http[^\']*?\\.(mp4|flv|webm|m3u8).*?)\'',
+		'&quot;(http[^\']*?\\.(mp4|flv|webm|m3u8).*?)&quot;'
 	];
 
 	var exclude = '(thumb|\\.jpg|\\.png|\\.gif|\\.htm|format=|\\/\\/[^\\/]*?(mp4|flv|webm|m3u8)|(mp4|flv|webm|m3u8)[0-9a-zA-Z])';
