@@ -108,7 +108,7 @@ function SaveTube() {
 					if (video.indexOf('&amp;') != -1) video = video.replace(/&amp;/g, '&');
 					video = video.replace(/\\/g, '');
 					if (video.indexOf('http') == 0 && !video.match(exclude)) {
-						if (links.indexOf(video) == -1) links.push(video);
+						if (links.indexOf(video) == -1 && video != page.win.location.href) links.push(video);
 					}
 				}
 			}
