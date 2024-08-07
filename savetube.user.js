@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2024.07.24
+// @version         2024.08.07
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -817,6 +817,7 @@ function SaveTube() {
 			if (ytMainFuncName) {
 				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
 				if (ytMainFuncBody) {
+					ytMainFuncBody = ytMainFuncBody.replace(/(\d+)--(\d+)/, '$1- -$2', ytMainFuncBody);
 					ytMainFuncBody = 'try {' + ytMainFuncBody + '} catch(e) {return null}';
 					ytUnscrambleParam['n'] = new Function('a', ytMainFuncBody);
 				}
