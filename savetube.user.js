@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2024.08.09
+// @version         2024.08.29
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -1026,7 +1026,6 @@ function SaveTube() {
 				}
 				if (ytVideosContentHLS) {
 					ytVideoList["Multi Definition M3U8"] = ytVideosContentHLS;
-					ytDefaultVideo = 'Multi Definition M3U8';
 				}
 				ytCreateSaver();
 			}
@@ -1035,7 +1034,18 @@ function SaveTube() {
 			}
 		}
 		else {
-			showMyMessage('!content');
+			/* HLS */
+			if (!ytVideosContentHLS) {
+				ytGetVideos(true, 'IOS', false);
+			}
+			if (ytVideosContentHLS) {
+				ytVideoList["Multi Definition M3U8"] = ytVideosContentHLS;
+				ytDefaultVideo = 'Multi Definition M3U8';
+				ytCreateSaver();
+			}
+			else {
+				ytCreateSaver({'warnMess': '!content'});
+			}
 		}
 
 	}
