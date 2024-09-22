@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2024.08.29
+// @version         2024.09.22
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -1415,7 +1415,9 @@ function SaveTube() {
 			var myVideoCode, imdbVideo;
 			for (var imdbVideoCode in imdbVideoFormats) {
 				for (var i = 0; i < imdbVideosContent.length; i++) {
-					imdbVideo = parseMyContent(JSON.stringify(imdbVideosContent[i]), new RegExp('"url":"(.*?)".*?"value":"' + imdbVideoCode + '"'));
+					if (imdbVideosContent[i]["displayName"]["value"] == imdbVideoCode) {
+						imdbVideo = imdbVideosContent[i]["url"];
+					}
 					if (imdbVideo) {
 						imdbVideo = cleanMyContent(imdbVideo, false);
 						if (!imdbVideoFound) imdbVideoFound = true;
