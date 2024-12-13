@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2024.12.10
+// @version         2024.12.13
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -774,7 +774,7 @@ function SaveTube() {
 	if (page.url.indexOf('youtube.com/watch') != -1) {
 
 		/* Video Availability */
-		if (getMyContent(page.url, /"playabilityStatus":\{"status":"(ERROR|UNPLAYABLE|LIVE_STREAM_OFFLINE)"/)) return;
+		if (getMyContent(page.url, /"playabilityStatus":\{"status":"(ERROR|UNPLAYABLE|LIVE_STREAM_OFFLINE|LOGIN_REQUIRED)"/)) return;
 
 		/* Get Video ID */
 		var ytVideoId = parseMyContent(page.url, /(?:\?|&)v=(.*?)(&|$)/);
@@ -822,17 +822,17 @@ function SaveTube() {
 			ytGetScriptUrl();
 			var ytMainFuncName, ytMainFuncBody, ytExtraFuncName, ytExtraFuncBody;
 			/* s */
-			ytMainFuncName = getMyContent(ytScriptUrl, /c&&\([\w$]+=([\w$]+)\(decodeURIComponent/);
+			ytMainFuncName = getMyContent(ytScriptUrl, /(?:^|;)([\w$]+)=function\([\w$]+\)\s*\{\w=\w\.split\(""\).*?\}/);
 			if (ytMainFuncName) {
 				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
 				if (ytMainFuncBody) {
-					ytExtraFuncName = parseMyContent(ytMainFuncBody, /([\w$]+)\.[\w$]+\(\w,[0-9]+\)/);
+					ytExtraFuncName = parseMyContent(ytMainFuncBody, /;([\w$]+)\./);
 					if (ytExtraFuncName) {
 						ytExtraFuncBody = getMyContent(ytScriptUrl, new RegExp('var\\s+' + ytExtraFuncName.replace(/\$/, '\\$') + '=\\s*\\{(.*?)\\};'));
 						if (ytExtraFuncBody) {
 							ytMainFuncBody = 'var ' + ytExtraFuncName + '={' + ytExtraFuncBody + '};' + ytMainFuncBody;
 							ytMainFuncBody = 'try {' + ytMainFuncBody + '} catch(e) {return null}';
-							ytUnscrambleParam['s'] = new Function('a', ytMainFuncBody);
+							ytUnscrambleParam['s'] = new Function(ytMainFuncBody.replace(/.*return\s+(\w).join.*/, '$1'), ytMainFuncBody);
 						}
 					}
 				}
@@ -842,7 +842,7 @@ function SaveTube() {
 			if (ytMainFuncName) {
 				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
 				if (ytMainFuncBody) {
-					ytMainFuncBody = ytMainFuncBody.replace(/(\d+)--(\d+)/, '$1- -$2').replace(/if\(typeof.*?;/, '');
+					ytMainFuncBody = ytMainFuncBody.replace(/(\d+)?--(\d+)/, '$1- -$2').replace(/if\(typeof.*?;/, '');
 					ytMainFuncBody = 'try {' + ytMainFuncBody + '} catch(e) {return null}';
 					ytUnscrambleParam['n'] = new Function(ytMainFuncBody.replace(/.*\+(\w)\}return.*/, '$1'), ytMainFuncBody);
 				}
