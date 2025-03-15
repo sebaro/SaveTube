@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2024.12.13
+// @version         2025.03.15
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -13,6 +13,10 @@
 // @include         https://www.youtube.com*
 // @include         http://m.youtube.com*
 // @include         https://m.youtube.com*
+// @exclude         http://youtube.com/shorts*
+// @exclude         http://www.youtube.com/shorts*
+// @exclude         https://youtube.com/shorts*
+// @exclude         https://www.youtube.com/shorts*
 // @include         http://dailymotion.com*
 // @include         http://www.dailymotion.com*
 // @include         https://dailymotion.com*
@@ -33,7 +37,7 @@
 
 /*
 
-	Copyright (C) 2010 - 2024 Sebastian Luncan
+	Copyright (C) 2010 - 2025 Sebastian Luncan
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -856,8 +860,8 @@ function SaveTube() {
 		var ytVideoInfoClients = {
 			'MWEB': {
 				'clientName': 'MWEB',
-        'clientVersion': '2.20241202.07.00',
-        'userAgent': 'Mozilla/5.0 (iPad; CPU OS 16_7_10 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1,gzip(gfe)'
+				'clientVersion': '2.20241202.07.00',
+				'userAgent': 'Mozilla/5.0 (iPad; CPU OS 16_7_10 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1,gzip(gfe)'
 			},
 			'WEB_SAFARI': {
 				'clientName': 'WEB',
@@ -866,39 +870,45 @@ function SaveTube() {
 			},
 			'IOS': {
 				'clientName': 'IOS',
-				'clientVersion': '19.45.4',
-				'userAgent': 'com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)'
+				'clientVersion': '20.03.02',
+				'userAgent': 'com.google.ios.youtube/20.03.02 (iPhone16,2; U; CPU iOS 18_2_1 like Mac OS X;)'
+			},
+			'TV': {
+				'clientName': 'TVHTML5',
+				'clientVersion': '7.20250120.19.00',
+				'userAgent': 'Mozilla/5.0 (ChromiumStylePlatform) Cobalt/Version'
 			},
 			'TV_EMBEDDED': {
 				'clientName': 'TVHTML5_SIMPLY_EMBEDDED_PLAYER',
 				'clientVersion': '2.0'
 			}
 		};
-		var ytVideoSignatureTimestamp = 19173;
-		var ytVideoInfoDataRequest = {};
+		var ytVideoInfoData = {'videoId': ytVideoId, 'context': {'client': null}, 'playbackContext': {'contentPlaybackContext': {'html5Preference': 'HTML5_PREF_WANTS'}}};
+		var ytVideoInfoExtra = {'signatureTimestamp': 20068, 'visitorData': ''};
+		var ytVideoInfoHeaders;
 		function ytGetVideos(api, client, embed) {
 			if (api) {
-				ytVideoInfoDataRequest = {};
-				ytVideoInfoDataRequest['videoId'] = ytVideoId;
-				ytVideoInfoDataRequest['context'] = {};
-				ytVideoInfoDataRequest['context']['client'] = {};
-				ytVideoInfoDataRequest['context']['client']['clientName'] = ytVideoInfoClients[client]['clientName'];
-				ytVideoInfoDataRequest['context']['client']['clientVersion'] = ytVideoInfoClients[client]['clientVersion'];
-				if (ytVideoInfoClients[client]['userAgent']) {
-					ytVideoInfoDataRequest['context']['client']['userAgent'] = ytVideoInfoClients[client]['userAgent'];
-				}
+				ytVideoInfoData['context']['client'] = ytVideoInfoClients[client];
 				if (embed) {
-					ytVideoInfoDataRequest['context']['client']['clientScreen'] = 'EMBED';
-					ytVideoInfoDataRequest['context']['thirdParty'] = {};
-					ytVideoInfoDataRequest['context']['thirdParty']['embedUrl'] = 'https://www.youtube.com';
+					ytVideoInfoData['context']['client']['clientScreen'] = 'EMBED';
+					ytVideoInfoData['context']['thirdParty'] = {};
+					ytVideoInfoData['context']['thirdParty']['embedUrl'] = 'https://www.youtube.com';
 				}
-				ytVideoInfoDataRequest['playbackContext'] = {};
-				ytVideoInfoDataRequest['playbackContext']['contentPlaybackContext'] = {};
-				ytVideoInfoDataRequest['playbackContext']['contentPlaybackContext']['html5Preference'] = 'HTML5_PREF_WANTS';
 				ytGetScriptUrl();
-				ytVideoSignatureTimestamp = getMyContent(ytScriptUrl, /signatureTimestamp:(\d+)/);
-				ytVideoInfoDataRequest['playbackContext']['contentPlaybackContext']['signatureTimestamp'] = ytVideoSignatureTimestamp;
-				ytVideosContent = getMyContent(ytVideoInfoUrl, null, ytVideoInfoDataRequest, ytVideoInfoClients[client]['userAgent'] && {'User-Agent': ytVideoInfoClients[client]['userAgent']});
+				ytVideoInfoExtra['signatureTimestamp'] = getMyContent(ytScriptUrl, /signatureTimestamp:(\d+)/);
+				if (ytVideoInfoExtra['signatureTimestamp']) {
+					ytVideoInfoData['playbackContext']['contentPlaybackContext']['signatureTimestamp'] = ytVideoInfoExtra['signatureTimestamp'];
+				}
+				ytVideoInfoExtra['visitorData'] = getMyContent(page.url, /"visitorData":\s*"(.*?)"/);
+				if (ytVideoInfoClients[client]['userAgent']) {
+					if (!ytVideoInfoHeaders) ytVideoInfoHeaders = {};
+					ytVideoInfoHeaders['User-Agent'] = ytVideoInfoClients[client]['userAgent'];
+				}
+				if (ytVideoInfoExtra['visitorData']) {
+					if (!ytVideoInfoHeaders) ytVideoInfoHeaders = {};
+					ytVideoInfoHeaders['X-Goog-Visitor-Id'] = ytVideoInfoExtra['visitorData'];
+				}
+				ytVideosContent = getMyContent(ytVideoInfoUrl, null, ytVideoInfoData, ytVideoInfoHeaders && ytVideoInfoHeaders);
 			}
 			else {
 				ytVideosContent = getMyContent(page.url, /ytInitialPlayerResponse\s*=\s*({.*?});/);
@@ -926,7 +936,10 @@ function SaveTube() {
 		}
 
 		/* Get Videos */
-		ytGetVideos(true, 'MWEB', false);
+		ytGetVideos(true, 'TV', false);
+		if (!ytVideosContent['formats']) {
+			ytGetVideos(true, 'MWEB', false);
+		}
 		if (!ytVideosContent['formats']) {
 			ytGetVideos(true, 'TV_EMBEDDED', true);
 		}

@@ -1,11 +1,8 @@
 {
-
 	"manifest_version": 2,
 	"name": "SaveTube",
-	"version": "2023.7.10",
-
+	"version": "2025.3.15",
 	"description": "Download videos from video sharing web sites.",
-
 	"icons": {
 		"16": "icons/16.png",
 		"32": "icons/32.png",
@@ -14,7 +11,6 @@
 		"96": "icons/96.png",
 		"128": "icons/128.png"
 	},
-
 	"content_scripts": [
 		{
 			"matches": [
@@ -41,11 +37,12 @@
 				"https://imdb.com/*",
 				"https://www.imdb.com/*"
 			],
-			"js": ["savetube.user.js"],
+			"js": [
+				"savetube.user.js"
+			],
 			"run_at": "document_end"
 		}
 	],
-
 	"permissions": [
 		"http://manifest.googlevideo.com/*",
 		"https://manifest.googlevideo.com/*",
@@ -53,6 +50,10 @@
 		"https://player.vimeo.com/*",
 		"http://api.vimeo.com/*",
 		"https://api.vimeo.com/*"
-	]
-
+	],
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "{edb2cd6a-2bb4-4e75-bac6-aa41735c039f}"
+		}
+	}
 }

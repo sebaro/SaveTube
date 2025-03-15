@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=SaveTube Client
-Exec=/home/Devel/JavaScript/SaveTube/Protocol/savetube %u
+Exec=/home/Devel/Userscripts/SaveTube/Protocol/savetube %u
 Icon=mpv
 Type=Application
 Terminal=false
