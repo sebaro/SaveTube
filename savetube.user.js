@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2025.03.28
+// @version         2025.04.23
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -830,15 +830,15 @@ function SaveTube() {
 			if (ytMainFuncName) {
 				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
 				if (ytMainFuncBody) {
-					ytExtraFuncName = parseMyContent(ytMainFuncBody, /;([\w$]+)\./);
+					ytExtraFuncName = parseMyContent(ytMainFuncBody, /;([\w$]+)[\.|\[]/);
 					if (ytExtraFuncName) {
 						ytExtraFuncBody = getMyContent(ytScriptUrl, new RegExp('var\\s+' + ytExtraFuncName.replace(/\$/, '\\$') + '=\\s*\\{(.*?)\\};'));
 						if (ytExtraFuncBody) {
 							ytMainFuncBody = 'var ' + ytExtraFuncName + '={' + ytExtraFuncBody + '};' + ytMainFuncBody;
-							ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?\)),/);
+							ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?[\)|\]]),/);
 							if (ytExtraFuncBody) {
 								ytMainFuncBody = 'try {' + ytExtraFuncBody + ';' + ytMainFuncBody + '} catch(e) {return null}';
-								ytUnscrambleParam['s'] = new Function(ytMainFuncBody.replace(/.*return\s+(\w).join.*/, '$1'), ytMainFuncBody);
+								ytUnscrambleParam['s'] = new Function(ytMainFuncBody.replace(/.*;return\s+(\w).*/, '$1'), ytMainFuncBody);
 							}
 						}
 					}
@@ -846,11 +846,14 @@ function SaveTube() {
 			}
 			/* n */
 			ytMainFuncName = getMyContent(ytScriptUrl, /(?:^|;)([\w$]+)=function\([\w$]+\)\s*\{var\s+\w=\w\.split\(\w\.slice/);
+			if (!ytMainFuncName) {
+				ytMainFuncName = getMyContent(ytScriptUrl, /(?:^|;)([\w$]+)=function\([\w$]+\)\s*\{var\s+\w=\w\[\w\[\d+\]\]\(\w\[\d+\]\)/);
+			}
 			if (ytMainFuncName) {
 				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
 				if (ytMainFuncBody) {
 					ytMainFuncBody = ytMainFuncBody.replace(/(\d+)?--(\d+)/, '$1- -$2').replace(/if\(typeof.*?;/, '');
-					ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?\)),/);
+					ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?[\)|\]]),/);
 					if (ytExtraFuncBody) {
 						ytMainFuncBody = 'try {' + ytExtraFuncBody + ';' + ytMainFuncBody + '} catch(e) {return null}';
 						ytUnscrambleParam['n'] = new Function(ytMainFuncBody.replace(/.*\+(\w)\}return.*/, '$1'), ytMainFuncBody);
@@ -866,22 +869,22 @@ function SaveTube() {
 		var ytVideoInfoClients = {
 			'MWEB': {
 				'clientName': 'MWEB',
-				'clientVersion': '2.20241202.07.00',
+				'clientVersion': '2.20250311.03.00',
 				'userAgent': 'Mozilla/5.0 (iPad; CPU OS 16_7_10 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1,gzip(gfe)'
 			},
 			'WEB_SAFARI': {
 				'clientName': 'WEB',
-				'clientVersion': '2.20241126.01.00',
+				'clientVersion': '2.20250312.04.00',
 				'userAgent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15,gzip(gfe)'
 			},
 			'IOS': {
 				'clientName': 'IOS',
-				'clientVersion': '20.03.02',
-				'userAgent': 'com.google.ios.youtube/20.03.02 (iPhone16,2; U; CPU iOS 18_2_1 like Mac OS X;)'
+				'clientVersion': '20.10.4',
+				'userAgent': 'com.google.ios.youtube/20.10.4 (iPhone16,2; U; CPU iOS 18_3_2 like Mac OS X;)'
 			},
 			'TV': {
 				'clientName': 'TVHTML5',
-				'clientVersion': '7.20250120.19.00',
+				'clientVersion': '7.20250312.16.00',
 				'userAgent': 'Mozilla/5.0 (ChromiumStylePlatform) Cobalt/Version'
 			},
 			'TV_EMBEDDED': {
