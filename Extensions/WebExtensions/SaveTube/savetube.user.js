@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2025.04.23
+// @version         2025.05.30
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -778,7 +778,7 @@ function SaveTube() {
 	if (page.url.indexOf('youtube.com/watch') != -1) {
 
 		/* Video Availability */
-		if (getMyContent(page.url, /"playabilityStatus":\{"status":"(ERROR|UNPLAYABLE|LIVE_STREAM_OFFLINE|LOGIN_REQUIRED)"/)) return;
+		if (getMyContent(page.url, /"playabilityStatus":\{"status":"(ERROR|UNPLAYABLE|LIVE_STREAM_OFFLINE)"/)) return;
 
 		/* Get Video ID */
 		var ytVideoId = parseMyContent(page.url, /(?:\?|&)v=(.*?)(&|$)/);
@@ -828,14 +828,14 @@ function SaveTube() {
 			/* s */
 			ytMainFuncName = getMyContent(ytScriptUrl, /[\w$]+&&\([\w$]+=([\w$]+)\(decodeURIComponent/);
 			if (ytMainFuncName) {
-				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
+				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/g, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
 				if (ytMainFuncBody) {
-					ytExtraFuncName = parseMyContent(ytMainFuncBody, /;([\w$]+)[\.|\[]/);
+					ytExtraFuncName = parseMyContent(ytMainFuncBody, /;([\w$]+)[\.\[]/);
 					if (ytExtraFuncName) {
-						ytExtraFuncBody = getMyContent(ytScriptUrl, new RegExp('var\\s+' + ytExtraFuncName.replace(/\$/, '\\$') + '=\\s*\\{(.*?)\\};'));
+						ytExtraFuncBody = getMyContent(ytScriptUrl, new RegExp('var\\s+' + ytExtraFuncName.replace(/\$/g, '\\$') + '=\\s*\\{(.*?)\\};'));
 						if (ytExtraFuncBody) {
 							ytMainFuncBody = 'var ' + ytExtraFuncName + '={' + ytExtraFuncBody + '};' + ytMainFuncBody;
-							ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?[\)|\]]),/);
+							ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?[\)\]]),\w/);
 							if (ytExtraFuncBody) {
 								ytMainFuncBody = 'try {' + ytExtraFuncBody + ';' + ytMainFuncBody + '} catch(e) {return null}';
 								ytUnscrambleParam['s'] = new Function(ytMainFuncBody.replace(/.*;return\s+(\w).*/, '$1'), ytMainFuncBody);
@@ -850,10 +850,10 @@ function SaveTube() {
 				ytMainFuncName = getMyContent(ytScriptUrl, /(?:^|;)([\w$]+)=function\([\w$]+\)\s*\{var\s+\w=\w\[\w\[\d+\]\]\(\w\[\d+\]\)/);
 			}
 			if (ytMainFuncName) {
-				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
+				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/g, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
 				if (ytMainFuncBody) {
 					ytMainFuncBody = ytMainFuncBody.replace(/(\d+)?--(\d+)/, '$1- -$2').replace(/if\(typeof.*?;/, '');
-					ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?[\)|\]]),/);
+					ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?[\)\]]),\w/);
 					if (ytExtraFuncBody) {
 						ytMainFuncBody = 'try {' + ytExtraFuncBody + ';' + ytMainFuncBody + '} catch(e) {return null}';
 						ytUnscrambleParam['n'] = new Function(ytMainFuncBody.replace(/.*\+(\w)\}return.*/, '$1'), ytMainFuncBody);
@@ -867,10 +867,9 @@ function SaveTube() {
 		var ytVideosContentHLS;
 		var ytVideoInfoUrl = page.win.location.protocol + '//' + page.win.location.hostname + '/youtubei/v1/player?prettyPrint=false';
 		var ytVideoInfoClients = {
-			'MWEB': {
-				'clientName': 'MWEB',
-				'clientVersion': '2.20250311.03.00',
-				'userAgent': 'Mozilla/5.0 (iPad; CPU OS 16_7_10 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1,gzip(gfe)'
+			'WEB_EMBEDDED': {
+				'clientName': 'WEB_EMBEDDED_PLAYER',
+				'clientVersion': '1.20250310.01.00'
 			},
 			'WEB_SAFARI': {
 				'clientName': 'WEB',
@@ -881,6 +880,11 @@ function SaveTube() {
 				'clientName': 'IOS',
 				'clientVersion': '20.10.4',
 				'userAgent': 'com.google.ios.youtube/20.10.4 (iPhone16,2; U; CPU iOS 18_3_2 like Mac OS X;)'
+			},
+			'MWEB': {
+				'clientName': 'MWEB',
+				'clientVersion': '2.20250311.03.00',
+				'userAgent': 'Mozilla/5.0 (iPad; CPU OS 16_7_10 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1,gzip(gfe)'
 			},
 			'TV': {
 				'clientName': 'TVHTML5',
@@ -895,11 +899,10 @@ function SaveTube() {
 		var ytVideoInfoData = {'videoId': ytVideoId, 'context': {'client': null}, 'playbackContext': {'contentPlaybackContext': {'html5Preference': 'HTML5_PREF_WANTS'}}};
 		var ytVideoInfoExtra = {'signatureTimestamp': 20068, 'visitorData': ''};
 		var ytVideoInfoHeaders;
-		function ytGetVideos(api, client, embed) {
-			if (api) {
+		function ytGetVideos(client) {
+			if (client) {
 				ytVideoInfoData['context']['client'] = ytVideoInfoClients[client];
-				if (embed) {
-					ytVideoInfoData['context']['client']['clientScreen'] = 'EMBED';
+				if (client.indexOf('EMBEDDED') != -1) {
 					ytVideoInfoData['context']['thirdParty'] = {};
 					ytVideoInfoData['context']['thirdParty']['embedUrl'] = 'https://www.youtube.com';
 				}
@@ -945,12 +948,15 @@ function SaveTube() {
 		}
 
 		/* Get Videos */
-		ytGetVideos(true, 'TV', false);
+		ytGetVideos('TV');
 		if (!ytVideosContent['formats']) {
-			ytGetVideos(true, 'MWEB', false);
+			ytGetVideos('MWEB');
 		}
 		if (!ytVideosContent['formats']) {
-			ytGetVideos(true, 'TV_EMBEDDED', true);
+			ytGetVideos('WEB_EMBEDDED');
+		}
+		if (!ytVideosContent['formats']) {
+			ytGetVideos('TV_EMBEDDED');
 		}
 		if (ytVideosContent['formats']) {
 			var ytVideoFormats = {
@@ -1054,13 +1060,13 @@ function SaveTube() {
 				}
 				/* HLS */
 				if (!ytVideosContentHLS) {
-					ytGetVideos(true, 'IOS', false);
+					ytGetVideos('IOS');
 				}
 				if (ytVideosContentHLS) {
 					ytVideoList["Multi Definition M3U8"] = ytVideosContentHLS;
 				}
 				ytVideosContentHLS = '';
-				ytGetVideos(true, 'WEB_SAFARI', false);
+				ytGetVideos('WEB_SAFARI');
 				if (ytVideosContentHLS) {
 					var ytHLSFormats = {
 						'92': 'Very Low Definition M3U8',
@@ -1093,13 +1099,13 @@ function SaveTube() {
 		else {
 			/* HLS */
 			if (!ytVideosContentHLS) {
-				ytGetVideos(true, 'IOS', false);
+				ytGetVideos('IOS');
 			}
 			if (ytVideosContentHLS) {
 				ytVideoList["Multi Definition M3U8"] = ytVideosContentHLS;
 				ytDefaultVideo = 'Multi Definition M3U8';
 				ytVideosContentHLS = '';
-				ytGetVideos(true, 'WEB_SAFARI', false);
+				ytGetVideos('WEB_SAFARI');
 				if (ytVideosContentHLS) {
 					var ytHLSFormats = {
 						'92': 'Very Low Definition M3U8',
@@ -1126,7 +1132,9 @@ function SaveTube() {
 				ytCreateSaver();
 			}
 			else {
-				ytCreateSaver({'warnMess': '!content'});
+				if (!getMyContent(page.url, /"playabilityStatus":\{"status":"(LOGIN_REQUIRED)"/)) {
+					ytCreateSaver({'warnMess': '!content'});
+				}
 			}
 		}
 
