@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2025.07.09
+// @version         2025.09.24
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -783,6 +783,7 @@ function SaveTube() {
 				}
 				if (ytScriptUrl && ytScriptUrl.indexOf('//') == -1) {
 					ytScriptUrl = page.win.location.protocol + '//' + page.win.location.hostname + ytScriptUrl;
+					ytScriptUrl = ytScriptUrl.replace(/\/player\/.*?\//, '\/player/0004de42\/');
 				}
 				if (!ytScriptUrl) {
 					showMyMessage('other', 'Couldn\'t get the script link. Please report it <a href="' + contact + '" style="color:#00892C">here</a>.');
