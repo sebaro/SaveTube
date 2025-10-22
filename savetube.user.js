@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2025.09.24
+// @version         2025.10.15
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -211,10 +211,16 @@ function cleanMyContent(content, unesc, extra) {
 
 function parseMyContent(content, pattern) {
 	var parse, response;
-	content = content.replace(/(\r\n|\n|\r)/gm, '');
 	parse = content.match(pattern);
 	if (parse) {
 		response = (/g$/.test(pattern)) ? parse : parse[1];
+	}
+	if (!response) {
+		content = content.replace(/(\r\n|\n|\r)/gm, '');
+		parse = content.match(pattern);
+		if (parse) {
+			response = (/g$/.test(pattern)) ? parse : parse[1];
+		}
 	}
 	return response;
 }
@@ -783,7 +789,7 @@ function SaveTube() {
 				}
 				if (ytScriptUrl && ytScriptUrl.indexOf('//') == -1) {
 					ytScriptUrl = page.win.location.protocol + '//' + page.win.location.hostname + ytScriptUrl;
-					ytScriptUrl = ytScriptUrl.replace(/\/player\/.*?\//, '\/player/0004de42\/');
+					//ytScriptUrl = ytScriptUrl.replace(/\/player\/.*?\//, '\/player/0004de42\/');
 				}
 				if (!ytScriptUrl) {
 					showMyMessage('other', 'Couldn\'t get the script link. Please report it <a href="' + contact + '" style="color:#00892C">here</a>.');
@@ -791,45 +797,20 @@ function SaveTube() {
 			}
 		}
 
-		/* Parameter Unscrambler */
 		var ytUnscrambleParam = {};
 		function ytGetUnscrambleParamFunc() {
 			ytGetScriptUrl();
-			var ytMainFuncName, ytMainFuncBody, ytExtraFuncName, ytExtraFuncBody;
-			/* s */
-			ytMainFuncName = getMyContent(ytScriptUrl, /[\w$]+&&\([\w$]+=([\w$]+)\(decodeURIComponent/);
-			if (ytMainFuncName) {
-				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/g, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
-				if (ytMainFuncBody) {
-					ytExtraFuncName = parseMyContent(ytMainFuncBody, /;([\w$]+)[\.\[]/);
-					if (ytExtraFuncName) {
-						ytExtraFuncBody = getMyContent(ytScriptUrl, new RegExp('var\\s+' + ytExtraFuncName.replace(/\$/g, '\\$') + '=\\s*\\{(.*?)\\};'));
-						if (ytExtraFuncBody) {
-							ytMainFuncBody = 'var ' + ytExtraFuncName + '={' + ytExtraFuncBody + '};' + ytMainFuncBody;
-							ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?[\)\]]),[\w$]/);
-							if (ytExtraFuncBody) {
-								ytMainFuncBody = 'try {' + ytExtraFuncBody + ';' + ytMainFuncBody + '} catch(e) {return null}';
-								ytUnscrambleParam['s'] = new Function(ytMainFuncBody.replace(/.*;return\s+(\w).*/, '$1'), ytMainFuncBody);
-							}
-						}
-					}
-				}
+			var ytScriptFunc = getMyContent(ytScriptUrl, /('use strict'[\S\s]*;)\}/);
+			var ytUnscrambleSFuncName = getMyContent(ytScriptUrl, /[\w$]+&&\([\w$]+=([\w$]+)\([^\(]*?decodeURIComponent\(/);
+			var ytUnscrambleSFuncArgm = parseInt(getMyContent(ytScriptUrl, /[\w$]+&&\([\w$]+=[\w$]+\(([^\(]*?)decodeURIComponent\(/));
+			var ytUnscrambleNFuncName = getMyContent(ytScriptUrl, /(?:^|};)var\s+[\w$]+=\[([\w$]+)\];/);
+			var ytUnscrambleReturn = 'return {' + ytUnscrambleSFuncName + ':' + ytUnscrambleSFuncName + ', ' + ytUnscrambleNFuncName + ':' + ytUnscrambleNFuncName +'};';
+			var ytUnscrambleFunc = new Function('g', ytScriptFunc + ytUnscrambleReturn)([]);
+			ytUnscrambleParam['s'] = function(s) {
+				return (ytUnscrambleSFuncArgm) ? ytUnscrambleFunc[ytUnscrambleSFuncName](ytUnscrambleSFuncArgm, s) : ytUnscrambleFunc[ytUnscrambleSFuncName](s);
 			}
-			/* n */
-			ytMainFuncName = getMyContent(ytScriptUrl, /(?:^|;)([\w$]+)=function\([\w$]+\)\s*\{var\s+\w=\w\.split\(\w\.slice/);
-			if (!ytMainFuncName) {
-				ytMainFuncName = getMyContent(ytScriptUrl, /(?:^|;)([\w$]+)=function\([\w$]+\)\s*\{var\s+\w=\w\[\w\[\d+\]\]\(\w\[\d+\]\)/);
-			}
-			if (ytMainFuncName) {
-				ytMainFuncBody = getMyContent(ytScriptUrl, new RegExp('(?:^|;)' + ytMainFuncName.replace(/\$/g, '\\$') + '\\s*=\\s*function\\s*' + '\\s*\\(\\w+\\)\\s*\\{(.*?\\))\\};'));
-				if (ytMainFuncBody) {
-					ytMainFuncBody = ytMainFuncBody.replace(/(\d+)?--(\d+)/, '$1- -$2').replace(/if\(typeof.*?;/, '');
-					ytExtraFuncBody = getMyContent(ytScriptUrl, /use strict';(var.*?[\)\]]),[\w$]/);
-					if (ytExtraFuncBody) {
-						ytMainFuncBody = 'try {' + ytExtraFuncBody + ';' + ytMainFuncBody + '} catch(e) {return null}';
-						ytUnscrambleParam['n'] = new Function(ytMainFuncBody.replace(/.*\+(\w)\}return.*/, '$1'), ytMainFuncBody);
-					}
-				}
+			ytUnscrambleParam['n'] = function(n) {
+				return ytUnscrambleFunc[ytUnscrambleNFuncName](n);
 			}
 		}
 
@@ -840,11 +821,11 @@ function SaveTube() {
 		var ytVideoInfoClients = {
 			'WEB_EMBEDDED': {
 				'clientName': 'WEB_EMBEDDED_PLAYER',
-				'clientVersion': '1.20250310.01.00'
+				'clientVersion': '1.20250923.21.00'
 			},
 			'WEB_SAFARI': {
 				'clientName': 'WEB',
-				'clientVersion': '2.20250312.04.00',
+				'clientVersion': '2.20250925.01.00',
 				'userAgent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15,gzip(gfe)'
 			},
 			'IOS': {
@@ -854,13 +835,13 @@ function SaveTube() {
 			},
 			'MWEB': {
 				'clientName': 'MWEB',
-				'clientVersion': '2.20250311.03.00',
+				'clientVersion': '2.20250925.01.00',
 				'userAgent': 'Mozilla/5.0 (iPad; CPU OS 16_7_10 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1,gzip(gfe)'
 			},
 			'TV': {
 				'clientName': 'TVHTML5',
-				'clientVersion': '7.20250312.16.00',
-				'userAgent': 'Mozilla/5.0 (ChromiumStylePlatform) Cobalt/Version'
+				'clientVersion': '7.20250923.13.00',
+				'userAgent': 'Mozilla/5.0 (ChromiumStylePlatform) Cobalt/25.lts.30.1034943-gold (unlike Gecko), Unknown_TV_Unknown_0/Unknown (Unknown, Unknown)'
 			},
 			'TV_EMBEDDED': {
 				'clientName': 'TVHTML5_SIMPLY_EMBEDDED_PLAYER',
