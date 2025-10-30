@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2025.10.15
+// @version         2025.10.30
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -797,6 +797,7 @@ function SaveTube() {
 			}
 		}
 
+		/* Parameter Unscrambler */
 		var ytUnscrambleParam = {};
 		function ytGetUnscrambleParamFunc() {
 			ytGetScriptUrl();
@@ -805,12 +806,21 @@ function SaveTube() {
 			var ytUnscrambleSFuncArgm = parseInt(getMyContent(ytScriptUrl, /[\w$]+&&\([\w$]+=[\w$]+\(([^\(]*?)decodeURIComponent\(/));
 			var ytUnscrambleNFuncName = getMyContent(ytScriptUrl, /(?:^|};)var\s+[\w$]+=\[([\w$]+)\];/);
 			var ytUnscrambleReturn = 'return {' + ytUnscrambleSFuncName + ':' + ytUnscrambleSFuncName + ', ' + ytUnscrambleNFuncName + ':' + ytUnscrambleNFuncName +'};';
-			var ytUnscrambleFunc = new Function('g', ytScriptFunc + ytUnscrambleReturn)([]);
-			ytUnscrambleParam['s'] = function(s) {
-				return (ytUnscrambleSFuncArgm) ? ytUnscrambleFunc[ytUnscrambleSFuncName](ytUnscrambleSFuncArgm, s) : ytUnscrambleFunc[ytUnscrambleSFuncName](s);
+			var ytUnscrambleFunc;
+			try {
+				ytUnscrambleFunc = new Function('g', ytScriptFunc + ytUnscrambleReturn)([]);
 			}
-			ytUnscrambleParam['n'] = function(n) {
-				return ytUnscrambleFunc[ytUnscrambleNFuncName](n);
+			catch(e) {
+				ytScriptFunc = getMyContent(ytScriptUrl, /'use strict';([\S\s]*;)\}/);
+				ytUnscrambleFunc = new Function('g', ytScriptFunc + ytUnscrambleReturn)([]);
+			}
+			if (ytUnscrambleFunc) {
+				ytUnscrambleParam['s'] = function(s) {
+					return (ytUnscrambleSFuncArgm) ? ytUnscrambleFunc[ytUnscrambleSFuncName](ytUnscrambleSFuncArgm, s) : ytUnscrambleFunc[ytUnscrambleSFuncName](s);
+				}
+				ytUnscrambleParam['n'] = function(n) {
+					return ytUnscrambleFunc[ytUnscrambleNFuncName](n);
+				}
 			}
 		}
 
@@ -1208,11 +1218,23 @@ function SaveTube() {
 
 		/* Get Content Source */
 		var viVideoSource = getMyContent(page.url, /config_url":"(.*?)"/);
-		if (viVideoSource) viVideoSource = cleanMyContent(viVideoSource, false);
+		if (viVideoSource) {
+			viVideoSource = cleanMyContent(viVideoSource, false);
+		}
 		else {
-			viVideoSource = getMyContent(page.url, /data-config-url="(.*?)"/);
-			if (viVideoSource) viVideoSource = viVideoSource.replace(/&amp;/g, '&');
-			else viVideoSource = getMyContent(page.url, /embedUrl":"(.*?)"/);
+			viVideoSource = getMyContent(page.url, /data-config-url="(.*?)"'/);
+			if (viVideoSource) {
+				viVideoSource = viVideoSource.replace(/&amp;/g, '&');
+			}
+			else {
+				viVideoSource = getMyContent(page.url, /embedUrl":"(.*?)"/);
+				if (viVideoSource) {
+					viVideoSource = getMyContent(viVideoSource, /config_refresh_url":"(.*?)"/);
+					if (viVideoSource) {
+						viVideoSource = cleanMyContent(viVideoSource, false);
+					}
+				}
+			}
 		}
 
 		/* Get Videos Content */
@@ -1225,7 +1247,12 @@ function SaveTube() {
 					viVideosContent = viVideosContent['request']['files'];
 				}
 				else {
-					viVideosContent = '';
+					if (viVideosContent['files']) {
+						viVideosContent = viVideosContent['files'];
+					}
+					else {
+						viVideosContent = '';
+					}
 				}
 			}
 			catch(e) {
@@ -1239,7 +1266,12 @@ function SaveTube() {
 						viVideosContent = viVideosContent['request']['files'];
 					}
 					else {
-						viVideosContent = '';
+						if (viVideosContent['files']) {
+							viVideosContent = viVideosContent['files'];
+						}
+						else {
+							viVideosContent = '';
+						}
 					}
 				}
 				catch(e) {
@@ -1377,7 +1409,7 @@ function SaveTube() {
 		if (imdbVideoTitle) imdbVideoTitle = cleanMyContent(imdbVideoTitle, false, true);
 
 		/* Get Videos Content */
-		var imdbVideosContent = getMyContent(page.url, /"playbackURLs":(\[.*?\])/);
+		var imdbVideosContent = getMyContent(page.url, /"playbackURLs":(\[.*?"PlaybackURL"\}\])/);
 		try {
 			imdbVideosContent = JSON.parse(imdbVideosContent);
 		}
