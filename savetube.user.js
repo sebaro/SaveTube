@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            SaveTube
-// @version         2026.06.01
+// @version         2026.08.18
 // @description     Download videos from video sharing web sites.
 // @author          sebaro
 // @namespace       http://sebaro.pro/savetube
@@ -823,26 +823,34 @@ function SaveTube() {
 			}
 			catch(e) {
 				ytScriptFunc = ytScriptFunc.replace('\'use strict\';', '');
-				ytUnscrambleFunc = new Function('g', ytScriptFunc + 'return {' + ytUnscrambleFuncReturn.join(',') + '};')([]);
+				try {
+					ytUnscrambleFunc = new Function('g', ytScriptFunc + 'return {' + ytUnscrambleFuncReturn.join(',') + '};')([]);
+				}
+				catch(e) {
+				}
 			}
-			ytUnscrambleParam['s'] = function(s) {
-				if (ytUnscrambleFunc.unscrambleS) {
-					try {
-						return ytUnscrambleFunc.unscrambleS(s);
-					}
-					catch(e) {
-						return false;
+			if (ytUnscrambleFunc) {
+				ytUnscrambleParam['s'] = function(s) {
+					if (ytUnscrambleFunc.unscrambleS) {
+						try {
+							return ytUnscrambleFunc.unscrambleS(s);
+						}
+						catch(e) {
+							return false;
+						}
 					}
 				}
 			}
-			ytUnscrambleParam['n'] = function(n) {
-				if (ytUnscrambleFunc.unscrambleN) {
-					try {
-						n = 'https://www.googlevideo.com/n/' + n + '/videoplayback?n=' + n;
-						return ytUnscrambleFunc.unscrambleN(n);
-					}
-					catch(e) {
-						return false;
+			if (ytUnscrambleFunc) {
+				ytUnscrambleParam['n'] = function(n) {
+					if (ytUnscrambleFunc.unscrambleN) {
+						try {
+							n = 'https://www.googlevideo.com/n/' + n + '/videoplayback?n=' + n;
+							return ytUnscrambleFunc.unscrambleN(n);
+						}
+						catch(e) {
+							return false;
+						}
 					}
 				}
 			}
@@ -853,43 +861,39 @@ function SaveTube() {
 		var ytVideosContentHLS;
 		var ytVideoInfoUrl = page.win.location.protocol + '//' + page.win.location.hostname + '/youtubei/v1/player?prettyPrint=false';
 		var ytVideoInfoClients = {
-			'ANDROID_VR': {
-				'clientName': 'ANDROID_VR',
-				'clientVersion': '1.65.10'
+			'ANDROID': {
+				'clientName': 'ANDROID',
+				'clientVersion': '21.26.364'
+			},
+			'VISIONOS': {
+				'clientName': 'VISIONOS',
+				'clientVersion': '1.02'
 			},
 			'TV': {
 				'clientName': 'TVHTML5',
-				'clientVersion': '7.20260114.12.00'
-			},
-			'ANDROID': {
-				'clientName': 'ANDROID',
-				'clientVersion': '21.02.35'
+				'clientVersion': '7.20260707.07.00'
 			},
 			'TV_SIMPLY': {
 				'clientName': 'TVHTML5_SIMPLY',
 				'clientVersion': '1.0'
 			},
-			'WEB': {
-				'clientName': 'WEB',
-				'clientVersion': '2.20260114.08.00'
-			},
 			'MWEB': {
 				'clientName': 'MWEB',
-				'clientVersion': '2.20250925.01.00'
+				'clientVersion': '2.20260708.05.00'
 			},
 			'WEB_SAFARI': {
 				'clientName': 'WEB',
-				'clientVersion': '2.20260114.08.00',
+				'clientVersion': '2.20260708.00.00',
 				'userAgent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15,gzip(gfe)'
 			},
 			'IOS': {
 				'clientName': 'IOS',
-				'clientVersion': '21.02.3'
+				'clientVersion': '21.26.4'
 			}
 		};
 		var ytVideoInfoClientsExtra = {
-			'unscrambled': {'ANDROID_VR': ['formats', 'adaptiveFormats'], 'ANDROID': ['formats']},
-			'unavailable': {'ANDROID': ['adaptiveFormats'], 'MWEB': ['adaptiveFormats'], 'TV_SIMPLY': ['adaptiveFormats']}
+			'unscrambled': {'ANDROID': ['formats'], 'VISIONOS': ['adaptiveFormats']},
+			'unavailable': {'ANDROID': ['adaptiveFormats'], 'VISIONOS': ['formats'], 'TV': ['adaptiveFormats'], 'TV_SIMPLY': ['adaptiveFormats'], 'MWEB': ['adaptiveFormats'], 'IOS': ['formats']}
 		};
 		var ytVideoInfoData = {'videoId': ytVideoId, 'context': {'client': null}, 'playbackContext': {'contentPlaybackContext': {'html5Preference': 'HTML5_PREF_WANTS'}}};
 		var ytVideoInfoExtra = {'signatureTimestamp': 20515, 'visitorData': ''};
@@ -1075,14 +1079,11 @@ function SaveTube() {
 			}
 		}
 		/* HLS */
-		if (!ytVideosContentHLS) {
-			ytGetVideos('IOS');
-			if (ytVideosContentHLS) {
-				ytVideoList["Multi Definition M3U8"] = ytVideosContentHLS;
-				if (!ytVideoFound) {
-					ytDefaultVideo = 'Multi Definition M3U8';
-					ytVideoFound = true;
-				}
+		if (ytVideosContentHLS) {
+			ytVideoList["Multi Definition M3U8"] = ytVideosContentHLS;
+			if (!ytVideoFound) {
+				ytDefaultVideo = 'Multi Definition M3U8';
+				ytVideoFound = true;
 			}
 		}
 		ytGetVideos('WEB_SAFARI');
